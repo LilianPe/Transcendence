@@ -562,64 +562,28 @@ video {
   margin: 1rem;
 }
 
-.mb-5 {
-  margin-bottom: 1.25rem;
-}
-
-.mt-4 {
-  margin-top: 1rem;
-}
-
-.-mt-72 {
-  margin-top: -18rem;
+.mb-72 {
+  margin-bottom: 18rem;
 }
 
 .mt-72 {
   margin-top: 18rem;
 }
 
-.mb-72 {
-  margin-bottom: 18rem;
-}
-
 .flex {
   display: flex;
-}
-
-.h-\[150px\] {
-  height: 150px;
-}
-
-.h-\[300px\] {
-  height: 300px;
-}
-
-.h-\[600px\] {
-  height: 600px;
 }
 
 .h-\[800px\] {
   height: 800px;
 }
 
-.w-full {
-  width: 100%;
-}
-
-.w-\[150px\] {
-  width: 150px;
-}
-
-.w-\[300px\] {
-  width: 300px;
-}
-
-.w-\[600px\] {
-  width: 600px;
-}
-
 .w-\[800px\] {
   width: 800px;
+}
+
+.w-full {
+  width: 100%;
 }
 
 .flex-col {
