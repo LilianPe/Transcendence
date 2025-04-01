@@ -35,6 +35,7 @@ L’image installe les dépendances, compile le TypeScript et lance :
 npm run watch & npm run dev
 
 🚀 Lancer VS Code dans le conteneur
+    Modifie le .devcontainer.json a la racine
     Ouvre VS Code dans le dossier transcendence/
     Appuie sur F1 → tape :
     Dev Containers: Reopen in Container
