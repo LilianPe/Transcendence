@@ -43,6 +43,7 @@ For the best experience, use VS Code with the Dev Containers extension:
 ### ▶️ Run inside container (recommended)
 
     Open the project in VS Code
+    Modify the  .devcontainer.json at the root of the project
     Press F1 → Dev Containers: Reopen in Container
     Wait for the container to build and launch
 
