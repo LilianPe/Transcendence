@@ -1,15 +1,40 @@
-import Fastify from 'fastify';
+import fastifyStatic from "@fastify/static";
+import fastifyView from "@fastify/view";
+import path from "path";
+import { fileURLToPath } from "url"; // Pour remplacer __dirname
+// @ts-ignore
+import ejs from "ejs";
+import fastify from "fastify";
 
-const app = Fastify();
+// Remplace __dirname avec une version compatible ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.get('/', async (request, reply) => {
-  return { hello: 'world' };
+const app = fastify();
+
+app.register(fastifyStatic, {
+  root: path.join(__dirname, "../dist"), // Chemin vers le dossier dist
+  prefix: "/dist/", // Préfixe pour accéder aux fichiers
 });
 
-app.listen({ port: 5000, host: '0.0.0.0' }, err => {
-  if (err) {
-    app.log.error(err);
+app.register(fastifyView, {
+  engine: {
+    ejs,
+  },
+});
+
+app.get("/", (req, res) => {
+  res.view("src/templates/index.ejs");
+});
+
+const start = async () => {
+  try {
+    await app.listen({ port: 3000 });
+    console.log("Server running on http://localhost:3000");
+  } catch (err) {
+    console.error(err);
     process.exit(1);
   }
-  console.log('🚀 Backend running on http://localhost:5000');
-});
+};
+
+start();
