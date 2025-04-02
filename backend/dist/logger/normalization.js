@@ -10,4 +10,6 @@ export var LogType;
 (function (LogType) {
     LogType["REQUEST"] = "request";
     LogType["RESPONSE"] = "response";
+    LogType["DEVELOPMENT"] = "development";
+    LogType["DEPLOYMENT"] = "deployment";
 })(LogType || (LogType = {}));

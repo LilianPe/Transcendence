@@ -13,29 +13,29 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.register(fastifyStatic, {
-  root: path.join(__dirname, "../dist"), // Chemin vers le dossier dist
-  prefix: "/dist/", // Préfixe pour accéder aux fichiers
+    root: path.join(__dirname, "../dist"), // Chemin vers le dossier dist
+    prefix: "/dist/", // Préfixe pour accéder aux fichiers
 });
 
 app.register(fastifyView, {
-  engine: {
-    ejs,
-  },
+    engine: {
+        ejs,
+    },
 });
 
 app.get("/", (req, res) => {
-  console.log("Serving index.ejs");
-  res.view("src/templates/index.ejs");
+    console.log("Serving index.ejs");
+    res.view("src/templates/index.ejs");
 });
 
 const start = async () => {
-  try {
-    await app.listen({ port: 3000, host: "0.0.0.0" });
-    console.log("Web server running on http://localhost:3000");
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
+    try {
+        await app.listen({ port: 3000, host: "0.0.0.0" });
+        console.log("Web server running on http://localhost:3000");
+    } catch (err) {
+        console.error(err);
+        process.exit(1);
+    }
 };
 
 start();
