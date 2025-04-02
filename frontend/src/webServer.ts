@@ -7,10 +7,19 @@ import ejs from "ejs";
 import fastify from "fastify";
 // Partie serveur
 
-const app = fastify();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// certificat ssl
+
+// const options = {
+//     https: {
+//         key: fs.readFileSync(path.join(__dirname, "../certs/server.key")),
+//         cert: fs.readFileSync(path.join(__dirname, "../certs/server.cert")),
+//     },
+// };
+
+const app = fastify();
 
 app.register(fastifyStatic, {
     root: path.join(__dirname, "../dist"), // Chemin vers le dossier dist
@@ -31,7 +40,7 @@ app.get("/", (req, res) => {
 const start = async () => {
     try {
         await app.listen({ port: 3000, host: "0.0.0.0" });
-        console.log("Web server running on http://localhost:3000");
+        console.log(" HTTPS Web server running on http://localhost:3000");
     } catch (err) {
         console.error(err);
         process.exit(1);
