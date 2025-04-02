@@ -1,11 +1,16 @@
 import fastify from "fastify";
-import { logToELK } from "./logger.js";
+import { logToELK } from "./logger/logToElk.js";
+import { LogLevel, LogType } from "././logger/normalization.js";
+import { registerHooks } from "./logger/hook.js";
 const app = fastify();
+registerHooks(app);
 app.get("/", async (req, reply) => {
     logToELK({
-        message: "GET / received",
-        route: "/",
-        method: "GET"
+        level: LogLevel.INFO,
+        message: "Hello",
+        service: "backend",
+        type: LogType.REQUEST,
+        timestamp: new Date().toISOString()
     });
     return { hello: "world" };
 });
