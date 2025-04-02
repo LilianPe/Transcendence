@@ -10,4 +10,8 @@ export function registerHooks(app) {
         const entry = createLogEntry(LogLevel.INFO, LogType.RESPONSE, `${req.method} ${req.url} ${req.body ? JSON.stringify(req.body) : ""}`);
         logToELK(entry);
     });
+    app.addHook("onError", async (req, reply, error) => {
+        const entry = createLogEntry(LogLevel.ERROR, LogType.RESPONSE, `${req.method} ${req.url} - ${error.message}`);
+        logToELK(entry);
+    });
 }

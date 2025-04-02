@@ -21,4 +21,13 @@ export function registerHooks(app: FastifyInstance) {
         );
         logToELK(entry);
     });
+
+    app.addHook("onError", async (req, reply, error) => {
+        const entry: LogEntry = createLogEntry(
+          LogLevel.ERROR,
+          LogType.RESPONSE,
+          `${req.method} ${req.url} - ${error.message}`
+        );
+        logToELK(entry);
+      });
 }
