@@ -9,12 +9,14 @@
     "dev": "concurrently \"tsc --watch\" \"node --watch dist/server.js\""
   },
   "dependencies": {
-    "fastify": "^4.0.0"
+    "fastify": "^4.0.0",
+    "ws": "^8.18.1"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
+    "@types/node": "^20.10.5",
+    "@types/ws": "^8.18.1",
     "concurrently": "^9.1.2",
     "nodemon": "^3.0.2",
-    "@types/node": "^20.10.5"
+    "typescript": "^5.2.2"
   }
 }
