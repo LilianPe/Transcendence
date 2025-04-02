@@ -1,15 +1,15 @@
 // A mettre apres dans le frontend
 
 interface GameState {
-  ballX: number;
-  ballY: number;
+    ballX: number;
+    ballY: number;
 }
 
 const ws = new WebSocket("ws://localhost:4500/ws");
 
 ws.onopen = () => {
-  console.log("WebSocket connection opened");
-  ws.send("Hello from the client!");
+    console.log("WebSocket connection opened");
+    ws.send("Hello from the client!");
 };
 
 // let canvas: HTMLCanvasElement = document.querySelector(
