@@ -12,17 +12,35 @@ export function registerPingPongEndPoint(app: FastifyInstance)
             console.log("Un client tente de se connecter...");
 
             socket.on("message", (message: Buffer | string) => {
-                console.log("Message reçu du client: ", message.toString());
+                logToELK({
+                    level: LogLevel.INFO,
+                    message: message.toString(),
+                    service: "backend",
+                    type: LogType.WEBSOCKET,
+                    timestamp: new Date().toISOString(),
+                });
             });
     
             socket.on("error", (err: Buffer) => {
-                console.error("Erreur WebSocket:", err);
+                logToELK({
+                    level: LogLevel.ERROR,
+                    message: err.toString(),
+                    service: "backend",
+                    type: LogType.WEBSOCKET,
+                    timestamp: new Date().toISOString(),
+                });
             });
     
             mainGame(socket);
 
             socket.on("close", (code: number, reason: Buffer) => {
-                console.log("Client déconnecté, code:", code, "raison:", reason.toString());
+                logToELK({
+                    level: LogLevel.INFO,
+                    message: reason.toString(),
+                    service: "backend",
+                    type: LogType.WEBSOCKET,
+                    timestamp: new Date().toISOString(),
+                });
                 clearInterval(interval);
             });
         });
