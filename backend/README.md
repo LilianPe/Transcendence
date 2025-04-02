@@ -4,11 +4,31 @@ Backend Node.js basé sur **Fastify** et **TypeScript**, avec **Docker** et **ho
 
 ---
 
+## 🚀 Getting Started
+
+### 🐳 Requirements
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) (optional but recommended)
+
+---
+
+### 🛠️ Quick Start
+
+#### 1. Clone the repository
+
+    git clone <repo-url>
+    cd transcendence
+
+
 ## 🚀 Lancer le backend
 
 Depuis la racine du projet (transcendence) :
 
-    docker compose up --build
+    make build
+    make start
 
 📍 Le backend sera disponible sur : http://localhost:5000
 
@@ -21,21 +41,9 @@ Le backend est automatiquement recompilé à chaque modification :
 
 Tu peux coder tranquillement dans backend/src/, et les modifications seront prises en compte sans redémarrer manuellement.
 
-## 📂 Structure
+## 🧠 VS Code + Dev Container
 
-    backend/
-    ├── src/
-    │   └── server.ts         # Point d'entrée Fastify
-    ├── dist/                 # Fichiers compilés automatiquement
-    ├── package.json          # Dépendances + scripts
-    ├── tsconfig.json         # Config TypeScript
-    ├── Dockerfile            # Image Docker
-
-## 🐳 Dockerfile
-
-L’image installe les dépendances, compile le TypeScript et lance :
-
-    npm run watch & npm run dev
+For the best experience, use VS Code with the Dev Containers extension:
 
 ## 🚀 Lancer VS Code dans le conteneur
 
@@ -45,8 +53,16 @@ L’image installe les dépendances, compile le TypeScript et lance :
     Dev Containers: Reopen in Container
     VS Code va build & ouvrir directement dans le conteneur backend
 
-## ✅ Scripts disponibles
-    Script	Description
-    npm run build	Compile le TypeScript dans dist/
-    npm run watch	Watcher tsc -w pour auto-rebuild
-    npm run dev	    Démarre dist/server.js avec Nodemon
+### ✅ Leave the Dev Container
+    Click the green bottom-left corner in VS Code
+    (It shows: >< Dev Container: Transcendence Frontend)
+
+    Select: "Close Remote Connection"
+    This will:
+    Close the container session
+    Return you to your host VS Code (outside Docker)
+
+### Get logs
+
+    docker compose logs -f <service>
+    exemple: docker compose logs -f backend frontend <--- will display the log of back and front env.

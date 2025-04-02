@@ -24,7 +24,8 @@ A clean development environment using **Vite**, **TypeScript**, **Tailwind CSS**
 
 #### 2. Launch the app
 
-    docker compose up --build
+    make build
+    make start
     Open your browser: http://localhost:3000
 
     Edit any file in frontend/src/ or frontend/index.html — Vite will reload instantly.
@@ -61,18 +62,7 @@ For the best experience, use VS Code with the Dev Containers extension:
     Close the container session
     Return you to your host VS Code (outside Docker)
 
-### 📂 Project Structure
+### Get logs
 
-    transcendence/
-    ├── .devcontainer/         # VS Code container config
-    ├── docker-compose.yml     # Dev environment
-    └── frontend/              # Frontend app
-        ├── Dockerfile
-        ├── index.html
-        ├── package.json
-        ├── postcss.config.mjs
-        ├── tailwind.config.js
-        ├── tsconfig.json
-        └── src/
-            ├── main.ts
-            └── style.css
+    docker compose logs -f <service>
+    exemple: docker compose logs -f backend frontend <--- will display the log of back and front env.
