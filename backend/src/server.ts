@@ -1,12 +1,51 @@
-import fastify from "fastify";
+import fastify, { FastifyInstance } from "fastify";
 import { LogLevel, LogType } from "././logger/normalization.js";
 import { registerHooks } from "./logger/hook.js";
 import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
-import { WebSocket, WebSocketServer } from "ws";
+import fastifyWebsocket, { FastifyRequest, SocketStream } from "@fastify/websocket";
 import { Player, ServerSidePong } from "./serverSidePong.js";
 
-const app = fastify();
+const app: FastifyInstance = fastify();
+
+// Fastify websocket
+
+app.register(fastifyWebsocket);
+app.register(async function (fastify) {
+    fastify.get("/ws", { websocket: true }, (socket: SocketStream, req: FastifyRequest) => {
+        console.log("Un client tente de se connecter...");
+
+        // debug websocket
+        socket.on("message", (message: Buffer | string) => {
+            console.log("Message reçu du client: ", message.toString());
+            // socket.send("Hello from server!");
+        });
+
+        // Gérer les erreurs
+        socket.on("error", (err: Buffer) => {
+            console.error("Erreur WebSocket:", err);
+        });
+
+        // Envoi des données du jeu au client
+
+        console.log("connection");
+        const interval = setInterval(() => {
+            const state = {
+                ballX: game.getGame().getBall().getX(),
+                ballY: game.getGame().getBall().getY(),
+            };
+            socket.send(JSON.stringify(state));
+        }, 1000 / 60);
+
+        // Gérer la fermeture de la connexion WebSocket
+        socket.on("close", (code: number, reason: Buffer) => {
+            console.log("Client déconnecté, code:", code, "raison:", reason.toString());
+            clearInterval(interval);
+        });
+    });
+});
+
+// ELK
 
 registerHooks(app);
 
@@ -33,29 +72,12 @@ const start = async () => {
 
 const game = new ServerSidePong();
 
-const wss = new WebSocketServer({ port: 4501 });
+start();
 
 interface GameState {
     ballX: number;
     ballY: number;
 }
-
-wss.on("connection", (ws: WebSocket) => {
-    console.log("Client connected.");
-    const interval = setInterval(() => {
-        if (ws.readyState === ws.OPEN) {
-            const state = {
-                ballX: game.getGame().getBall().getX(),
-                ballY: game.getGame().getBall().getY(),
-            };
-            ws.send(JSON.stringify(state));
-        }
-    }, 1000 / 60);
-    ws.on("close", (code: number, reason: Buffer) => {
-        console.log("Client disconnected, code:", code, "reason:", reason.toString());
-        clearInterval(interval);
-    });
-});
 
 function startGame(): void {
     game.launchGame(new Player("Player1"), new Player("Player2"));
@@ -63,5 +85,3 @@ function startGame(): void {
 }
 
 startGame();
-
-start();
