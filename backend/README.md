@@ -65,4 +65,11 @@ For the best experience, use VS Code with the Dev Containers extension:
 ### Get logs
 
     docker compose logs -f <service>
-    exemple: docker compose logs -f backend frontend <--- will display the log of back and front env.
+    example: docker compose logs -f backend frontend <--- will display the log of back and front env.
+
+### Get an interactive shell
+
+    docker ps
+    docker exec -it <docker name> sh
+    
+    then for example: npm run install
