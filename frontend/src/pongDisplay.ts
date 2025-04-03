@@ -1,14 +1,17 @@
 // A mettre apres dans le frontend
 
-interface GameState {
+export interface GameState {
     ballX: number;
     ballY: number;
+    player1Y: number;
+    player2Y: number;
 }
 
 const ws = new WebSocket("ws://localhost:4500/ws");
 
 ws.onopen = () => {
     console.log("Connected to WebSocket server");
+
     ws.send("Hello from the client!");
 };
 
@@ -31,13 +34,44 @@ let canvasContext: CanvasRenderingContext2D = canvas.getContext("2d") as CanvasR
 let oldx: number;
 let oldy: number;
 
+function drawLeftPlayer(y: number): void {
+    canvasContext.fillStyle = "white";
+    canvasContext.fillRect(20, y, 10, 100);
+    console.log("Right: " + y);
+}
+
+function drawRightPlayer(y: number): void {
+    canvasContext.fillStyle = "white";
+    canvasContext.fillRect(770, y, 10, 100);
+}
+
 ws.onmessage = (event) => {
     const state: GameState = JSON.parse(event.data);
     canvasContext.fillStyle = "black";
     canvasContext.fillRect(0, 0, 800, 800);
     oldx = state.ballX;
     oldy = state.ballY;
-    console.log("x: ", oldx, "y: ", oldy);
+    drawLeftPlayer(state.player1Y);
+    drawRightPlayer(state.player2Y);
     canvasContext.fillStyle = "white";
     canvasContext.fillRect(state.ballX, state.ballY, 10, 10);
 };
+
+// handle players movements
+
+document.addEventListener("keydown", (event) => {
+    switch (event.key) {
+        case "w":
+            ws.send("LU");
+            break;
+        case "s":
+            ws.send("LD");
+            break;
+        case "j":
+            ws.send("RU");
+            break;
+        case "n":
+            ws.send("RD");
+            break;
+    }
+});
