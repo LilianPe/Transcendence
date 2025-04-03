@@ -5,7 +5,7 @@ interface GameState {
     ballY: number;
 }
 
-const ws = new WebSocket("ws://localhost:4500/ws");
+const ws = new WebSocket("ws://transcendence42.duckdns.org:4500/ws");
 
 ws.onopen = () => {
     console.log("Connected to WebSocket server");

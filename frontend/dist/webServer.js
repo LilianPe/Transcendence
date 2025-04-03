@@ -9,9 +9,13 @@ import fastify from "fastify";
 const app = fastify();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// app.register(fastifyStatic, {
+//     root: path.join(__dirname, "../dist"), // Chemin vers le dossier dist
+//     prefix: "/dist/", // Préfixe pour accéder aux fichiers
+// });
 app.register(fastifyStatic, {
-    root: path.join(__dirname, "../dist"), // Chemin vers le dossier dist
-    prefix: "/dist/", // Préfixe pour accéder aux fichiers
+    root: path.join(__dirname, "../.well-known"), // Servir les fichiers sous .well-known/acme-challenge/
+    prefix: "/.well-known/", // Préfixe pour accéder aux fichiers
 });
 app.register(fastifyView, {
     engine: {
@@ -24,8 +28,8 @@ app.get("/", (req, res) => {
 });
 const start = async () => {
     try {
-        await app.listen({ port: 3000, host: "0.0.0.0" });
-        console.log("Web server running on http://localhost:3000");
+        await app.listen({ port: 80, host: "0.0.0.0" });
+        console.log("Web server running on http://localhost:80");
     }
     catch (err) {
         console.error(err);
