@@ -5,7 +5,18 @@ import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
 import fastifyWebsocket from "@fastify/websocket";
 import { Player, ServerSidePong } from "./serverSidePong.js";
-const app = fastify();
+// import fs from "fs";
+// import path from "path";
+// import { fileURLToPath } from "url";
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+// const options = {
+//     https: {
+//         key: fs.readFileSync(path.join(__dirname, "../certs/localhost+2-key.pem")),
+//         cert: fs.readFileSync(path.join(__dirname, "../certs/localhost+2.pem")),
+//     },
+// };
+const app = fastify( /*options*/);
 // Fastify websocket
 app.register(fastifyWebsocket);
 app.register(async function (fastify) {
