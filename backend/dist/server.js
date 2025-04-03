@@ -1,6 +1,7 @@
 import fastify from "fastify";
 import { LogLevel, LogType } from "././logger/normalization.js";
 import { registerHooks } from "./logger/hook.js";
+import { createLogEntry } from "./logger/logHelper.js";
 import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
 import fastifyWebsocket from "@fastify/websocket";
@@ -21,18 +22,19 @@ const app = fastify( /*options*/);
 app.register(fastifyWebsocket);
 app.register(async function (fastify) {
     fastify.get("/ws", { websocket: true }, (socket, req) => {
+        logToELK(createLogEntry(LogLevel.INFO, LogType.REQUEST, "🔌 WS Connected from " + req.ip));
         console.log("Un client tente de se connecter...");
         // debug websocket
         socket.on("message", (message) => {
+            logToELK(createLogEntry(LogLevel.DEBUG, LogType.REQUEST, "📨 WS message: " + message.toString()));
             console.log("Message reçu du client: ", message.toString());
-            // socket.send("Hello from server!");
         });
         // Gérer les erreurs
         socket.on("error", (err) => {
+            logToELK(createLogEntry(LogLevel.ERROR, LogType.RESPONSE, "💥 WS error: " + err));
             console.error("Erreur WebSocket:", err);
         });
         // Envoi des données du jeu au client
-        console.log("connection");
         const interval = setInterval(() => {
             const state = {
                 ballX: game.getGame().getBall().getX(),
@@ -42,6 +44,7 @@ app.register(async function (fastify) {
         }, 1000 / 60);
         // Gérer la fermeture de la connexion WebSocket
         socket.on("close", (code, reason) => {
+            logToELK(createLogEntry(LogLevel.INFO, LogType.RESPONSE, "👋 WS connection closed. code:" + code + ", reason:" + reason.toString()));
             console.log("Client déconnecté, code:", code, "raison:", reason.toString());
             clearInterval(interval);
         });

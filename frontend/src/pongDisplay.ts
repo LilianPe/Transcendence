@@ -9,6 +9,7 @@ const ws = new WebSocket("ws://localhost:4500/ws");
 
 ws.onopen = () => {
     console.log("Connected to WebSocket server");
+
     ws.send("Hello from the client!");
 };
 
