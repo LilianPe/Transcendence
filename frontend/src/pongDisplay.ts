@@ -5,7 +5,7 @@ interface GameState {
     ballY: number;
 }
 // A activer quand herberge en ligne
-const ws = new WebSocket("wss://transcendence42.duckdns.org:4500/ws");
+const ws = new WebSocket("wss://transcendence-h1wf.onrender.com/ws");
 
 // A activer quand herberge en local
 // const ws = new WebSocket("wss://localhost:4500/ws");
