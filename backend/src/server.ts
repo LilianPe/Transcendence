@@ -20,7 +20,7 @@ const options = {
     },
 };
 
-const app: FastifyInstance = fastify(options);
+const app: FastifyInstance = fastify();
 
 // Fastify websocket
 

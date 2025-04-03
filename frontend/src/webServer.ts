@@ -22,7 +22,7 @@ const options = {
     },
 };
 
-const app = fastify(options);
+const app = fastify();
 
 // Pour certif ssl
 // app.register(fastifyStatic, {
