@@ -1,5 +1,8 @@
 **# Enabling HTTPS for Your Application**
 
+First, note that if your servers are running on Render for example, https is automaticly enable.
+You simply have to enable websocker secure (look at ## **3. Update WebSocket Connection**)
+
 To enable HTTPS and ensure secure connections, follow these steps to generate an SSL certificate using `mkcert` and update your configuration files accordingly.
 
 ## **1. Generate SSL Certificates**
