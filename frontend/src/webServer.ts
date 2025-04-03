@@ -46,9 +46,11 @@ app.get("/", (req, res) => {
     res.view("src/templates/index.ejs");
 });
 
+const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+
 const start = async () => {
     try {
-        await app.listen({ port: 3000, host: "0.0.0.0" });
+        await app.listen({ port: port, host: "0.0.0.0" });
         console.log("Web server running on https://localhost:3000");
     } catch (err) {
         console.error(err);

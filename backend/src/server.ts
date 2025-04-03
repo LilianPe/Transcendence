@@ -74,9 +74,11 @@ app.get("/", async (req, reply) => {
     return { hello: "world" };
 });
 
+const port = process.env.PORT ? parseInt(process.env.PORT) : 4500;
+
 const start = async () => {
     try {
-        await app.listen({ port: 4500, host: "0.0.0.0" });
+        await app.listen({ port: port, host: "0.0.0.0" });
         console.log("🚀 Backend server running on http://localhost:4500");
     } catch (err) {
         console.error(err);
