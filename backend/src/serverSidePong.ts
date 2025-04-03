@@ -10,13 +10,16 @@ export class Ball {
         this.dy = 0.7;
     }
 
-    move(): void {
+    move(p1: Player, p2: Player): void {
         this.x += this.dx * 6;
         this.y += this.dy * 6;
-        if (this.x <= 0) {
+        if (this.x <= 0 || (this.x <= 30 && this.y > p1.getY() - 10 && this.y < p1.getY() + 100)) {
             this.dx = 1;
         }
-        if (this.x >= 800 - 10) {
+        if (
+            this.x >= 800 - 10 ||
+            (this.x + 10 >= 770 && this.y > p2.getY() - 10 && this.y < p2.getY() + 100)
+        ) {
             this.dx = -1;
         }
         if (this.y <= 0) {
@@ -41,9 +44,18 @@ export class Player {
     private name: string;
 
     constructor(name: string) {
-        this.y = 400;
+        this.y = 400 - 50;
         this.score = 0;
         this.name = name;
+    }
+    moveUp() {
+        this.y -= 5;
+    }
+    moveDown() {
+        this.y += 5;
+    }
+    getY(): number {
+        return this.y;
     }
 }
 
@@ -60,12 +72,18 @@ class Round {
 
     run(): void {
         setInterval(() => {
-            this.ball.move();
+            this.ball.move(this.player1, this.player2);
         }, 1000 / 60);
     }
 
     getBall(): Ball {
         return this.ball;
+    }
+    getPlayer1(): Player {
+        return this.player1;
+    }
+    getPlayer2(): Player {
+        return this.player2;
     }
 }
 
@@ -83,9 +101,38 @@ export class Game {
         this.round = new Round(this.player1, this.player2);
         this.round.run();
     }
+    update(move: string): void {
+        switch (move) {
+            case "LU":
+                this.player1.moveUp();
+                break;
+            case "LD":
+                this.player1.moveDown();
+                break;
+            case "RU":
+                this.player2.moveUp();
+                break;
+            case "RD":
+                this.player2.moveDown();
+                break;
+        }
+    }
     getBall(): Ball {
         return this.round.getBall();
     }
+    getPlayer1(): Player {
+        return this.player1;
+    }
+    getPlayer2(): Player {
+        return this.player2;
+    }
+}
+
+export interface GameState {
+    ballX: number;
+    ballY: number;
+    player1Y: number;
+    player2Y: number;
 }
 
 export class ServerSidePong {
@@ -101,8 +148,19 @@ export class ServerSidePong {
         this.running = 1;
         this.game.launch();
     }
-
+    update(message: string): void {
+        this.game.update(message);
+    }
     getGame(): Game {
         return this.game;
+    }
+    getState(): GameState {
+        const state: GameState = {
+            ballX: this.getGame().getBall().getX(),
+            ballY: this.getGame().getBall().getY(),
+            player1Y: this.getGame().getPlayer1().getY(),
+            player2Y: this.getGame().getPlayer2().getY(),
+        };
+        return state;
     }
 }
