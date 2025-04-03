@@ -15,7 +15,7 @@ This will generate the following files in your working directory:
 - `localhost+2.pem` (SSL Certificate)
 - `localhost+2-key.pem` (Private Key)
 
-Move these files into the `certs/` directory inside your project.
+Move these files into the `frontend/certs/` and `backend/certs/` directory inside your project.
 
 ---
 
@@ -35,8 +35,8 @@ import path from "path";
 ```ts
 const options = {
     https: {
-        key: fs.readFileSync(path.join(__dirname, "../certs/localhost+2-key.pem")),
-        cert: fs.readFileSync(path.join(__dirname, "../certs/localhost+2.pem")),
+        key: fs.readFileSync(path.join(__dirname, "../certs/localhost+2-key.pem")), //replace localhost+2-key.pem by yours
+        cert: fs.readFileSync(path.join(__dirname, "../certs/localhost+2.pem")), // replace localhost+2.pem by yours
     },
 };
 ```
@@ -71,8 +71,8 @@ const __dirname = path.dirname(__filename);
 ```ts
 const options = {
     https: {
-        key: fs.readFileSync(path.join(__dirname, "../certs/localhost+2-key.pem")),
-        cert: fs.readFileSync(path.join(__dirname, "../certs/localhost+2.pem")),
+        key: fs.readFileSync(path.join(__dirname, "../certs/localhost+2-key.pem")), //replace localhost+2-key.pem by yours
+        cert: fs.readFileSync(path.join(__dirname, "../certs/localhost+2.pem")), //replace localhost+2.pem by yours
     },
 };
 ```
