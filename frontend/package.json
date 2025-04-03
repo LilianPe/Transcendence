@@ -4,6 +4,7 @@
     "type": "module",
     "scripts": {
         "dev": "npx npm-run-all --parallel launch tsc-watch tailwind-watch",
+        "tsc": "tsc",
         "tsc-watch": "tsc --watch",
         "tailwind-watch": "npx tailwindcss -i ./src/style/index.css -o ./dist/output.css --watch",
         "launch": "node --watch dist/webServer.js",

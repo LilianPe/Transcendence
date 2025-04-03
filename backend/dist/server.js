@@ -1,11 +1,23 @@
 import fastify from "fastify";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url"; // Pour remplacer __dirname
 import { LogLevel, LogType } from "././logger/normalization.js";
 import { registerHooks } from "./logger/hook.js";
 import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
 import fastifyWebsocket from "@fastify/websocket";
 import { Player, ServerSidePong } from "./serverSidePong.js";
-const app = fastify();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// https
+const options = {
+    https: {
+        cert: fs.readFileSync(path.join(__dirname, "../certs/fullchain.pem")),
+        key: fs.readFileSync(path.join(__dirname, "../certs/privkey.pem")),
+    },
+};
+const app = fastify(options);
 // Fastify websocket
 app.register(fastifyWebsocket);
 app.register(async function (fastify) {

@@ -1,21 +1,32 @@
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url"; // Pour remplacer __dirname
 // @ts-ignore
 import ejs from "ejs";
 import fastify from "fastify";
 // Partie serveur
-const app = fastify();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// console.log(path.join(__dirname, "../certs/fullchain.pem"));
+// console.log(path.join(__dirname, "../certs/privkey.pem"));
+// https
+const options = {
+    https: {
+        cert: fs.readFileSync(path.join(__dirname, "../certs/fullchain.pem")),
+        key: fs.readFileSync(path.join(__dirname, "../certs/privkey.pem")),
+    },
+};
+const app = fastify(options);
+// Pour certif ssl
 // app.register(fastifyStatic, {
-//     root: path.join(__dirname, "../dist"), // Chemin vers le dossier dist
-//     prefix: "/dist/", // Préfixe pour accéder aux fichiers
+//     root: path.join(__dirname, "../.well-known"), // Servir les fichiers sous .well-known/acme-challenge/
+//     prefix: "/.well-known/", // Préfixe pour accéder aux fichiers
 // });
 app.register(fastifyStatic, {
-    root: path.join(__dirname, "../.well-known"), // Servir les fichiers sous .well-known/acme-challenge/
-    prefix: "/.well-known/", // Préfixe pour accéder aux fichiers
+    root: path.join(__dirname, "../dist"), // Chemin vers le dossier dist
+    prefix: "/dist/", // Préfixe pour accéder aux fichiers
 });
 app.register(fastifyView, {
     engine: {
@@ -28,8 +39,8 @@ app.get("/", (req, res) => {
 });
 const start = async () => {
     try {
-        await app.listen({ port: 80, host: "0.0.0.0" });
-        console.log("Web server running on http://localhost:80");
+        await app.listen({ port: 3000, host: "0.0.0.0" });
+        console.log("Web server running on https://localhost:3000");
     }
     catch (err) {
         console.error(err);
