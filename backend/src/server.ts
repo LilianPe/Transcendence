@@ -1,5 +1,4 @@
 import fastify, { FastifyInstance } from "fastify";
-import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url"; // Pour remplacer __dirname
 import { LogLevel, LogType } from "././logger/normalization.js";
@@ -13,12 +12,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // https
-const options = {
-    https: {
-        cert: fs.readFileSync(path.join(__dirname, "../certs/fullchain.pem")),
-        key: fs.readFileSync(path.join(__dirname, "../certs/privkey.pem")),
-    },
-};
+// const options = {
+//     https: {
+//         cert: fs.readFileSync(path.join(__dirname, "../certs/fullchain.pem")),
+//         key: fs.readFileSync(path.join(__dirname, "../certs/privkey.pem")),
+//     },
+// };
 
 const app: FastifyInstance = fastify();
 

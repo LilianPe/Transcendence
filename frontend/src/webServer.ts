@@ -1,6 +1,5 @@
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
-import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url"; // Pour remplacer __dirname
 // @ts-ignore
@@ -15,12 +14,12 @@ const __dirname = path.dirname(__filename);
 // console.log(path.join(__dirname, "../certs/privkey.pem"));
 
 // https
-const options = {
-    https: {
-        cert: fs.readFileSync(path.join(__dirname, "../certs/fullchain.pem")),
-        key: fs.readFileSync(path.join(__dirname, "../certs/privkey.pem")),
-    },
-};
+// const options = {
+//     https: {
+//         cert: fs.readFileSync(path.join(__dirname, "../certs/fullchain.pem")),
+//         key: fs.readFileSync(path.join(__dirname, "../certs/privkey.pem")),
+//     },
+// };
 
 const app = fastify();
 
