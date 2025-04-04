@@ -7,13 +7,10 @@ yarn-error.log*
 .vscode/
 .env
 .env.local
-<<<<<<< HEAD
 
 dist/
-=======
 install-key.pem
 install.pem
 certs/
 frontend/certs/
 backend/certs/
->>>>>>> 7723891880b7ce744fa88e191f802a93ea21ed2b
