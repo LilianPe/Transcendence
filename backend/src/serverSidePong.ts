@@ -3,38 +3,84 @@ export class Ball {
     private y: number;
     private dx: number;
     private dy: number;
+    private speed: number;
+    private maxSpeed: number;
+
     constructor() {
         this.x = 400;
         this.y = 400;
-        this.dx = 0.3;
-        this.dy = 0.7;
+        this.dx = 1;
+        this.dy = 1;
+        this.speed = 6;
+        this.maxSpeed = 12;
     }
 
     move(p1: Player, p2: Player): void {
-        this.x += this.dx * 6;
-        this.y += this.dy * 6;
-        if (this.x <= 0 || (this.x <= 30 && this.y > p1.getY() - 10 && this.y < p1.getY() + 100)) {
-            this.dx = 1;
-        }
-        if (
-            this.x >= 800 - 10 ||
-            (this.x + 10 >= 770 && this.y > p2.getY() - 10 && this.y < p2.getY() + 100)
-        ) {
-            this.dx = -1;
-        }
+        this.x += this.dx * this.speed;
+        this.y += this.dy * this.speed;
+
         if (this.y <= 0) {
+            this.y = 0;
             this.dy = -this.dy;
         }
         if (this.y >= 800 - 10) {
+            this.y = 800 - 10;
             this.dy = -this.dy;
+        }
+
+        if (this.x <= 30 && this.y > p1.getY() - 10 && this.y < p1.getY() + 100) {
+            this.x = 30;
+            this.dx = -this.dx;
+            this.adjustSpeed();
+            this.adjustAngle(p1.getY());
+        }
+
+        if (this.x + 10 >= 770 && this.y > p2.getY() - 10 && this.y < p2.getY() + 100) {
+            this.x = 760;
+            this.dx = -this.dx;
+            this.adjustSpeed();
+            this.adjustAngle(p2.getY());
+        }
+
+        if (this.x <= 0) {
+            p2.incrementScore();
+            this.reset();
+        }
+        if (this.x >= 800) {
+            p1.incrementScore();
+            this.reset();
         }
     }
 
-    getX(): number {
+    private adjustSpeed(): void {
+        this.speed += 0.5;
+        if (this.speed > this.maxSpeed) {
+            this.speed = this.maxSpeed;
+        }
+    }
+
+    private adjustAngle(playerY: number): void {
+        const relativeHitPoint = this.y - (playerY + 50);
+        const normalizedHitPoint = relativeHitPoint / 50;
+        this.dy = normalizedHitPoint * 1.5;
+    }
+
+    private reset(): void {
+        this.x = 400;
+        this.y = 400;
+        this.dx = this.dx > 0 ? -1 : 1;
+        this.dy = Math.random() * 2 - 1;
+        this.speed = 6;
+    }
+
+    public getX(): number {
         return this.x;
     }
-    getY(): number {
+    public getY(): number {
         return this.y;
+    }
+    public getSpeed(): number {
+        return this.speed;
     }
 }
 
@@ -50,12 +96,20 @@ export class Player {
     }
     moveUp() {
         this.y -= 5;
+        if (this.y < 0) this.y = 0;
     }
     moveDown() {
         this.y += 5;
+        if (this.y > 700) this.y = 700;
     }
     getY(): number {
         return this.y;
+    }
+    getScore(): number {
+        return this.score;
+    }
+    incrementScore(): void {
+        this.score++;
     }
 }
 
@@ -63,17 +117,37 @@ class Round {
     private player1: Player;
     private player2: Player;
     private ball: Ball;
+    private lastUpdate: number;
+    private running: boolean;
 
     constructor(player1: Player, player2: Player) {
         this.player1 = player1;
         this.player2 = player2;
         this.ball = new Ball();
+        this.lastUpdate = 0;
+        this.running = false;
     }
 
     run(): void {
-        setInterval(() => {
-            this.ball.move(this.player1, this.player2);
-        }, 1000 / 60);
+        this.running = true;
+        const targetFrameTime = 30;
+
+        const update = (timestamp: number) => {
+            if (!this.running) return;
+
+            if (!this.lastUpdate || timestamp - this.lastUpdate >= targetFrameTime) {
+                this.ball.move(this.player1, this.player2);
+                // console.log("Time between update:", timestamp - this.lastUpdate, "Speed:", this.ball.getSpeed());
+                this.lastUpdate = timestamp;
+            }
+            setTimeout(() => update(performance.now()), targetFrameTime);
+        };
+
+        update(performance.now());
+    }
+
+    stop(): void {
+        this.running = false;
     }
 
     getBall(): Ball {
@@ -133,6 +207,8 @@ export interface GameState {
     ballY: number;
     player1Y: number;
     player2Y: number;
+    player1Score: number;
+    player2Score: number;
 }
 
 export class ServerSidePong {
@@ -160,6 +236,8 @@ export class ServerSidePong {
             ballY: this.getGame().getBall().getY(),
             player1Y: this.getGame().getPlayer1().getY(),
             player2Y: this.getGame().getPlayer2().getY(),
+            player1Score: this.getGame().getPlayer1().getScore(),
+            player2Score: this.getGame().getPlayer2().getScore(),
         };
         return state;
     }
