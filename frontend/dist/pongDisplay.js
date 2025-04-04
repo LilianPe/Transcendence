@@ -4,9 +4,6 @@ ws.onopen = () => {
     console.log("Connected to WebSocket server");
     ws.send("Hello from the client!");
 };
-// ws.onmessage = (event) => {
-//     console.log("Message received");
-// };
 ws.onerror = (error) => console.error("WebSocket error:", error);
 ws.onclose = (event) => {
     console.log("WebSocket connection closed. Code:", event.code, "Reason:", event.reason);
@@ -37,7 +34,22 @@ function displayLine() {
     canvasContext.fillStyle = "grey";
     canvasContext.fillRect(398, 0, 4, 800);
 }
+const launchButton = document.getElementById("Launch");
+launchButton.addEventListener("click", () => {
+    ws.send("start");
+});
 ws.onmessage = (event) => {
+    if (event.data.toString() == "Already running") {
+        //console.log("Already running");
+        const errorMessage = document.getElementById("LaunchError");
+        errorMessage.classList.remove("opacity-0");
+        errorMessage.classList.add("opacity-100");
+        setTimeout(() => {
+            errorMessage.classList.remove("opacity-100");
+            errorMessage.classList.add("opacity-0");
+        }, 1000);
+        return;
+    }
     const state = JSON.parse(event.data);
     canvasContext.fillStyle = "black";
     canvasContext.fillRect(0, 0, 800, 800);

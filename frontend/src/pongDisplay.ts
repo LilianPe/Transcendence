@@ -17,10 +17,6 @@ ws.onopen = () => {
     ws.send("Hello from the client!");
 };
 
-// ws.onmessage = (event) => {
-//     console.log("Message received");
-// };
-
 ws.onerror = (error: Event) => console.error("WebSocket error:", error);
 
 ws.onclose = (event: CloseEvent) => {
@@ -59,7 +55,27 @@ function displayLine(): void {
     canvasContext.fillRect(398, 0, 4, 800);
 }
 
+const launchButton: HTMLButtonElement = document.getElementById("Launch") as HTMLButtonElement;
+
+launchButton.addEventListener("click", () => {
+    ws.send("start");
+});
+
 ws.onmessage = (event) => {
+    if (event.data.toString() == "Already running") {
+        //console.log("Already running");
+        const errorMessage: HTMLParagraphElement = document.getElementById(
+            "LaunchError"
+        ) as HTMLParagraphElement;
+        errorMessage.classList.remove("opacity-0");
+        errorMessage.classList.add("opacity-100");
+        setTimeout(() => {
+            errorMessage.classList.remove("opacity-100");
+            errorMessage.classList.add("opacity-0");
+        }, 1000);
+
+        return;
+    }
     const state: GameState = JSON.parse(event.data);
     canvasContext.fillStyle = "black";
     canvasContext.fillRect(0, 0, 800, 800);

@@ -2,34 +2,39 @@
 
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Transcendence</title>
-    <script type="module" src="/dist/pongDisplay.js"></script>
-    <link rel="stylesheet" href="/dist/output.css" />
-  </head>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Transcendence</title>
+        <script type="module" src="/dist/pongDisplay.js"></script>
+        <link rel="stylesheet" href="/dist/output.css" />
+    </head>
 
-  <body>
-    <header>
-      <div class="flex flex-col">
-        <div class="fixed flex justify-center w-full bg-black">
-          <h1 class="m-4 font-mono text-4xl font-medium text-violet-950">
-            Transcendence
-          </h1>
-        </div>
-        <div class="flex justify-center mb-72 mt-72 bg-amber-50">
-          <div class="flex flex-col items-center">
-            <p class="font-semibold text-amber-500">Pong</p>
-            <canvas id="game" class="bg-black w-[800px] h-[800px]"></canvas>
-          </div>
-        </div>
-        <footer class="flex justify-center w-full bg-blue-600">
-          <p class="m-4 font-mono text-4xl font-medium text-violet-950">
-            Insert credits
-          </p>
-        </footer>
-      </div>
-    </header>
-  </body>
+    <body>
+        <header>
+            <div class="flex flex-col">
+                <div class="fixed flex justify-center w-full bg-black">
+                    <h1 class="m-4 font-mono text-4xl font-medium text-violet-950">
+                        Transcendence
+                    </h1>
+                </div>
+                <div class="flex justify-center mb-72 mt-72 bg-amber-50">
+                    <div class="flex flex-col items-center">
+                        <p class="font-semibold text-amber-500">Pong</p>
+                        <canvas id="game" class="bg-black w-[800px] h-[800px]"></canvas>
+                        <button id="Launch">Launch game</button>
+                        <p
+                            id="LaunchError"
+                            class="font-bold h-0 opacity-0 transition-opacity duration-500 text-red-500"
+                        >
+                            Game is already Running
+                        </p>
+                    </div>
+                </div>
+                <footer class="flex justify-center w-full bg-blue-600">
+                    <p class="m-4 font-mono text-4xl font-medium text-violet-950">Insert credits</p>
+                </footer>
+            </div>
+        </header>
+    </body>
 </html>

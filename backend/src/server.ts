@@ -5,7 +5,10 @@ import { createLogEntry } from "./logger/logHelper.js";
 import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
 import fastifyWebsocket, { FastifyRequest, SocketStream } from "@fastify/websocket";
-import { GameState, Player, ServerSidePong } from "./serverSidePong.js";
+import { GameState } from "./Pong/Game.js";
+import { Player } from "./Pong/Player.js";
+import { ServerSidePong } from "./Pong/ServerSidePong.js";
+
 // import fs from "fs";
 // import path from "path";
 // import { fileURLToPath } from "url";
@@ -38,7 +41,6 @@ app.get("/", async (req, reply) => {
 
 // Fastify websocket
 const game = new ServerSidePong();
-startGame();
 
 app.register(fastifyWebsocket);
 app.register(async function (fastify) {
@@ -56,7 +58,7 @@ app.register(async function (fastify) {
                 )
             );
             console.log("Message reçu du client: ", message.toString());
-            game.update(message.toString());
+            game.update(message.toString(), socket);
         });
 
         // Gérer les erreurs
