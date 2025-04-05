@@ -48,7 +48,6 @@ services:
     depends_on:
       - elasticsearch
 
-
   logstash:
     image: docker.elastic.co/logstash/logstash:8.12.1
     container_name: elk-logstash

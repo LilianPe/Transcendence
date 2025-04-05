@@ -5,7 +5,6 @@ import { createLogEntry } from "./logger/logHelper.js";
 import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
 import fastifyWebsocket from "@fastify/websocket";
-// @ts-ignore
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
 // import fs from "fs";
 // import path from "path";
