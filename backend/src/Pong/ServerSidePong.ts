@@ -8,7 +8,7 @@ export class ServerSidePong {
     private running: number;
 
     constructor() {
-        this.game = new Game(new Player("default"), new Player("default"));
+        this.game = new Game(new Player("default", ""), new Player("default", ""));
         this.running = 0;
     }
     launchGame(player1: Player, player2: Player): void {
@@ -16,18 +16,35 @@ export class ServerSidePong {
         this.running = 1;
         this.game.launch();
     }
-    update(message: string, socket: SocketStream): void {
-        this.game.update(message, socket);
+    update(message: string, clients: Map<string, SocketStream>, clientID: string): void {
+        this.game.update(message, clients, clientID);
         if (message == "start") {
-            if (!this.game.getRound().isRunning())
-                this.launchGame(new Player("default"), new Player("default"));
-            else socket.send("Already running");
+            if (this.game.getRound().isRunning()) clients.get(clientID)?.send("Already running");
+            else if (clients.size < 2) clients.get(clientID)?.send("Not enought players");
+            else {
+                const clientKeys: Array<string> = Array.from(clients.keys());
+                this.launchGame(
+                    new Player("default", clientKeys[0]),
+                    new Player("default", clientKeys[1])
+                );
+            }
         }
     }
-    getGame(): Game {
+    public check(clients: Map<string, SocketStream>, clientID: string): void {
+        if (!this.game.getRound().isRunning()) return;
+        if (this.game.getPlayer1().getId() == clientID) {
+            this.game.getRound().stop();
+            clients.get(this.game.getPlayer2().getId()).send("Opponent disconected");
+        }
+        if (this.game.getPlayer2().getId() == clientID) {
+            this.game.getRound().stop();
+            clients.get(this.game.getPlayer1().getId()).send("Opponent disconected");
+        }
+    }
+    public getGame(): Game {
         return this.game;
     }
-    getState(): GameState {
+    public getState(): GameState {
         const state: GameState = {
             ballX: this.getGame().getBall().getX(),
             ballY: this.getGame().getBall().getY(),

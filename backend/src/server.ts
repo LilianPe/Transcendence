@@ -6,7 +6,7 @@ import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
 import fastifyWebsocket, { FastifyRequest, SocketStream } from "@fastify/websocket";
 import { GameState } from "./Pong/Game.js";
-import { Player } from "./Pong/Player.js";
+// @ts-ignore
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
 
 // import fs from "fs";
@@ -41,12 +41,15 @@ app.get("/", async (req, reply) => {
 
 // Fastify websocket
 const game = new ServerSidePong();
+const clients: Map<string, SocketStream> = new Map();
 
 app.register(fastifyWebsocket);
 app.register(async function (fastify) {
     fastify.get("/ws", { websocket: true }, (socket: SocketStream, req: FastifyRequest) => {
         logToELK(createLogEntry(LogLevel.INFO, LogType.REQUEST, "🔌 WS Connected from " + req.ip));
-        console.log("Un client tente de se connecter...");
+        const clientID: string = crypto.randomUUID();
+        clients.set(clientID, socket);
+        console.log("Nouveau client connecte, ID: " + clientID);
 
         // debug websocket
         socket.on("message", (message: Buffer | string) => {
@@ -57,8 +60,8 @@ app.register(async function (fastify) {
                     "📨 WS message: " + message.toString()
                 )
             );
-            console.log("Message reçu du client: ", message.toString());
-            game.update(message.toString(), socket);
+            console.log("Message reçu du client " + clientID + ": ", message.toString());
+            game.update(message.toString(), clients, clientID);
         });
 
         // Gérer les erreurs
@@ -83,6 +86,8 @@ app.register(async function (fastify) {
                     "👋 WS connection closed. code:" + code + ", reason:" + reason.toString()
                 )
             );
+            game.check(clients, clientID);
+            clients.delete(clientID);
             console.log("Client déconnecté, code:", code, "raison:", reason.toString());
             clearInterval(interval);
         });
@@ -100,8 +105,3 @@ const start = async () => {
 };
 
 start();
-
-function startGame(): void {
-    game.launchGame(new Player("Player1"), new Player("Player2"));
-    console.log("Game is runing!");
-}

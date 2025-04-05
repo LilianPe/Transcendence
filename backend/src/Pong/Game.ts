@@ -18,19 +18,17 @@ export class Game {
         this.round = new Round(this.player1, this.player2);
         this.round.run();
     }
-    update(move: string, socket: SocketStream): void {
+    update(move: string, clients: Map<string, SocketStream>, clientId: string): void {
+        let player;
+        if (clientId == this.player1.getId()) player = this.player1;
+        else if (clientId == this.player2.getId()) player = this.player2;
+        else return;
         switch (move) {
             case "LU":
-                this.player1.moveUp();
+                player.moveUp();
                 break;
             case "LD":
-                this.player1.moveDown();
-                break;
-            case "RU":
-                this.player2.moveUp();
-                break;
-            case "RD":
-                this.player2.moveDown();
+                player.moveDown();
                 break;
         }
     }

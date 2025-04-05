@@ -2,11 +2,13 @@ export class Player {
     private y: number;
     private score: number;
     private name: string;
+    private id: string;
 
-    constructor(name: string) {
+    constructor(name: string, id: string) {
         this.y = 400 - 50;
         this.score = 0;
         this.name = name;
+        this.id = id;
     }
     moveUp() {
         this.y -= 10;
@@ -24,5 +26,8 @@ export class Player {
     }
     incrementScore(): void {
         this.score++;
+    }
+    getId(): string {
+        return this.id;
     }
 }

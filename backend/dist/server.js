@@ -5,7 +5,7 @@ import { createLogEntry } from "./logger/logHelper.js";
 import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
 import fastifyWebsocket from "@fastify/websocket";
-import { Player } from "./Pong/Player.js";
+// @ts-ignore
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
 // import fs from "fs";
 // import path from "path";
@@ -33,16 +33,19 @@ app.get("/", async (req, reply) => {
 });
 // Fastify websocket
 const game = new ServerSidePong();
+const clients = new Map();
 app.register(fastifyWebsocket);
 app.register(async function (fastify) {
     fastify.get("/ws", { websocket: true }, (socket, req) => {
         logToELK(createLogEntry(LogLevel.INFO, LogType.REQUEST, "🔌 WS Connected from " + req.ip));
-        console.log("Un client tente de se connecter...");
+        const clientID = crypto.randomUUID();
+        clients.set(clientID, socket);
+        console.log("Nouveau client connecte, ID: " + clientID);
         // debug websocket
         socket.on("message", (message) => {
             logToELK(createLogEntry(LogLevel.DEBUG, LogType.REQUEST, "📨 WS message: " + message.toString()));
-            console.log("Message reçu du client: ", message.toString());
-            game.update(message.toString(), socket);
+            console.log("Message reçu du client " + clientID + ": ", message.toString());
+            game.update(message.toString(), clients, clientID);
         });
         // Gérer les erreurs
         socket.on("error", (err) => {
@@ -57,6 +60,8 @@ app.register(async function (fastify) {
         // Gérer la fermeture de la connexion WebSocket
         socket.on("close", (code, reason) => {
             logToELK(createLogEntry(LogLevel.INFO, LogType.RESPONSE, "👋 WS connection closed. code:" + code + ", reason:" + reason.toString()));
+            game.check(clients, clientID);
+            clients.delete(clientID);
             console.log("Client déconnecté, code:", code, "raison:", reason.toString());
             clearInterval(interval);
         });
@@ -73,7 +78,3 @@ const start = async () => {
     }
 };
 start();
-function startGame() {
-    game.launchGame(new Player("Player1"), new Player("Player2"));
-    console.log("Game is runing!");
-}

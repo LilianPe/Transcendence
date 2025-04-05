@@ -61,19 +61,29 @@ launchButton.addEventListener("click", () => {
     ws.send("start");
 });
 
-ws.onmessage = (event) => {
-    if (event.data.toString() == "Already running") {
-        //console.log("Already running");
-        const errorMessage: HTMLParagraphElement = document.getElementById(
-            "LaunchError"
-        ) as HTMLParagraphElement;
-        errorMessage.classList.remove("opacity-0");
-        errorMessage.classList.add("opacity-100");
-        setTimeout(() => {
-            errorMessage.classList.remove("opacity-100");
-            errorMessage.classList.add("opacity-0");
-        }, 1000);
+function displayLaunchError(message: string) {
+    const errorMessage: HTMLParagraphElement = document.getElementById(
+        "LaunchError"
+    ) as HTMLParagraphElement;
+    if (message == "Already running") errorMessage.textContent = "A game is already running.";
+    else if (message == "Not enought players")
+        errorMessage.textContent = "Not enought players to launch.";
+    else if (message == "Opponent disconected") errorMessage.textContent = "Opponent disconected.";
+    errorMessage.classList.remove("opacity-0");
+    errorMessage.classList.add("opacity-100");
+    setTimeout(() => {
+        errorMessage.classList.remove("opacity-100");
+        errorMessage.classList.add("opacity-0");
+    }, 1000);
+}
 
+ws.onmessage = (event) => {
+    if (
+        event.data.toString() == "Already running" ||
+        event.data.toString() == "Not enought players" ||
+        event.data.toString() == "Opponent disconected"
+    ) {
+        displayLaunchError(event.data.toString());
         return;
     }
     const state: GameState = JSON.parse(event.data);
@@ -88,7 +98,6 @@ ws.onmessage = (event) => {
     canvasContext.fillStyle = "white";
     canvasContext.fillRect(state.ballX, state.ballY, 10, 10);
 };
-
 // handle players movements
 
 interface inputs {

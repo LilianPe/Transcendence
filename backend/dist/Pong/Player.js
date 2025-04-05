@@ -1,8 +1,9 @@
 export class Player {
-    constructor(name) {
+    constructor(name, id) {
         this.y = 400 - 50;
         this.score = 0;
         this.name = name;
+        this.id = id;
     }
     moveUp() {
         this.y -= 10;
@@ -22,5 +23,8 @@ export class Player {
     }
     incrementScore() {
         this.score++;
+    }
+    getId() {
+        return this.id;
     }
 }
