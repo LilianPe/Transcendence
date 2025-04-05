@@ -1,4 +1,4 @@
-// A mettre apres dans le frontend
+//@ts-ignore
 const ws = new WebSocket("ws://localhost:4500/ws");
 ws.onopen = () => {
     console.log("Connected to WebSocket server");
@@ -40,12 +40,7 @@ launchButton.addEventListener("click", () => {
 });
 function displayLaunchError(message) {
     const errorMessage = document.getElementById("LaunchError");
-    if (message == "Already running")
-        errorMessage.textContent = "A game is already running.";
-    else if (message == "Not enought players")
-        errorMessage.textContent = "Not enought players to launch.";
-    else if (message == "Opponent disconected")
-        errorMessage.textContent = "Opponent disconected.";
+    errorMessage.textContent = message;
     errorMessage.classList.remove("opacity-0");
     errorMessage.classList.add("opacity-100");
     setTimeout(() => {
@@ -53,24 +48,31 @@ function displayLaunchError(message) {
         errorMessage.classList.add("opacity-0");
     }, 1000);
 }
+let id;
 ws.onmessage = (event) => {
-    if (event.data.toString() == "Already running" ||
-        event.data.toString() == "Not enought players" ||
-        event.data.toString() == "Opponent disconected") {
-        displayLaunchError(event.data.toString());
+    // console.log("event");
+    const content = JSON.parse(event.data);
+    if (content.type == "error") {
+        displayLaunchError(content.error);
         return;
     }
-    const state = JSON.parse(event.data);
-    canvasContext.fillStyle = "black";
-    canvasContext.fillRect(0, 0, 800, 800);
-    oldx = state.ballX;
-    oldy = state.ballY;
-    displayLine();
-    drawLeftPlayer(state.player1Y);
-    drawRightPlayer(state.player2Y);
-    displayScore(state.player1Score, state.player2Score);
-    canvasContext.fillStyle = "white";
-    canvasContext.fillRect(state.ballX, state.ballY, 10, 10);
+    else if (content.type == "clientId") {
+        id = content.clientId;
+        console.log("My ID is: " + id);
+    }
+    else if (content.type == "state") {
+        const state = content.state;
+        canvasContext.fillStyle = "black";
+        canvasContext.fillRect(0, 0, 800, 800);
+        oldx = state.ballX;
+        oldy = state.ballY;
+        displayLine();
+        drawLeftPlayer(state.player1Y);
+        drawRightPlayer(state.player2Y);
+        displayScore(state.player1Score, state.player2Score);
+        canvasContext.fillStyle = "white";
+        canvasContext.fillRect(state.ballX, state.ballY, 10, 10);
+    }
 };
 const keys = {
     w: false,
@@ -123,4 +125,21 @@ function updateMoves() {
 }
 // setInterval(updateMoves, 1000 / 60)
 requestAnimationFrame(updateMoves);
+// gestion de l'envoie du formulaire
+const form = document.getElementById("form");
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const usernameInput = document.getElementById("username");
+    const username = usernameInput.value;
+    const response = await fetch("http://localhost:4500/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Client-Id": id,
+        },
+        body: JSON.stringify({ username })
+    });
+    const result = await response.json();
+    console.log(result.message);
+});
 export {};

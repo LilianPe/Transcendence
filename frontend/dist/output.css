@@ -574,6 +574,10 @@ video {
   margin-top: 0.5rem;
 }
 
+.mt-5 {
+  margin-top: 1.25rem;
+}
+
 .mt-72 {
   margin-top: 18rem;
 }
@@ -612,6 +616,14 @@ video {
 
 .justify-center {
   justify-content: center;
+}
+
+.border-2 {
+  border-width: 2px;
+}
+
+.border-solid {
+  border-style: solid;
 }
 
 .bg-amber-50 {
