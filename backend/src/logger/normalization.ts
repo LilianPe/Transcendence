@@ -9,6 +9,7 @@ export enum LogLevel {
 export enum LogType {
     REQUEST = "request",
     RESPONSE = "response",
+    WEBSOCKET = "websocket",
     DEVELOPMENT = "development",
     DEPLOYMENT = "deployment",
 }

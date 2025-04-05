@@ -6,7 +6,6 @@ import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
 import fastifyWebsocket, { FastifyRequest, SocketStream } from "@fastify/websocket";
 import { GameState } from "./Pong/Game.js";
-// @ts-ignore
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
 
 // import fs from "fs";
