@@ -6,6 +6,8 @@ export class Game {
         this.round = new Round(player1, player2);
     }
     launch() {
+        this.player1.reset();
+        this.player2.reset();
         this.round = new Round(this.player1, this.player2);
         this.round.run();
     }

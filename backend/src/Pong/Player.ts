@@ -3,31 +3,48 @@ export class Player {
     private score: number;
     private name: string;
     private id: string;
+	private registered: boolean;
 
-    constructor(name: string, id: string) {
+    constructor(id: string) {
         this.y = 400 - 50;
         this.score = 0;
-        this.name = name;
+        this.name = "";
         this.id = id;
+        this.registered = false;
     }
-    moveUp() {
+	public register(username: string): void {
+		this.name = username;
+		// console.log(`Set name at: ${this.name}`)
+		this.registered = true;
+	}
+	public reset(): void {
+		this.y = 350;
+		this.score = 0;
+	}
+    public moveUp(): void {
         this.y -= 10;
         if (this.y < 0) this.y = 0;
     }
-    moveDown() {
+    public moveDown(): void {
         this.y += 10;
         if (this.y > 700) this.y = 700;
     }
-    getY(): number {
+    public getY(): number {
         return this.y;
     }
-    getScore(): number {
+    public getScore(): number {
         return this.score;
     }
-    incrementScore(): void {
+    public incrementScore(): void {
         this.score++;
     }
-    getId(): string {
+    public getId(): string {
         return this.id;
+    }
+    public getName(): string {
+        return this.name;
+    }
+    public isRegistered(): boolean {
+        return this.registered;
     }
 }

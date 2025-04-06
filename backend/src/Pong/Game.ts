@@ -14,11 +14,13 @@ export class Game {
         this.player2 = player2;
         this.round = new Round(player1, player2);
     }
-    launch(): void {
+    public launch(): void {
+		this.player1.reset();
+		this.player2.reset();
         this.round = new Round(this.player1, this.player2);
         this.round.run();
     }
-    update(move: string, clients: Map<string, SocketStream>, clientId: string): void {
+    public update(move: string, clients: Map<string, SocketStream>, clientId: string): void {
         let player;
         if (clientId == this.player1.getId()) player = this.player1;
         else if (clientId == this.player2.getId()) player = this.player2;
@@ -32,16 +34,16 @@ export class Game {
                 break;
         }
     }
-    getBall(): Ball {
+    public getBall(): Ball {
         return this.round.getBall();
     }
-    getRound(): Round {
+    public getRound(): Round {
         return this.round;
     }
-    getPlayer1(): Player {
+    public getPlayer1(): Player {
         return this.player1;
     }
-    getPlayer2(): Player {
+    public getPlayer2(): Player {
         return this.player2;
     }
 }
@@ -53,4 +55,6 @@ export interface GameState {
     player2Y: number;
     player1Score: number;
     player2Score: number;
+	player1Name: string;
+    player2Name: string;
 }

@@ -1,13 +1,15 @@
 //@ts-ignore
 
 
-export interface GameState {
+interface GameState {
     ballX: number;
     ballY: number;
     player1Y: number;
     player2Y: number;
     player1Score: number;
     player2Score: number;
+    player1Name: string;
+    player2Name: string;
 }
 
 const ws = new WebSocket("ws://localhost:4500/ws");
@@ -33,15 +35,25 @@ let canvasContext: CanvasRenderingContext2D = canvas.getContext("2d") as CanvasR
 let oldx: number;
 let oldy: number;
 
-function drawLeftPlayer(y: number): void {
-    canvasContext.fillStyle = "white";
+function drawLeftPlayer(y: number, name: string): void {
+    
+	canvasContext.font = "20px Arial";
+	canvasContext.fillStyle = "white";
+	// console.log(`Left Player name: ${name}`);
+	canvasContext.fillText(name, 175, 30);
     canvasContext.fillRect(20, y, 10, 100);
-    console.log("Right: " + y);
+	canvasContext.strokeStyle = "black";
+	canvasContext.strokeText(name, 175, 30);
 }
 
-function drawRightPlayer(y: number): void {
-    canvasContext.fillStyle = "white";
+function drawRightPlayer(y: number, name: string): void {
+	canvasContext.font = "20px Arial";
+	canvasContext.fillStyle = "white";
+	// console.log(`Right Player name: ${name}`);
+	canvasContext.fillText(name, 575, 30);
     canvasContext.fillRect(770, y, 10, 100);
+	canvasContext.strokeStyle = "black";
+	canvasContext.strokeText(name, 575, 30);
 }
 
 function displayScore(s1: number, s2: number) {
@@ -101,8 +113,8 @@ ws.onmessage = (event) => {
 		oldx = state.ballX;
 		oldy = state.ballY;
 		displayLine();
-		drawLeftPlayer(state.player1Y);
-		drawRightPlayer(state.player2Y);
+		drawLeftPlayer(state.player1Y, state.player1Name);
+		drawRightPlayer(state.player2Y, state.player2Name);
 		displayScore(state.player1Score, state.player2Score);
 		canvasContext.fillStyle = "white";
 		canvasContext.fillRect(state.ballX, state.ballY, 10, 10);

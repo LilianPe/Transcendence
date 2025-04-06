@@ -1,3 +1,4 @@
+import cors from "@fastify/cors";
 import fastify, { FastifyInstance } from "fastify";
 import { LogLevel, LogType } from "././logger/normalization.js";
 import { registerHooks } from "./logger/hook.js";
@@ -6,6 +7,7 @@ import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
 import fastifyWebsocket, { FastifyRequest, SocketStream } from "@fastify/websocket";
 import { GameState } from "./Pong/Game.js";
+import { Player } from "./Pong/Player.js";
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
 
 // import fs from "fs";
@@ -27,6 +29,12 @@ const app: FastifyInstance = fastify(/*options*/);
 
 registerHooks(app);
 
+app.register(cors, {
+    origin: "http://localhost:3000",
+    methods: ["POST"],
+    allowedHeaders: ["Content-Type", "X-Client-Id"],
+});
+
 app.get("/", async (req, reply) => {
     logToELK({
         level: LogLevel.INFO,
@@ -40,15 +48,27 @@ app.get("/", async (req, reply) => {
 
 // Fastify websocket
 const game = new ServerSidePong();
-const clients: Map<string, SocketStream> = new Map();
+
+export interface Client {
+	player: Player;
+	socketStream: SocketStream;
+}
+
+const clients: Map<string, Client> = new Map();
+const registeredClients: Map<string, Client> = new Map();
 
 app.register(fastifyWebsocket);
 app.register(async function (fastify) {
     fastify.get("/ws", { websocket: true }, (socket: SocketStream, req: FastifyRequest) => {
         logToELK(createLogEntry(LogLevel.INFO, LogType.REQUEST, "🔌 WS Connected from " + req.ip));
         const clientID: string = crypto.randomUUID();
-        clients.set(clientID, socket);
-        console.log("Nouveau client connecte, ID: " + clientID);
+		const client: Client = {
+			player: new Player(clientID),
+			socketStream: socket
+		}
+        clients.set(clientID, client);
+		socket.send(JSON.stringify({type: "clientId", clientId: clientID}));
+        // console.log("Nouveau client connecte, ID: " + clientID);
 
         // debug websocket
         socket.on("message", (message: Buffer | string) => {
@@ -60,7 +80,7 @@ app.register(async function (fastify) {
                 )
             );
             console.log("Message reçu du client " + clientID + ": ", message.toString());
-            game.update(message.toString(), clients, clientID);
+            game.update(message.toString(), clients, registeredClients, clientID);
         });
 
         // Gérer les erreurs
@@ -73,7 +93,7 @@ app.register(async function (fastify) {
 
         const interval = setInterval(() => {
             const state: GameState = game.getState();
-            socket.send(JSON.stringify(state));
+            socket.send(JSON.stringify({type: "state", state: state}));
         }, 1000 / 60);
 
         // Gérer la fermeture de la connexion WebSocket
@@ -86,12 +106,38 @@ app.register(async function (fastify) {
                 )
             );
             game.check(clients, clientID);
+			if (registeredClients.get(clientID)) registeredClients.delete(clientID);
             clients.delete(clientID);
             console.log("Client déconnecté, code:", code, "raison:", reason.toString());
             clearInterval(interval);
         });
     });
 });
+
+// Inscriptions
+
+app.post("/register", async (request, reply) => {
+    const username: string = (request.body as { username: string }).username;
+	const id: string = request.headers["x-client-id"] as string;
+
+	console.log(`new registration request: ${username}`)
+    if (!username) {
+        return reply.status(400).send({message: "Username can't be blank"});
+    }
+
+	const client = clients.get(id);
+	if (client) {
+		client.player.register(username);
+		console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
+		registeredClients.set(id, client);
+		reply.send({message: `Inscription reussie pour ${username}`})
+	}
+	else {
+		reply.status(500).send({message: "Internal Error"});
+	}
+});
+
+// server
 
 const start = async () => {
     try {

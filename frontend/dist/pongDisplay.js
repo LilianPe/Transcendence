@@ -1,3 +1,4 @@
+"use strict";
 //@ts-ignore
 const ws = new WebSocket("ws://localhost:4500/ws");
 ws.onopen = () => {
@@ -15,14 +16,23 @@ canvas.height = 800;
 let canvasContext = canvas.getContext("2d");
 let oldx;
 let oldy;
-function drawLeftPlayer(y) {
+function drawLeftPlayer(y, name) {
+    canvasContext.font = "20px Arial";
     canvasContext.fillStyle = "white";
+    // console.log(`Left Player name: ${name}`);
+    canvasContext.fillText(name, 175, 30);
     canvasContext.fillRect(20, y, 10, 100);
-    console.log("Right: " + y);
+    canvasContext.strokeStyle = "black";
+    canvasContext.strokeText(name, 175, 30);
 }
-function drawRightPlayer(y) {
+function drawRightPlayer(y, name) {
+    canvasContext.font = "20px Arial";
     canvasContext.fillStyle = "white";
+    // console.log(`Right Player name: ${name}`);
+    canvasContext.fillText(name, 575, 30);
     canvasContext.fillRect(770, y, 10, 100);
+    canvasContext.strokeStyle = "black";
+    canvasContext.strokeText(name, 575, 30);
 }
 function displayScore(s1, s2) {
     canvasContext.font = "100px Arial";
@@ -67,8 +77,8 @@ ws.onmessage = (event) => {
         oldx = state.ballX;
         oldy = state.ballY;
         displayLine();
-        drawLeftPlayer(state.player1Y);
-        drawRightPlayer(state.player2Y);
+        drawLeftPlayer(state.player1Y, state.player1Name);
+        drawRightPlayer(state.player2Y, state.player2Name);
         displayScore(state.player1Score, state.player2Score);
         canvasContext.fillStyle = "white";
         canvasContext.fillRect(state.ballX, state.ballY, 10, 10);
@@ -142,4 +152,3 @@ form.addEventListener("submit", async (e) => {
     const result = await response.json();
     console.log(result.message);
 });
-export {};
