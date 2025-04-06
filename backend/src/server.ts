@@ -57,7 +57,7 @@ export interface Client {
 const clients: Map<string, Client> = new Map();
 const registeredClients: Map<string, Client> = new Map();
 
-app.register(fastifyWebsocket);
+app.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
 app.register(async function (fastify) {
     fastify.get("/ws", { websocket: true }, (socket: SocketStream, req: FastifyRequest) => {
         logToELK(createLogEntry(LogLevel.INFO, LogType.REQUEST, "🔌 WS Connected from " + req.ip));
@@ -94,7 +94,7 @@ app.register(async function (fastify) {
         const interval = setInterval(() => {
             const state: GameState = game.getState();
             socket.send(JSON.stringify({type: "state", state: state}));
-        }, 1000 / 60);
+        }, 1000 / 30);
 
         // Gérer la fermeture de la connexion WebSocket
         socket.on("close", (code: number, reason: Buffer) => {

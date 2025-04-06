@@ -41,7 +41,7 @@ app.get("/", async (req, reply) => {
 const game = new ServerSidePong();
 const clients = new Map();
 const registeredClients = new Map();
-app.register(fastifyWebsocket);
+app.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
 app.register(async function (fastify) {
     fastify.get("/ws", { websocket: true }, (socket, req) => {
         logToELK(createLogEntry(LogLevel.INFO, LogType.REQUEST, "🔌 WS Connected from " + req.ip));
@@ -68,7 +68,7 @@ app.register(async function (fastify) {
         const interval = setInterval(() => {
             const state = game.getState();
             socket.send(JSON.stringify({ type: "state", state: state }));
-        }, 1000 / 60);
+        }, 1000 / 30);
         // Gérer la fermeture de la connexion WebSocket
         socket.on("close", (code, reason) => {
             logToELK(createLogEntry(LogLevel.INFO, LogType.RESPONSE, "👋 WS connection closed. code:" + code + ", reason:" + reason.toString()));
