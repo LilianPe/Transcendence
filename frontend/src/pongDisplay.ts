@@ -12,7 +12,7 @@ interface GameState {
     player2Name: string;
 }
 
-const ws = new WebSocket("ws://localhost:4500/ws");
+const ws = new WebSocket("wss://transcendence-h1wf.onrender.com/ws");
 
 ws.onopen = () => {
     console.log("Connected to WebSocket server");
@@ -188,7 +188,7 @@ form.addEventListener("submit", async (e) => {
 	const usernameInput: HTMLInputElement = document.getElementById("username") as HTMLInputElement;
 	const username: string = usernameInput.value;
 
-	const response = await fetch("http://localhost:4500/register", {
+	const response = await fetch("https://transcendence-h1wf.onrender.com/register", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",

@@ -30,7 +30,7 @@ const app: FastifyInstance = fastify(/*options*/);
 registerHooks(app);
 
 app.register(cors, {
-    origin: "http://localhost:3000",
+    origin: "https://transcendence-web.onrender.com",
     methods: ["POST"],
     allowedHeaders: ["Content-Type", "X-Client-Id"],
 });
