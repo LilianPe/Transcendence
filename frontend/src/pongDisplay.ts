@@ -213,7 +213,7 @@ form.addEventListener("submit", async (e) => {
     const username: string = usernameInput.value;
 
 
-	const response = await fetch("https://transcendence-h1wf.onrender.com/register", {
+	const response = await fetch("https://transcendence-vgw4.onrender.com/register", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
