@@ -63,7 +63,6 @@ let targetState = null;
 let lastUpdateTime = performance.now();
 let id;
 ws.onmessage = (event) => {
-    // console.log("event");
     const content = JSON.parse(event.data);
     if (content.type == "error") {
         displayLaunchError(content.error);
@@ -82,6 +81,10 @@ ws.onmessage = (event) => {
 function lerp(start, end, alpha) {
     return start + (end - start) * alpha;
 }
+// render en 60 fps grace a requestAnimationFrame
+// lerp sert a rendre le mouvement plus smooth
+// plutot que d'aller de A a B, donne un nombre un peut avant B
+// rend les mouvements plus fluides.
 function render() {
     if (currentState && targetState) {
         const now = performance.now();
