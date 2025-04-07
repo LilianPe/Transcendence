@@ -6,7 +6,7 @@
     "start": "nodemon dist/server.js",
     "build": "tsc",
     "watch": "tsc -w",
-    "dev": "concurrently \"tsc --watch\" \"node --watch dist/server.js\"",
+    "dev": "concurrently \"tsc --watch\" \"node --watch createDatabase.js\" \"node --watch dist/server.js\"",
     "format": "prettier --config .prettierrc.json --write src"
   },
   "dependencies": {
@@ -14,10 +14,12 @@
     "@fastify/formbody": "^8.0.2",
     "@fastify/websocket": "^11.0.2",
     "fastify": "^5.0.0",
+    "sqlite3": "^5.1.7",
     "ws": "^8.18.1"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",
+    "@types/sqlite3": "^3.1.11",
     "@types/ws": "^8.18.1",
     "concurrently": "^9.1.2",
     "nodemon": "^3.0.2",

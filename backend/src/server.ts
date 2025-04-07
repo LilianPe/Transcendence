@@ -9,6 +9,7 @@ import fastifyWebsocket, { FastifyRequest, SocketStream } from "@fastify/websock
 import { GameState } from "./Pong/Game.js";
 import { Player } from "./Pong/Player.js";
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
+import { createUser } from './Database/requests.js';
 
 // import fs from "fs";
 // import path from "path";
@@ -124,7 +125,6 @@ app.post("/register", async (request, reply) => {
     if (!username) {
         return reply.status(400).send({message: "Username can't be blank"});
     }
-
 	const client = clients.get(id);
 	if (client) {
 		client.player.register(username);
