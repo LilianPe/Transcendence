@@ -58,6 +58,9 @@ function displayLaunchError(message) {
         errorMessage.classList.add("opacity-0");
     }, 1000);
 }
+let currentState = null;
+let targetState = null;
+let lastUpdateTime = performance.now();
 let id;
 ws.onmessage = (event) => {
     // console.log("event");
@@ -71,19 +74,39 @@ ws.onmessage = (event) => {
         console.log("My ID is: " + id);
     }
     else if (content.type == "state") {
-        const state = content.state;
-        canvasContext.fillStyle = "black";
-        canvasContext.fillRect(0, 0, 800, 800);
-        oldx = state.ballX;
-        oldy = state.ballY;
-        displayLine();
-        drawLeftPlayer(state.player1Y, state.player1Name);
-        drawRightPlayer(state.player2Y, state.player2Name);
-        displayScore(state.player1Score, state.player2Score);
-        canvasContext.fillStyle = "white";
-        canvasContext.fillRect(state.ballX, state.ballY, 10, 10);
+        targetState = content.state;
+        if (!currentState)
+            currentState = { ...targetState };
     }
 };
+function lerp(start, end, alpha) {
+    return start + (end - start) * alpha;
+}
+function render() {
+    if (currentState && targetState) {
+        const now = performance.now();
+        const deltaTime = (now - lastUpdateTime) / (1000 / 60); // Normalisé à 60 FPS
+        lastUpdateTime = now;
+        const interpolationSpeed = 0.865; // Vitesse de base (ajustable)
+        const alpha = Math.min(1, interpolationSpeed * deltaTime);
+        // Interpolation
+        currentState.ballX = lerp(currentState.ballX, targetState.ballX, alpha);
+        currentState.ballY = lerp(currentState.ballY, targetState.ballY, alpha);
+        currentState.player1Y = lerp(currentState.player1Y, targetState.player1Y, alpha);
+        currentState.player2Y = lerp(currentState.player2Y, targetState.player2Y, alpha);
+        // Dessin
+        canvasContext.fillStyle = "black";
+        canvasContext.fillRect(0, 0, 800, 800);
+        displayLine();
+        drawLeftPlayer(currentState.player1Y, targetState.player1Name);
+        drawRightPlayer(currentState.player2Y, targetState.player2Name);
+        displayScore(targetState.player1Score, targetState.player2Score);
+        canvasContext.fillStyle = "white";
+        canvasContext.fillRect(currentState.ballX, currentState.ballY, 10, 10);
+    }
+    requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
 const keys = {
     w: false,
     s: false,
@@ -147,7 +170,7 @@ form.addEventListener("submit", async (e) => {
             "Content-Type": "application/json",
             "X-Client-Id": id,
         },
-        body: JSON.stringify({ username })
+        body: JSON.stringify({ username }),
     });
     const result = await response.json();
     console.log(result.message);
