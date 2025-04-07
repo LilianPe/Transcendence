@@ -20,10 +20,10 @@ export class Game {
         this.round = new Round(this.player1, this.player2);
         this.round.run();
     }
-    public update(move: string, clients: Map<string, SocketStream>, clientId: string): void {
+    public update(move: string, name: string): void {
         let player;
-        if (clientId == this.player1.getId()) player = this.player1;
-        else if (clientId == this.player2.getId()) player = this.player2;
+        if (name == "player") player = this.player1;
+        else if (name == "Ai") player = this.player2;
         else return;
         switch (move) {
             case "LU":

@@ -2,14 +2,12 @@ export class Player {
     private y: number;
     private score: number;
     private name: string;
-    private id: string;
 	private registered: boolean;
 
-    constructor(id: string) {
+    constructor() {
         this.y = 400 - 50;
         this.score = 0;
         this.name = "";
-        this.id = id;
         this.registered = false;
     }
 	public register(username: string): void {
@@ -37,9 +35,6 @@ export class Player {
     }
     public incrementScore(): void {
         this.score++;
-    }
-    public getId(): string {
-        return this.id;
     }
     public getName(): string {
         return this.name;

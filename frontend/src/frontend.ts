@@ -1,15 +1,5 @@
-//@ts-ignore
-
-interface GameState {
-    ballX: number;
-    ballY: number;
-    player1Y: number;
-    player2Y: number;
-    player1Score: number;
-    player2Score: number;
-    player1Name: string;
-    player2Name: string;
-}
+import { GameState } from "./Pong/Game.js";
+import { offMove, offReset, offStart, renderLocal, stopOff } from "./pongAi.js";
 
 const ws = new WebSocket("ws://localhost:4500/ws");
 
@@ -66,13 +56,33 @@ function displayLine(): void {
     canvasContext.fillRect(398, 0, 4, 800);
 }
 
+let online: boolean = true;
+const onOffButton: HTMLButtonElement = document.getElementById("onOffButton") as HTMLButtonElement;
+onOffButton.addEventListener("click", () => {
+	if (onOffButton.textContent == "Off") {
+		online = false;
+		onOffButton.textContent = "On";
+		offReset();
+	} 
+	else {
+		online = true;
+		onOffButton.textContent = "Off";
+		stopOff();
+	}
+}); 
+
 const launchButton: HTMLButtonElement = document.getElementById("Launch") as HTMLButtonElement;
 
 launchButton.addEventListener("click", () => {
-    ws.send("start");
+	if (online) {
+		ws.send("start");
+	}
+	else {
+		offStart();
+	}
 });
 
-function displayLaunchError(message: string) {
+export function displayLaunchError(message: string) {
     const errorMessage: HTMLParagraphElement = document.getElementById(
         "LaunchError"
     ) as HTMLParagraphElement;
@@ -96,7 +106,6 @@ let targetState: GameState | null = null;
 let lastUpdateTime = performance.now();
 
 let id: string;
-let online: boolean = true;
 ws.onmessage = (event) => {
 	const content: message = JSON.parse(event.data);
 	if (content.type == "clientId") {
@@ -123,8 +132,11 @@ function lerp(start: number, end: number, alpha: number): number {
 // plutot que d'aller de A a B, donne un nombre un peut avant B
 // rend les mouvements plus fluides.
 
-function render() {
-    if (currentState && targetState) {
+function render(): void {
+	if (!online) {
+		renderLocal(canvasContext);
+	}
+    else if (currentState && targetState) {
         const now = performance.now();
         const deltaTime = (now - lastUpdateTime) / (1000 / 60); // Normalisé à 60 FPS
         lastUpdateTime = now;
@@ -200,10 +212,14 @@ document.addEventListener("keyup", (event) => {
 });
 
 function updateMoves() {
-    if (keys.w) ws.send("LU");
-    if (keys.s) ws.send("LD");
-    if (keys.j) ws.send("RU");
-    if (keys.n) ws.send("RD");
+	if (online) {
+		if (keys.w) ws.send("LU");
+		if (keys.s) ws.send("LD");
+	} 
+	else {
+		if (keys.w) offMove("LU");
+		if (keys.s) offMove("LD");
+	}
     requestAnimationFrame(updateMoves);
 }
 
