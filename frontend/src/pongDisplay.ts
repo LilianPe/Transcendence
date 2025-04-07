@@ -9,7 +9,7 @@ interface GameState {
     player2Name: string;
 }
 
-const ws = new WebSocket("wss://transcendence-h1wf.onrender.com/ws");
+const ws = new WebSocket("wss://transcendence-vgw4.onrender.com/ws");
 
 ws.onopen = () => {
     console.log("Connected to WebSocket server");
