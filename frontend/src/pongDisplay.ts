@@ -96,15 +96,19 @@ let targetState: GameState | null = null;
 let lastUpdateTime = performance.now();
 
 let id: string;
+let online: boolean = true;
 ws.onmessage = (event) => {
-    const content: message = JSON.parse(event.data);
+	const content: message = JSON.parse(event.data);
+	if (content.type == "clientId") {
+		id = content.clientId;
+		console.log("My ID is: " + id);
+	}
+	if (!online) return;
     if (content.type == "error") {
         displayLaunchError(content.error);
         return;
-    } else if (content.type == "clientId") {
-        id = content.clientId;
-        console.log("My ID is: " + id);
-    } else if (content.type == "state") {
+    } 
+	 else if (content.type == "state") {
         targetState = content.state;
         if (!currentState) currentState = { ...targetState };
     }
