@@ -1,6 +1,3 @@
-//@ts-ignore
-
-
 interface GameState {
     ballX: number;
     ballY: number;
@@ -36,24 +33,23 @@ let oldx: number;
 let oldy: number;
 
 function drawLeftPlayer(y: number, name: string): void {
-    
-	canvasContext.font = "20px Arial";
-	canvasContext.fillStyle = "white";
-	// console.log(`Left Player name: ${name}`);
-	canvasContext.fillText(name, 175, 30);
+    canvasContext.font = "20px Arial";
+    canvasContext.fillStyle = "white";
+    // console.log(`Left Player name: ${name}`);
+    canvasContext.fillText(name, 175, 30);
     canvasContext.fillRect(20, y, 10, 100);
-	canvasContext.strokeStyle = "black";
-	canvasContext.strokeText(name, 175, 30);
+    canvasContext.strokeStyle = "black";
+    canvasContext.strokeText(name, 175, 30);
 }
 
 function drawRightPlayer(y: number, name: string): void {
-	canvasContext.font = "20px Arial";
-	canvasContext.fillStyle = "white";
-	// console.log(`Right Player name: ${name}`);
-	canvasContext.fillText(name, 575, 30);
+    canvasContext.font = "20px Arial";
+    canvasContext.fillStyle = "white";
+    // console.log(`Right Player name: ${name}`);
+    canvasContext.fillText(name, 575, 30);
     canvasContext.fillRect(770, y, 10, 100);
-	canvasContext.strokeStyle = "black";
-	canvasContext.strokeText(name, 575, 30);
+    canvasContext.strokeStyle = "black";
+    canvasContext.strokeText(name, 575, 30);
 }
 
 function displayScore(s1: number, s2: number) {
@@ -78,7 +74,7 @@ function displayLaunchError(message: string) {
     const errorMessage: HTMLParagraphElement = document.getElementById(
         "LaunchError"
     ) as HTMLParagraphElement;
-	errorMessage.textContent = message;
+    errorMessage.textContent = message;
     errorMessage.classList.remove("opacity-0");
     errorMessage.classList.add("opacity-100");
     setTimeout(() => {
@@ -88,39 +84,67 @@ function displayLaunchError(message: string) {
 }
 
 interface message {
-	type: string;
-	error: string;
-	state: GameState;
-	clientId: string;
+    type: string;
+    error: string;
+    state: GameState;
+    clientId: string;
 }
+let currentState: GameState | null = null;
+let targetState: GameState | null = null;
+let lastUpdateTime = performance.now();
 
 let id: string;
 ws.onmessage = (event) => {
-	// console.log("event");
     const content: message = JSON.parse(event.data);
-	if (content.type == "error") {
+    if (content.type == "error") {
         displayLaunchError(content.error);
         return;
+    } else if (content.type == "clientId") {
+        id = content.clientId;
+        console.log("My ID is: " + id);
+    } else if (content.type == "state") {
+        targetState = content.state;
+        if (!currentState) currentState = { ...targetState };
     }
-	else if (content.type == "clientId") {
-		id = content.clientId;
-		console.log("My ID is: " + id);
-	}
-	else if (content.type == "state") {
-		const state: GameState = content.state;
-		canvasContext.fillStyle = "black";
-		canvasContext.fillRect(0, 0, 800, 800);
-		oldx = state.ballX;
-		oldy = state.ballY;
-		displayLine();
-		drawLeftPlayer(state.player1Y, state.player1Name);
-		drawRightPlayer(state.player2Y, state.player2Name);
-		displayScore(state.player1Score, state.player2Score);
-		canvasContext.fillStyle = "white";
-		canvasContext.fillRect(state.ballX, state.ballY, 10, 10);
-	}
 };
-// handle players movements
+
+function lerp(start: number, end: number, alpha: number): number {
+    return start + (end - start) * alpha;
+}
+
+// render en 60 fps grace a requestAnimationFrame
+// lerp sert a rendre le mouvement plus smooth
+// plutot que d'aller de A a B, donne un nombre un peut avant B
+// rend les mouvements plus fluides.
+
+function render() {
+    if (currentState && targetState) {
+        const now = performance.now();
+        const deltaTime = (now - lastUpdateTime) / (1000 / 60); // Normalisé à 60 FPS
+        lastUpdateTime = now;
+
+        const interpolationSpeed = 0.865; // Vitesse de base (ajustable)
+        const alpha = Math.min(1, interpolationSpeed * deltaTime);
+        // Interpolation
+        currentState.ballX = lerp(currentState.ballX, targetState.ballX, alpha);
+        currentState.ballY = lerp(currentState.ballY, targetState.ballY, alpha);
+        currentState.player1Y = lerp(currentState.player1Y, targetState.player1Y, alpha);
+        currentState.player2Y = lerp(currentState.player2Y, targetState.player2Y, alpha);
+
+        // Dessin
+        canvasContext.fillStyle = "black";
+        canvasContext.fillRect(0, 0, 800, 800);
+        displayLine();
+        drawLeftPlayer(currentState.player1Y, targetState.player1Name);
+        drawRightPlayer(currentState.player2Y, targetState.player2Name);
+        displayScore(targetState.player1Score, targetState.player2Score);
+        canvasContext.fillStyle = "white";
+        canvasContext.fillRect(currentState.ballX, currentState.ballY, 10, 10);
+    }
+    requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
 
 interface inputs {
     w: boolean;
@@ -183,10 +207,11 @@ requestAnimationFrame(updateMoves);
 // gestion de l'envoie du formulaire
 const form: HTMLFormElement = document.getElementById("form") as HTMLFormElement;
 form.addEventListener("submit", async (e) => {
-	e.preventDefault();
+    e.preventDefault();
 
-	const usernameInput: HTMLInputElement = document.getElementById("username") as HTMLInputElement;
-	const username: string = usernameInput.value;
+    const usernameInput: HTMLInputElement = document.getElementById("username") as HTMLInputElement;
+    const username: string = usernameInput.value;
+
 
 	const response = await fetch("https://transcendence-h1wf.onrender.com/register", {
 		method: "POST",
