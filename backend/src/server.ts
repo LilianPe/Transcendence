@@ -115,7 +115,7 @@ app.register(async function (fastify) {
     });
 });
 
-// Inscriptions
+// Registrations
 
 app.post("/register", async (request, reply) => {
     const username: string = (request.body as { username: string }).username;
@@ -135,6 +135,57 @@ app.post("/register", async (request, reply) => {
 	else {
 		reply.status(500).send({message: "Internal Error"});
 	}
+});
+
+
+// Inscription
+
+app.post("/inscription", async (request, reply) => {
+    const pseudo: string = (request.body as { pseudo: string }).pseudo;
+    const mail: string = (request.body as { mail: string }).mail;
+    const password: string = (request.body as { password: string }).password;
+
+	const id: string = request.headers["x-client-id"] as string;
+
+	console.log(`new inscription request: ${pseudo} ${mail} ${password}`)
+    if (!pseudo || !mail || !password) {
+        return reply.status(400).send({message: "Incription failed"});
+    }
+	const client = clients.get(id);
+    createUser(mail, password, pseudo);
+	// if (client) {
+	// 	client.player.register(username);
+	// 	console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
+	// 	registeredClients.set(id, client);
+	// 	reply.send({message: `Inscription reussie pour ${username}`})
+	// }
+	// else {
+	// 	reply.status(500).send({message: "Internal Error"});
+	// }
+});
+
+// Connexion
+
+app.post("/connexion", async (request, reply) => {
+    const mail: string = (request.body as { mail: string }).mail;
+    const password: string = (request.body as { password: string }).password;
+
+	const id: string = request.headers["x-client-id"] as string;
+
+	console.log(`new connexion request: ${mail} ${password}`)
+    if (!mail || !password) {
+        return reply.status(400).send({message: "Connexion failed"});
+    }
+	const client = clients.get(id);
+	// if (client) {
+	// 	client.player.register(username);
+	// 	console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
+	// 	registeredClients.set(id, client);
+	// 	reply.send({message: `Inscription reussie pour ${username}`})
+	// }
+	// else {
+	// 	reply.status(500).send({message: "Internal Error"});
+	// }
 });
 
 // server

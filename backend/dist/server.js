@@ -8,6 +8,7 @@ import { logToELK } from "./logger/logToElk.js";
 import fastifyWebsocket from "@fastify/websocket";
 import { Player } from "./Pong/Player.js";
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
+import { createUser } from './Database/requests.js';
 // import fs from "fs";
 // import path from "path";
 // import { fileURLToPath } from "url";
@@ -81,7 +82,7 @@ app.register(async function (fastify) {
         });
     });
 });
-// Inscriptions
+// Registrations
 app.post("/register", async (request, reply) => {
     const username = request.body.username;
     const id = request.headers["x-client-id"];
@@ -99,6 +100,48 @@ app.post("/register", async (request, reply) => {
     else {
         reply.status(500).send({ message: "Internal Error" });
     }
+});
+// Inscription
+app.post("/inscription", async (request, reply) => {
+    const pseudo = request.body.pseudo;
+    const mail = request.body.mail;
+    const password = request.body.password;
+    const id = request.headers["x-client-id"];
+    console.log(`new inscription request: ${pseudo} ${mail} ${password}`);
+    if (!pseudo || !mail || !password) {
+        return reply.status(400).send({ message: "Incription failed" });
+    }
+    const client = clients.get(id);
+    createUser(mail, password, pseudo);
+    // if (client) {
+    // 	client.player.register(username);
+    // 	console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
+    // 	registeredClients.set(id, client);
+    // 	reply.send({message: `Inscription reussie pour ${username}`})
+    // }
+    // else {
+    // 	reply.status(500).send({message: "Internal Error"});
+    // }
+});
+// Connexion
+app.post("/connexion", async (request, reply) => {
+    const mail = request.body.mail;
+    const password = request.body.password;
+    const id = request.headers["x-client-id"];
+    console.log(`new connexion request: ${mail} ${password}`);
+    if (!mail || !password) {
+        return reply.status(400).send({ message: "Connexion failed" });
+    }
+    const client = clients.get(id);
+    // if (client) {
+    // 	client.player.register(username);
+    // 	console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
+    // 	registeredClients.set(id, client);
+    // 	reply.send({message: `Inscription reussie pour ${username}`})
+    // }
+    // else {
+    // 	reply.status(500).send({message: "Internal Error"});
+    // }
 });
 // server
 const start = async () => {
