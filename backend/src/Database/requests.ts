@@ -47,13 +47,36 @@ export function checkUserID(mail: string, password: string, callback: (isValid: 
             db.close();
             return;
         }
-        
         if (row.password === password) {
-            console.log('Login successful.');
+            console.log('Login successfull.');
             callback(true);
         } else {
             console.log('Invalid password.');
             callback(false);
+        }
+        db.close();
+    });
+}
+
+export function checkUserMAIL(mail: string, callback: (isValid: boolean) => void) {
+	
+    const db = openDatabase();
+    db.get('SELECT COUNT(*) AS count FROM user WHERE mail = ?', [mail], (err, row: UserRow) => {
+        if (err) {
+            console.error('Error querying user:', err.message);
+            callback(false);
+            db.close();
+            return;
+        }
+        if (!row) {
+            callback(false);
+            db.close();
+            return;
+        }
+        else {
+            callback(true);
+            db.close();
+            return
         }
         db.close();
     });

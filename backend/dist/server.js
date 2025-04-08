@@ -9,6 +9,8 @@ import fastifyWebsocket from "@fastify/websocket";
 import { Player } from "./Pong/Player.js";
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
 import { createUser } from './Database/requests.js';
+import { checkUserMAIL } from './Database/requests.js';
+import { checkUserID } from './Database/requests.js';
 // import fs from "fs";
 // import path from "path";
 // import { fileURLToPath } from "url";
@@ -112,16 +114,16 @@ app.post("/inscription", async (request, reply) => {
         return reply.status(400).send({ message: "Incription failed" });
     }
     const client = clients.get(id);
-    createUser(mail, password, pseudo);
-    // if (client) {
-    // 	client.player.register(username);
-    // 	console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
-    // 	registeredClients.set(id, client);
-    // 	reply.send({message: `Inscription reussie pour ${username}`})
-    // }
-    // else {
-    // 	reply.status(500).send({message: "Internal Error"});
-    // }
+    checkUserMAIL(mail, (isValid) => {
+        if (isValid) {
+            console.log('L\'adresse e-mail est disponible.');
+            createUser(mail, password, pseudo);
+        }
+        else {
+            console.log('L\'adresse e-mail existe déjà.');
+            return reply.status(400).send({ message: "Incription failed" });
+        }
+    });
 });
 // Connexion
 app.post("/connexion", async (request, reply) => {
@@ -133,15 +135,15 @@ app.post("/connexion", async (request, reply) => {
         return reply.status(400).send({ message: "Connexion failed" });
     }
     const client = clients.get(id);
-    // if (client) {
-    // 	client.player.register(username);
-    // 	console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
-    // 	registeredClients.set(id, client);
-    // 	reply.send({message: `Inscription reussie pour ${username}`})
-    // }
-    // else {
-    // 	reply.status(500).send({message: "Internal Error"});
-    // }
+    checkUserID(mail, password, (isValid) => {
+        if (isValid) {
+            console.log('Login successfull.');
+        }
+        else {
+            console.log('Login failed.');
+            return reply.status(400).send({ message: "Login failed" });
+        }
+    });
 });
 // server
 const start = async () => {
