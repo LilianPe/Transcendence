@@ -245,3 +245,46 @@ form.addEventListener("submit", async (e) => {
     const result = await response.json();
     console.log(result.message);
 });
+
+
+const signupForm: HTMLFormElement = document.getElementById("signup-form") as HTMLFormElement;
+signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const pseudoInput: HTMLInputElement = document.getElementById("PseudoIncription") as HTMLInputElement;
+    const mailInput: HTMLInputElement = document.getElementById("EmailIncription") as HTMLInputElement;
+    const passwordInput: HTMLInputElement = document.getElementById("PasswordIncription") as HTMLInputElement;
+    const pseudo: string = pseudoInput.value;
+    const mail: string = mailInput.value;
+    const password: string = passwordInput.value;
+
+    const response = await fetch("http://localhost:4500/inscription", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Client-Id": id,
+        },
+        body: JSON.stringify({ pseudo, mail, password }),
+    });
+    const result = await response.json();
+    console.log(result.message);
+});
+
+const signinForm: HTMLFormElement = document.getElementById("signin-form") as HTMLFormElement;
+signinForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const mailInput: HTMLInputElement = document.getElementById("EmailConnexion") as HTMLInputElement;
+    const passwordInput: HTMLInputElement = document.getElementById("PasswordConnexion") as HTMLInputElement;
+    const mail: string = mailInput.value;
+    const password: string = passwordInput.value;
+
+    const response = await fetch("http://localhost:4500/connexion", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Client-Id": id,
+        },
+        body: JSON.stringify({ mail, password }),
+    });
+    const result = await response.json();
+    console.log(result.message);
+});
