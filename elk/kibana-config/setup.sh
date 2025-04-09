@@ -11,7 +11,6 @@ done
 
 echo "✅ Kibana is ready!"
 
-# Example: Import saved objects (dashboards, etc.)
 echo "📦 Importing saved objects..."
 curl -X POST http://localhost:5601/api/saved_objects/_import \
   -H "kbn-xsrf: true" \
@@ -19,6 +18,5 @@ curl -X POST http://localhost:5601/api/saved_objects/_import \
 
 echo "✅ Done importing saved objects."
 
-# 🧠 Don't exit the script or container stops!
 echo "📡 Kibana is running..."
 wait -n

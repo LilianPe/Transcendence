@@ -18,3 +18,8 @@ backend:
 
 frontend:
 	docker compose exec frontend sh
+
+reset:
+	docker compose down -v --remove-orphans
+	docker system prune -af --volumes
+	docker compose up --build

@@ -40,8 +40,8 @@ services:
       - SERVER_BASEPATH=/kibana
       - SERVER_REWRITEBASEPATH=true
     volumes:
-      - ./elk/kabana-config/setup.sh:/usr/local/bin/setup_kibana.sh
-      - ./elk/kabana-config/dashboards:/usr/local/bin/dashboards
+      - ./elk/kibana-config/setup.sh:/usr/local/bin/setup_kibana.sh
+      - ./elk/kibana-config/dashboards:/usr/local/bin/dashboards
     command: bash /usr/local/bin/setup_kibana.sh
     depends_on:
       - elasticsearch
