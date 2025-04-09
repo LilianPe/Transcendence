@@ -59,14 +59,14 @@ function displayLine(): void {
 let online: boolean = true;
 const onOffButton: HTMLButtonElement = document.getElementById("onOffButton") as HTMLButtonElement;
 onOffButton.addEventListener("click", () => {
-	if (onOffButton.textContent == "Off") {
+	if (onOffButton.textContent == "Play Offline") {
 		online = false;
-		onOffButton.textContent = "On";
+		onOffButton.textContent = "Play Online";
 		offReset();
 	} 
 	else {
 		online = true;
-		onOffButton.textContent = "Off";
+		onOffButton.textContent = "Play Offline";
 		stopOff();
 	}
 }); 

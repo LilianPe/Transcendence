@@ -1,4 +1,3 @@
-import cors from "@fastify/cors";
 import fastify, { FastifyInstance } from "fastify";
 import { LogLevel, LogType } from "././logger/normalization.js";
 import { registerHooks } from "./logger/hook.js";
@@ -12,7 +11,10 @@ import { ServerSidePong } from "./Pong/ServerSidePong.js";
 import { createUser } from './Database/requests.js';
 import { checkUserMAIL } from './Database/requests.js';
 import { checkUserID } from './Database/requests.js';
+import { allowCors } from "./Server/cors.js";
 
+// -------Pour le https-------------
+//
 // import fs from "fs";
 // import path from "path";
 // import { fileURLToPath } from "url";
@@ -26,17 +28,17 @@ import { checkUserID } from './Database/requests.js';
 //         cert: fs.readFileSync(path.join(__dirname, "../certs/localhost+2.pem")),
 //     },
 // };
+//
+// ----------------------------------
 
-const app: FastifyInstance = fastify(/*options*/);
+export const app: FastifyInstance = fastify(/*options*/);
+
+allowCors("http://localhost:3000", ["POST", "GET"], ["Content-Type", "X-Client-Id"]);
+
 // ELK
 
 registerHooks(app);
 
-app.register(cors, {
-    origin: "http://localhost:3000",
-    methods: ["POST"],
-    allowedHeaders: ["Content-Type", "X-Client-Id"],
-});
 
 app.get("/", async (req, reply) => {
     logToELK({
