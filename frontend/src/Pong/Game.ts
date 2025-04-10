@@ -56,4 +56,6 @@ export interface GameState {
     player2Score: number;
 	player1Name: string;
     player2Name: string;
+	player1Id: string;
+    player2Id: string;
 }

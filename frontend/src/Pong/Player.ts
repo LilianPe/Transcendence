@@ -7,12 +7,14 @@ export class Player {
     private y: number;
     private score: number;
     private name: string;
+    private id: string;
 	private registered: boolean;
 
     constructor() {
         this.y = 400 - 50;
         this.score = 0;
         this.name = "";
+        this.id = "";
         this.registered = false;
     }
 	public register(username: string): void {
@@ -43,6 +45,9 @@ export class Player {
     }
     public getName(): string {
         return this.name;
+    }
+    public getId(): string {
+        return this.id;
     }
     public isRegistered(): boolean {
         return this.registered;

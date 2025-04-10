@@ -5,8 +5,6 @@ yarn-debug.log*
 yarn-error.log*
 
 .vscode/
-.env
-.env.local
 
 dist/
 install-key.pem
