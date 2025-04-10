@@ -566,6 +566,10 @@ video {
   margin-bottom: 0.5rem;
 }
 
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
 .mb-72 {
   margin-bottom: 18rem;
 }
@@ -701,5 +705,5 @@ video {
 }
 
 body {
-  background-color: #e7edff;
+  background-color: #ffffff;
 }

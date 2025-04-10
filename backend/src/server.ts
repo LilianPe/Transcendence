@@ -5,6 +5,7 @@ import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
 import { checkUserID, checkUserMAIL, createUser } from './Database/requests.js';
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
+import { handleApiRequest } from "./Server/api.js";
 import { allowCors } from "./Server/cors.js";
 import { Client, handleWebsocket } from "./Server/webSocket.js";
 
@@ -29,6 +30,7 @@ import { Client, handleWebsocket } from "./Server/webSocket.js";
 export const app: FastifyInstance = fastify(/*options*/);
 
 allowCors("http://localhost:3000", ["POST", "GET"], ["Content-Type", "X-Client-Id"]);
+handleApiRequest();
 
 // ELK
 
