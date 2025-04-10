@@ -1,8 +1,9 @@
 import { logToELK } from "../logger/logToElk.js";
 import { LogLevel, LogType } from "../logger/normalization.js";
-import { app, game } from "../server.js";
+import { Player } from "../Pong/Player.js";
+import { app, game, registeredClients } from "../server.js";
 
-export function handleApiRequest(): void {
+function handleGetApi(): void {
 	app.get("/game/state", async (req, reply) => {
 		logToELK({
 			level: LogLevel.INFO,
@@ -13,6 +14,9 @@ export function handleApiRequest(): void {
 		});
 		return game.getState();
 	});
+}
+
+function handlePostApi(): void {
 	app.post("/game/controls", async (req, reply) => {
 		logToELK({
 			level: LogLevel.INFO,
@@ -28,9 +32,21 @@ export function handleApiRequest(): void {
 			return reply.status(400).send({ error: "Missing playerId or direction" });
 		}
 
+		const player: Player | undefined = registeredClients.get(playerId)?.player;
 
+		if (!player) {
+			return reply.status(400).send({ error: "Player " + playerId + " isn't registered." });
+		}
+		if (game.getState().player1Id != playerId && game.getState().player2Id != playerId) {
+			return reply.status(400).send({ error: "Player " + playerId + " isn't registered." });
+		}
 		// recuperer registered client de id, regarder si il existe et si ij joue, si oui, bouger + return sucess, sinon return erreur;
 		//game.update();
 	});
 
+}
+
+export function handleApiRequest(): void {
+	handleGetApi();
+	handlePostApi();
 }
