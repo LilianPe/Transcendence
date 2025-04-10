@@ -1,4 +1,5 @@
 import { GameState } from "./Pong/Game.js";
+import { PlayerMoves } from "./Pong/Player.js";
 import { offMove, offReset, offStart, renderLocal, stopOff } from "./pongAi.js";
 
 const ws = new WebSocket("ws://localhost:4500/ws");
@@ -213,12 +214,12 @@ document.addEventListener("keyup", (event) => {
 
 function updateMoves() {
 	if (online) {
-		if (keys.w) ws.send("LU");
-		if (keys.s) ws.send("LD");
+		if (keys.w) ws.send(PlayerMoves.MoveUp);
+		if (keys.s) ws.send(PlayerMoves.MoveDown);
 	} 
 	else {
-		if (keys.w) offMove("LU");
-		if (keys.s) offMove("LD");
+		if (keys.w) offMove(PlayerMoves.MoveUp);
+		if (keys.s) offMove(PlayerMoves.MoveDown);
 	}
     requestAnimationFrame(updateMoves);
 }

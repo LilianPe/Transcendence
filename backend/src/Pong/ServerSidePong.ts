@@ -25,8 +25,8 @@ export class ServerSidePong {
             else if (registeredClients.size < 2) clients.get(clientID)?.socketStream.send(JSON.stringify({type: "error", error: "Not enought player registered to launch."}));
 				else {
                 const clientKeys: Array<string> = Array.from(registeredClients.keys());
-                const player1 = registeredClients.get(clientKeys[0])?.player;
-            const player2 = registeredClients.get(clientKeys[1])?.player;
+                const player1: Player | null = registeredClients.get(clientKeys[0])?.player;
+            const player2: Player | null = registeredClients.get(clientKeys[1])?.player;
 
             if (player1 && player2) {
                 this.launchGame(player1, player2);
@@ -36,6 +36,7 @@ export class ServerSidePong {
             }
         }
     }
+
     public check(clients: Map<string, Client>, clientID: string): void {
         if (!this.game.getRound().isRunning()) return;
         if (this.game.getPlayer1().getId() == clientID) {
@@ -47,9 +48,11 @@ export class ServerSidePong {
             clients.get(this.game.getPlayer1().getId())?.socketStream.send(JSON.stringify({type: "error", error: "Opponent disconected."}));
         }
     }
+
     public getGame(): Game {
         return this.game;
     }
+
     public getState(): GameState {
         const state: GameState = {
             ballX: this.getGame().getBall().getX(),

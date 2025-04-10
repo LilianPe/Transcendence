@@ -22,20 +22,13 @@ export class Ball {
             this.y = 800 - 10;
             this.dy = -this.dy;
         }
-        if (collision(20, 30, p1.getY() - 10, p1.getY() + 100)
-        // this.x <= 30 && this.x >= 20 && this.y > p1.getY() - 10 && this.y < p1.getY() + 100
-        ) {
+        if (collision(20, 30, p1.getY() - 10, p1.getY() + 100)) {
             this.x = 31;
             this.dx = -this.dx;
             this.adjustSpeed();
             this.adjustAngle(p1.getY());
         }
-        if (collision(770, 780, p2.getY() - 10, p2.getY() + 100)
-        // this.x + 10 >= 770 &&
-        // this.x + 10 <= 780 &&
-        // this.y > p2.getY() - 10 &&
-        // this.y < p2.getY() + 100
-        ) {
+        if (collision(770, 780, p2.getY() - 10, p2.getY() + 100)) {
             this.x = 769;
             this.dx = -this.dx;
             this.adjustSpeed();

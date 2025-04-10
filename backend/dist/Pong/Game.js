@@ -20,10 +20,10 @@ export class Game {
         else
             return;
         switch (move) {
-            case "LU":
+            case "Up" /* PlayerMoves.MoveUp */:
                 player.moveUp();
                 break;
-            case "LD":
+            case "Down" /* PlayerMoves.MoveDown */:
                 player.moveDown();
                 break;
         }

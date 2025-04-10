@@ -47,7 +47,7 @@ app.get("/", async (req, reply) => {
 });
 
 // Fastify websocket
-export const game = new ServerSidePong();
+export const game: ServerSidePong = new ServerSidePong();
 export const clients: Map<string, Client> = new Map();
 export const registeredClients: Map<string, Client> = new Map();
 
@@ -63,7 +63,7 @@ app.post("/register", async (request, reply) => {
     if (!username) {
         return reply.status(400).send({message: "Username can't be blank"});
     }
-	const client = clients.get(id);
+	const client: Client | undefined = clients.get(id);
 	if (client) {
 		client.player.register(username);
 		console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
@@ -89,7 +89,7 @@ app.post("/inscription", async (request, reply) => {
     if (!pseudo || !mail || !password) {
         return reply.status(400).send({message: "Incription failed"});
     }
-	const client = clients.get(id);
+	const client: Client | undefined = clients.get(id);
     checkUserMAIL(mail, (isValid) => {
         if (isValid) {
             console.log('L\'adresse e-mail est disponible.');
@@ -113,7 +113,7 @@ app.post("/connexion", async (request, reply) => {
     if (!mail || !password) {
         return reply.status(400).send({message: "Connexion failed"});
     }
-	const client = clients.get(id);
+	const client: Client | undefined = clients.get(id);
     checkUserID(mail, password, (isValid) => {
         if (isValid) {
             console.log('Login successfull.');

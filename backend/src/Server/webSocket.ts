@@ -27,7 +27,7 @@ export function handleWebsocket(): void {
 			// console.log("Nouveau client connecte, ID: " + clientID);
 
 			// debug websocket
-			socket.on("message", (message: Buffer | string) => {
+			socket.on("message", (message: Buffer | string): void => {
 				logToELK(
 					createLogEntry(
 						LogLevel.DEBUG,
@@ -40,14 +40,14 @@ export function handleWebsocket(): void {
 			});
 
 			// Gérer les erreurs
-			socket.on("error", (err: Buffer) => {
+			socket.on("error", (err: Buffer): void => {
 				logToELK(createLogEntry(LogLevel.ERROR, LogType.RESPONSE, "💥 WS error: " + err));
 				console.error("Erreur WebSocket:", err);
 			});
 
 			// Envoi des données du jeu au client
 
-			const interval = setInterval(() => {
+			const interval: NodeJS.Timeout = setInterval((): void => {
 				const state: GameState = game.getState();
 				socket.send(JSON.stringify({type: "state", state: state}));
 			}, 1000 / 30);

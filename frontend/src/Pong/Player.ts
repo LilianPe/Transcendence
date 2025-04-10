@@ -1,3 +1,8 @@
+export const enum PlayerMoves {
+	MoveUp = "Up",
+	MoveDown = "Down",
+}
+
 export class Player {
     private y: number;
     private score: number;

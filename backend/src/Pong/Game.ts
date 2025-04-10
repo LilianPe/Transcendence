@@ -4,6 +4,11 @@ import { Ball } from "./Ball.js";
 import { Player } from "./Player.js";
 import { Round } from "./Round.js";
 
+const enum PlayerMoves {
+	MoveUp = "Up",
+	MoveDown = "Down",
+}
+
 export class Game {
     private round: Round;
     private player1: Player;
@@ -21,15 +26,15 @@ export class Game {
         this.round.run();
     }
     public update(move: string, clients: Map<string, SocketStream>, clientId: string): void {
-        let player;
+        let player: Player;
         if (clientId == this.player1.getId()) player = this.player1;
         else if (clientId == this.player2.getId()) player = this.player2;
         else return;
         switch (move) {
-            case "LU":
+            case PlayerMoves.MoveUp:
                 player.moveUp();
                 break;
-            case "LD":
+            case PlayerMoves.MoveDown:
                 player.moveDown();
                 break;
         }

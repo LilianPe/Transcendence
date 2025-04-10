@@ -18,12 +18,12 @@ export class Ball {
     }
 
     public move(p1: Player, p2: Player): void {
-		const prevX = this.x;
-		const prevY = this.y;
+		const prevX: number = this.x;
+		const prevY: number = this.y;
         this.x += this.dx * this.speed;
         this.y += this.dy * this.speed;
-		const x = this.x;
-		const y = this.y;
+		const x: number = this.x;
+		const y: number = this.y;
 
         if (this.y <= 0) {
             this.y = 0;
@@ -34,23 +34,14 @@ export class Ball {
             this.dy = -this.dy;
         }
 
-        if (
-			collision(20, 30, p1.getY() - 10, p1.getY() + 100)
-			// this.x <= 30 && this.x >= 20 && this.y > p1.getY() - 10 && this.y < p1.getY() + 100
-		) {
+        if (collision(20, 30, p1.getY() - 10, p1.getY() + 100)) {
             this.x = 31;
             this.dx = -this.dx;
             this.adjustSpeed();
             this.adjustAngle(p1.getY());
         }
 
-        if (
-			collision(770, 780, p2.getY() - 10, p2.getY() + 100)
-            // this.x + 10 >= 770 &&
-            // this.x + 10 <= 780 &&
-            // this.y > p2.getY() - 10 &&
-            // this.y < p2.getY() + 100
-        ) {
+        if (collision(770, 780, p2.getY() - 10, p2.getY() + 100)) {
             this.x = 769;
             this.dx = -this.dx;
             this.adjustSpeed();
@@ -106,8 +97,8 @@ export class Ball {
     }
 
     private adjustAngle(playerY: number): void {
-        const relativeHitPoint = this.y - (playerY + 50);
-        const normalizedHitPoint = relativeHitPoint / 50;
+        const relativeHitPoint: number = this.y - (playerY + 50);
+        const normalizedHitPoint: number = relativeHitPoint / 50;
         this.dy = normalizedHitPoint * 1.5;
     }
 

@@ -5,6 +5,11 @@ import { displayLine, displayScore, drawLeftPlayer, drawRightPlayer } from "./po
 
 let game = new Pong();
 
+export const enum PlayerType {
+	Player = "PLAYER",
+	Ai = "AI",
+}
+
 export function offStart(): void {
 	if (game.getGame().getRound().isRunning()) {
 		displayLaunchError("A game is already running.");
@@ -15,7 +20,7 @@ export function offStart(): void {
 }
 
 export function offMove(move: string): void {
-	game.update(move, "player");
+	game.update(move, PlayerType.Player);
 }
 
 export function renderLocal(canvasContext: CanvasRenderingContext2D): void {

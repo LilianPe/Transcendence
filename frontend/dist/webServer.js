@@ -5,10 +5,11 @@ import { fileURLToPath } from "url"; // Pour remplacer __dirname
 // @ts-ignore
 import ejs from "ejs";
 import fastify from "fastify";
-// import fs from "fs";
 // Partie serveur
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// --------------https--------------
+// import fs from "fs";
 // certificat ssl
 // const options = {
 //     https: {
@@ -16,6 +17,7 @@ const __dirname = path.dirname(__filename);
 //         cert: fs.readFileSync(path.join(__dirname, "../certs/localhost+2.pem")),
 //     },
 // };
+// ---------------------------------
 const app = fastify( /*options*/);
 app.register(fastifyStatic, {
     root: path.join(__dirname, "../dist"), // Chemin vers le dossier dist

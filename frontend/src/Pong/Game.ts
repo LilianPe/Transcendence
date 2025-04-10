@@ -1,7 +1,6 @@
-//@ts-ignore
-import { SocketStream } from "@fastify/websocket";
+import { PlayerType } from "../pongAi.js";
 import { Ball } from "./Ball.js";
-import { Player } from "./Player.js";
+import { Player, PlayerMoves } from "./Player.js";
 import { Round } from "./Round.js";
 
 export class Game {
@@ -22,14 +21,14 @@ export class Game {
     }
     public update(move: string, name: string): void {
         let player;
-        if (name == "player") player = this.player1;
-        else if (name == "Ai") player = this.player2;
+        if (name == PlayerType.Player) player = this.player1;
+        else if (name == PlayerType.Ai) player = this.player2;
         else return;
         switch (move) {
-            case "LU":
+            case PlayerMoves.MoveUp:
                 player.moveUp();
                 break;
-            case "LD":
+            case PlayerMoves.MoveDown:
                 player.moveDown();
                 break;
         }
