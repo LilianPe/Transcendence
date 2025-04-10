@@ -58,6 +58,8 @@ export class ServerSidePong {
             player2Score: this.getGame().getPlayer2().getScore(),
             player1Name: this.getGame().getPlayer1().getName(),
             player2Name: this.getGame().getPlayer2().getName(),
+            player1Id: this.getGame().getPlayer1().getId(),
+            player2Id: this.getGame().getPlayer2().getId(),
         };
         return state;
     }
