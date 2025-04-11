@@ -1,6 +1,6 @@
-import { displayLaunchError } from "./frontend.js";
-import { GameState } from "./Pong/Game.js";
-import { Pong } from "./Pong/Pong.js";
+import { displayLaunchError } from "../Online/pongDisplayOnline.js";
+import { GameState } from "../Pong/Game.js";
+import { Pong } from "../Pong/Pong.js";
 import { displayLine, displayScore, drawLeftPlayer, drawRightPlayer } from "./pongDisplayOff.js";
 
 let game = new Pong();

@@ -1,128 +1,35 @@
-import { GameState } from "./Pong/Game.js";
+import { handleKeyPress, keys, launchButtonAddEvent, online, onlineButtonAddEvent } from "./events.js";
+import { offMove, renderLocal } from "./Offline/pongAi.js";
+import { displayLine, displayScore, drawLeftPlayer, drawRightPlayer } from "./Online/pongDisplayOnline.js";
+import { currentState, handleWebSocket, targetState } from "./Online/webSocket.js";
 import { PlayerMoves } from "./Pong/Player.js";
-import { offMove, offReset, offStart, renderLocal, stopOff } from "./pongAi.js";
 
-const ws = new WebSocket("ws://localhost:4500/ws");
+export type Ref<T> = {value: T};
 
-ws.onopen = () => {
-    console.log("Connected to WebSocket server");
+// WebSocket connection
+export const ws = new WebSocket("ws://localhost:4500/ws");
+const id: Ref<string> = {value: ""}; 
+handleWebSocket(id);
 
-    ws.send("Hello from the client!");
-};
-
-ws.onerror = (error: Event) => console.error("WebSocket error:", error);
-
-ws.onclose = (event: CloseEvent) => {
-    console.log("WebSocket connection closed. Code:", event.code, "Reason:", event.reason);
-};
-
+// Canvas
 let canvas: HTMLCanvasElement = document.querySelector("canvas") as HTMLCanvasElement;
-console.log(canvas);
 canvas.width = 800;
 canvas.height = 800;
-let canvasContext: CanvasRenderingContext2D = canvas.getContext("2d") as CanvasRenderingContext2D;
+export let canvasContext: CanvasRenderingContext2D = canvas.getContext("2d") as CanvasRenderingContext2D;
 
-let oldx: number;
-let oldy: number;
 
-function drawLeftPlayer(y: number, name: string): void {
-    canvasContext.font = "20px Arial";
-    canvasContext.fillStyle = "white";
-    // console.log(`Left Player name: ${name}`);
-    canvasContext.fillText(name, 175, 30);
-    canvasContext.fillRect(20, y, 10, 100);
-    canvasContext.strokeStyle = "black";
-    canvasContext.strokeText(name, 175, 30);
-}
+export const onOffButton: HTMLButtonElement = document.getElementById("onOffButton") as HTMLButtonElement;
+onlineButtonAddEvent();
 
-function drawRightPlayer(y: number, name: string): void {
-    canvasContext.font = "20px Arial";
-    canvasContext.fillStyle = "white";
-    // console.log(`Right Player name: ${name}`);
-    canvasContext.fillText(name, 575, 30);
-    canvasContext.fillRect(770, y, 10, 100);
-    canvasContext.strokeStyle = "black";
-    canvasContext.strokeText(name, 575, 30);
-}
+export const launchButton: HTMLButtonElement = document.getElementById("Launch") as HTMLButtonElement;
+launchButtonAddEvent();
 
-function displayScore(s1: number, s2: number) {
-    canvasContext.font = "100px Arial";
-    canvasContext.strokeStyle = "white";
-    canvasContext.strokeText("" + s1, 175, 400);
-    canvasContext.strokeText("" + s2, 575, 400);
-}
 
-function displayLine(): void {
-    canvasContext.fillStyle = "grey";
-    canvasContext.fillRect(398, 0, 4, 800);
-}
+export const errorMessage: HTMLParagraphElement = document.getElementById(
+	"LaunchError"
+) as HTMLParagraphElement;
 
-let online: boolean = true;
-const onOffButton: HTMLButtonElement = document.getElementById("onOffButton") as HTMLButtonElement;
-onOffButton.addEventListener("click", () => {
-	if (onOffButton.textContent == "Play Offline") {
-		online = false;
-		onOffButton.textContent = "Play Online";
-		offReset();
-	} 
-	else {
-		online = true;
-		onOffButton.textContent = "Play Offline";
-		stopOff();
-	}
-}); 
-
-const launchButton: HTMLButtonElement = document.getElementById("Launch") as HTMLButtonElement;
-
-launchButton.addEventListener("click", () => {
-	if (online) {
-		ws.send("start");
-	}
-	else {
-		offStart();
-	}
-});
-
-export function displayLaunchError(message: string) {
-    const errorMessage: HTMLParagraphElement = document.getElementById(
-        "LaunchError"
-    ) as HTMLParagraphElement;
-    errorMessage.textContent = message;
-    errorMessage.classList.remove("opacity-0");
-    errorMessage.classList.add("opacity-100");
-    setTimeout(() => {
-        errorMessage.classList.remove("opacity-100");
-        errorMessage.classList.add("opacity-0");
-    }, 1000);
-}
-
-interface message {
-    type: string;
-    error: string;
-    state: GameState;
-    clientId: string;
-}
-let currentState: GameState | null = null;
-let targetState: GameState | null = null;
 let lastUpdateTime = performance.now();
-
-let id: string;
-ws.onmessage = (event) => {
-	const content: message = JSON.parse(event.data);
-	if (content.type == "clientId") {
-		id = content.clientId;
-		console.log("My ID is: " + id);
-	}
-	if (!online) return;
-    if (content.type == "error") {
-        displayLaunchError(content.error);
-        return;
-    } 
-	 else if (content.type == "state") {
-        targetState = content.state;
-        if (!currentState) currentState = { ...targetState };
-    }
-};
 
 function lerp(start: number, end: number, alpha: number): number {
     return start + (end - start) * alpha;
@@ -165,53 +72,7 @@ function render(): void {
 
 requestAnimationFrame(render);
 
-interface inputs {
-    w: boolean;
-    s: boolean;
-    j: boolean;
-    n: boolean;
-}
-const keys: inputs = {
-    w: false,
-    s: false,
-    j: false,
-    n: false,
-};
-
-document.addEventListener("keydown", (event) => {
-    switch (event.key) {
-        case "w":
-            keys.w = true;
-            break;
-        case "s":
-            keys.s = true;
-            break;
-        case "j":
-            keys.j = true;
-            break;
-        case "n":
-            keys.n = true;
-            break;
-    }
-});
-
-document.addEventListener("keyup", (event) => {
-    switch (event.key) {
-        case "w":
-            keys.w = false;
-            break;
-        case "s":
-            keys.s = false;
-            break;
-        case "j":
-            keys.j = false;
-            break;
-        case "n":
-            keys.n = false;
-            break;
-    }
-});
-
+handleKeyPress();
 function updateMoves() {
 	if (online) {
 		if (keys.w) ws.send(PlayerMoves.MoveUp);
@@ -239,7 +100,7 @@ form.addEventListener("submit", async (e) => {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-Client-Id": id,
+            "X-Client-Id": id.value,
         },
         body: JSON.stringify({ username }),
     });
@@ -262,7 +123,7 @@ signupForm.addEventListener("submit", async (e) => {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-Client-Id": id,
+            "X-Client-Id": id.value,
         },
         body: JSON.stringify({ pseudo, mail, password }),
     });
@@ -282,7 +143,7 @@ signinForm.addEventListener("submit", async (e) => {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-Client-Id": id,
+            "X-Client-Id": id.value,
         },
         body: JSON.stringify({ mail, password }),
     });

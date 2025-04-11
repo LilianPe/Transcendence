@@ -1,4 +1,4 @@
-import { PlayerType } from "../pongAi.js";
+import { PlayerType } from "../Offline/pongAi.js";
 import { Ball } from "./Ball.js";
 import { Player, PlayerMoves } from "./Player.js";
 import { Round } from "./Round.js";
