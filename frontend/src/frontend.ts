@@ -247,7 +247,6 @@ form.addEventListener("submit", async (e) => {
     console.log(result.message);
 });
 
-
 const signupForm: HTMLFormElement = document.getElementById("signup-form") as HTMLFormElement;
 signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -291,16 +290,18 @@ signinForm.addEventListener("submit", async (e) => {
     {
         const forms = document.getElementById("Forms-connexion");
         const formPseudo = document.getElementById("form");
-        const perso = document.getElementById("perso");
-        const messageDiv = document.getElementById("message");
-        if (forms && formPseudo && perso)
+        const userProfile = document.getElementById("user-profile");
+        if (forms && formPseudo && userProfile)
         {
             forms.style.display = "none";
             formPseudo.style.display = "none";
-            perso.style.display = "block";
-            messageDiv.textContent = "Bonjour pierre !"; //prendre le pseudo
+            userProfile.style.display = "block";
         }
         printPersonalsElements(mail);
+    }
+    else
+    {
+        displayLaunchError(result.message);
     }
     console.log(result.message);
 });
@@ -316,4 +317,18 @@ async function printPersonalsElements(mail: string)
         body: JSON.stringify({ mail }),
     });
     const result = await response.json();
+    const greetingElement = document.getElementById("greeting");
+    const emailElement = document.getElementById("user-email");
+    const victoriesElement = document.getElementById("user-victories");
+    const defeatsElement = document.getElementById("user-defeats");
+    
+    if (greetingElement)
+        greetingElement.textContent = `Bonjour, ${result.pseudo}!`;
+    if (emailElement)
+        emailElement.textContent = result.mail;
+    if (victoriesElement)
+        victoriesElement.textContent = result.victories;
+    if (defeatsElement)
+        defeatsElement.textContent = result.defeats;
+
 };
