@@ -287,5 +287,33 @@ signinForm.addEventListener("submit", async (e) => {
         body: JSON.stringify({ mail, password }),
     });
     const result = await response.json();
+    if (result.message === "OK")
+    {
+        const forms = document.getElementById("Forms-connexion");
+        const formPseudo = document.getElementById("form");
+        const perso = document.getElementById("perso");
+        const messageDiv = document.getElementById("message");
+        if (forms && formPseudo && perso)
+        {
+            forms.style.display = "none";
+            formPseudo.style.display = "none";
+            perso.style.display = "block";
+            messageDiv.textContent = "Bonjour pierre !"; //prendre le pseudo
+        }
+        printPersonalsElements(mail);
+    }
     console.log(result.message);
 });
+
+async function printPersonalsElements(mail: string)
+{
+    const response = await fetch("http://localhost:4500/info", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Client-Id": id,
+        },
+        body: JSON.stringify({ mail }),
+    });
+    const result = await response.json();
+};

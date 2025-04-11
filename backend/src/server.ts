@@ -116,14 +116,36 @@ app.post("/connexion", async (request, reply) => {
         return reply.status(400).send({message: "Connexion failed"});
     }
 	const client: Client | undefined = clients.get(id);
-    checkUserID(mail, password, (isValid) => {
-        if (isValid) {
-            console.log('Login successfull.');
-        } else {
-            console.log('Login failed.');
-            return reply.status(400).send({message: "Login failed"});
-        }
+    const isValid = await new Promise<boolean>((resolve) => {
+        checkUserID(mail, password, resolve);
     });
+    if (isValid) {
+        if (client)
+        {
+            client.player.register("Default"); //mettre pseudo dans la db a la place (lie a l'adresse mail)
+            console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: Default`);
+            registeredClients.set(id, client);
+            reply.status(200).send({message: `OK`});
+            console.log('Login successfull.');
+        }
+        else {
+            return reply.status(500).send({message: "Internal Error"});
+        }
+    } else {
+        console.log('Login failed.');
+        return reply.status(400).send({message: "Login failed"});
+    }
+});
+
+app.post("/info", async (request, reply) => {
+    const mail: string = (request.body as { mail: string }).mail;
+	const id: string = request.headers["x-client-id"] as string;
+
+	console.log(`new information request: ${mail}`)
+    if (!mail) {
+        return reply.status(400).send({message: "Connexion failed"});
+    }
+	//prendre les infos du client grace a son mail dans la db puis lui renvoyer
 });
 
 // server
