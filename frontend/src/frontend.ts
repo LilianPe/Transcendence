@@ -108,7 +108,6 @@ form.addEventListener("submit", async (e) => {
     console.log(result.message);
 });
 
-
 const signupForm: HTMLFormElement = document.getElementById("signup-form") as HTMLFormElement;
 signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -148,5 +147,49 @@ signinForm.addEventListener("submit", async (e) => {
         body: JSON.stringify({ mail, password }),
     });
     const result = await response.json();
+    if (result.message === "OK")
+    {
+        const forms = document.getElementById("Forms-connexion");
+        const formPseudo = document.getElementById("form");
+        const userProfile = document.getElementById("user-profile");
+        if (forms && formPseudo && userProfile)
+        {
+            forms.style.display = "none";
+            formPseudo.style.display = "none";
+            userProfile.style.display = "block";
+        }
+        printPersonalsElements(mail);
+    }
+    else
+    {
+        displayLaunchError(result.message);
+    }
     console.log(result.message);
 });
+
+async function printPersonalsElements(mail: string)
+{
+    const response = await fetch("http://localhost:4500/info", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Client-Id": id,
+        },
+        body: JSON.stringify({ mail }),
+    });
+    const result = await response.json();
+    const greetingElement = document.getElementById("greeting");
+    const emailElement = document.getElementById("user-email");
+    const victoriesElement = document.getElementById("user-victories");
+    const defeatsElement = document.getElementById("user-defeats");
+    
+    if (greetingElement)
+        greetingElement.textContent = `Bonjour, ${result.pseudo}!`;
+    if (emailElement)
+        emailElement.textContent = result.mail;
+    if (victoriesElement)
+        victoriesElement.textContent = result.victories;
+    if (defeatsElement)
+        defeatsElement.textContent = result.defeats;
+
+};

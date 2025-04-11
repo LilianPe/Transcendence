@@ -3,7 +3,7 @@ import { LogLevel, LogType } from "././logger/normalization.js";
 import { registerHooks } from "./logger/hook.js";
 import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
-import { checkUserID, checkUserMAIL, createUser } from './Database/requests.js';
+import { checkUserID, checkUserMAIL, createUser, getAvatar, getDefeats, getPseudo, getVictories } from './Database/requests.js';
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
 import { handleApiRequest } from "./Server/api.js";
 import { allowCors } from "./Server/cors.js";
@@ -94,15 +94,44 @@ app.post("/connexion", async (request, reply) => {
         return reply.status(400).send({ message: "Connexion failed" });
     }
     const client = clients.get(id);
-    checkUserID(mail, password, (isValid) => {
-        if (isValid) {
-            console.log('Login successfull.');
+    const isValid = await new Promise((resolve) => {
+        checkUserID(mail, password, resolve);
+    });
+    if (isValid) {
+        if (client) {
+            const pseudo = await getPseudo(mail);
+            if (pseudo) {
+                client.player.register(pseudo);
+                console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${pseudo}`);
+                registeredClients.set(id, client);
+                reply.status(200).send({ message: `OK` });
+                console.log('Login successfull.');
+            }
         }
         else {
-            console.log('Login failed.');
-            return reply.status(400).send({ message: "Login failed" });
+            console.log('ERROR.');
+            return reply.status(500).send({ message: "Internal Error" });
         }
-    });
+    }
+    else {
+        console.log('Login failed.');
+        return reply.status(400).send({ message: "Login failed" });
+    }
+});
+app.post("/info", async (request, reply) => {
+    const mail = request.body.mail;
+    const id = request.headers["x-client-id"];
+    const pseudoDB = await getPseudo(mail);
+    const victoriesDB = await getVictories(mail);
+    const avatarDB = await getAvatar(mail);
+    const defeatsDB = await getDefeats(mail);
+    console.log(`new information request: ${mail}`);
+    if (!mail) {
+        return reply.status(400).send({ message: "Connexion failed" });
+    }
+    else {
+        return reply.send({ pseudo: pseudoDB, avatar: avatarDB, victories: victoriesDB, defeats: defeatsDB, mail: mail });
+    }
 });
 // server
 const start = async () => {

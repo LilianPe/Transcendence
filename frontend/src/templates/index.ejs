@@ -36,23 +36,36 @@
                             <input id="username" type="text" name="username" class="border-2 border-solid" />
                             <br />
                             <button type="submit" class="">Valider</button>
-                        </form>              
+                        </form>
                     </div>
                 </div>
-                <form id="signup-form" class="flex flex-col items-center">
-                    <p class="font-semibold mb-4">Creer un compte :</p>
-                    <input id="PseudoIncription" type="text" placeholder="Pseudo" required class="border-2 border-solid mb-2"/>
-                    <input id="EmailIncription" type="email" placeholder="Email" required class="border-2 border-solid mb-2"/>
-                    <input id="PasswordIncription" type="password" placeholder="Password" required class="border-2 border-solid mb-2"/>
-                    <button type="submit" class="bg-amber-50 mb-2">S'inscrire</button>
-                </form>
-                <form id="signin-form" class="flex flex-col items-center">
-                    <p class="font-semibold mb-4">Deja un compte ? Se connecter :</p>
-                    <input id="EmailConnexion" type="email" placeholder="Email" required class="border-2 border-solid"/>
-                    <input id="PasswordConnexion" type="password" placeholder="Password" required class="border-2 border-solid"/>
-                    <button type="submit" class="bg-amber-50 mb-2">Se connecter</button>
-                </form>
-                <footer class="flex justify-center w-full bg-blue-600">
+                <div id="Forms-connexion">
+                    <form id="signup-form" class="flex flex-col items-center">
+                        <p class="font-semibold mb-4">Creer un compte :</p>
+                        <input id="PseudoIncription" type="text" placeholder="Pseudo" required class="border-2 border-solid mb-2"/>
+                        <input id="EmailIncription" type="email" placeholder="Email" required class="border-2 border-solid mb-2"/>
+                        <input id="PasswordIncription" type="password" placeholder="Password" required class="border-2 border-solid mb-2"/>
+                        <button type="submit" class="bg-amber-50 mb-2">S'inscrire</button>
+                    </form>
+                    <form id="signin-form" class="flex flex-col items-center">
+                        <p class="font-semibold mb-4">Deja un compte ? Se connecter :</p>
+                        <input id="EmailConnexion" type="email" placeholder="Email" required class="border-2 border-solid"/>
+                        <input id="PasswordConnexion" type="password" placeholder="Password" required class="border-2 border-solid"/>
+                        <button type="submit" class="bg-amber-50 mb-2">Se connecter</button>
+                    </form>
+                </div>
+                <div id="user-profile" class="max-w-xs mx-auto p-4 bg-white rounded-lg shadow-md" style="display: none;">
+                    <p id="greeting" class="text-lg font-semibold text-gray-700 text-center mb-4"></p>
+                    
+                    <div class="space-y-2">
+                        <p class="text-sm text-gray-600"><strong>Email:</strong> <span id="user-email" class="font-medium text-gray-800"></span></p>
+                        <p class="text-sm text-gray-600"><strong>Victoires:</strong> <span id="user-victories" class="font-medium text-green-600"></span></p>
+                        <p class="text-sm text-gray-600"><strong>Défaites:</strong> <span id="user-defeats" class="font-medium text-red-600"></span></p>
+                    </div>
+                    <button id="logout" class="w-full mt-4 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Log out</button>
+                </div>
+                
+                    <footer class="flex justify-center w-full bg-blue-600">
                     <p class="m-4 font-mono text-4xl font-medium text-violet-950">Insert credits</p>
                 </footer>
             </div>
