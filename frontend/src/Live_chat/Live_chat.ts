@@ -1,13 +1,16 @@
+
+import { id, ws } from "../frontend.js";
+
 // Sélectionner les éléments du DOM
 const sendButton = document.getElementById('sendButton') as HTMLButtonElement;
 const messageInput = document.getElementById('messageInput') as HTMLInputElement;
 const messageHistory = document.getElementById('messageHistory') as HTMLDivElement;
 
 // Fonction pour ajouter un message à l'historique
-function addMessageToHistory(message: string): void
+export function addMessageToHistory(message: string): void
 {
 	const messageElement = document.createElement('div');
-	messageElement.textContent = `Message: ${message}`;
+	messageElement.textContent = `${message}`;
 	messageHistory.appendChild(messageElement);
 	// Scroll vers le bas après l'ajout d'un nouveau message
 	messageHistory.scrollTop = messageHistory.scrollHeight;
@@ -16,11 +19,13 @@ function addMessageToHistory(message: string): void
 // Fonction pour gérer l'envoi de message
 function sendMessage(): void
 {
-	const message = messageInput.value.trim();
+	let message = messageInput.value.trim();
 	if (message)
 	{
-		addMessageToHistory(message);
 		messageInput.value = ''; // Effacer le champ de saisie après l'envoi
+
+		message = "LIVECHAT/" + id.value + ": " + message;
+		ws.send(message);
 	}
 }
 

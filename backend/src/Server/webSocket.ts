@@ -7,6 +7,8 @@ import { GameState } from "../Pong/Game.js";
 import { Player } from "../Pong/Player.js";
 import { app, clients, game, registeredClients } from "../server.js";
 
+import { WebSocket } from "ws";
+
 export interface Client {
 	player: Player;
 	socketStream: SocketStream;
@@ -36,7 +38,22 @@ export function handleWebsocket(): void {
 					)
 				);
 				console.log("Message reçu du client " + clientID + ": ", message.toString());
-				game.update(message.toString(), clients, registeredClients, clientID);
+				if (message.toString().startsWith("LIVECHAT/"))
+				{
+					// Broadcast à tous les clients connectés
+					clients.forEach((client) =>
+					{
+						if (client.socketStream.readyState === WebSocket.OPEN)
+						{
+							console.log("envoyé a qqn\n"); //! debug
+							client.socketStream.send(JSON.stringify({type: "LIVECHAT", error: message.toString()}));
+						}
+					});
+
+					return;
+				}
+				else
+					game.update(message.toString(), clients, registeredClients, clientID);
 			});
 
 			// Gérer les erreurs
