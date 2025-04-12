@@ -1,3 +1,5 @@
+import './Live_chat/Live_chat.js';
+
 import { handleKeyPress, keys, launchButtonAddEvent, online, onlineButtonAddEvent } from "./events.js";
 import { offMove, renderLocal } from "./Offline/pongAi.js";
 import { displayLine, displayScore, drawLeftPlayer, drawRightPlayer } from "./Online/pongDisplayOnline.js";
