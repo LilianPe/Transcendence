@@ -13,10 +13,7 @@ const db = new Database(path.join('db.sqlite'), (err) => {
 db.run(`CREATE TABLE IF NOT EXISTS user (
     mail TEXT NOT NULL,
     password TEXT NOT NULL,
-    pseudo TEXT,
-    avatar TEXT,
-    victories INTEGER DEFAULT 0,
-    defeats INTEGER DEFAULT 0
+    nickname TEXT NOT NULL
 )`, (err) => {
     if (err) {
         console.error('Error creating table:', err.message);
