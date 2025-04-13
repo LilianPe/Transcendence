@@ -15,13 +15,13 @@ export interface Client {
 export const registeredTournament: Map<string, Player> = new Map();
 
 function registerToTournament(id: string): void {
-	if (registeredClients.get(id)) {
+	const client: Client | undefined = registeredClients.get(id);
+	if (client) {
 		if (registeredTournament.get(id)) {
 			clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "You are already registered."}));
 		}
 		else {
-			const player: Player = new Player(id);
-			player.register(id);
+			const player: Player = client.player;
 			registeredTournament.set(id, player);
 			// player.register pour set le name a recuperer dans la database
 		}
