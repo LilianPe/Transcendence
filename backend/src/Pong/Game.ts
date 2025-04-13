@@ -3,6 +3,8 @@ import { SocketStream } from "@fastify/websocket";
 import { Ball } from "./Ball.js";
 import { Player } from "./Player.js";
 import { Round } from "./Round.js";
+import { Match } from "./Match.js";
+import { Ref } from "./Tournament.js";
 
 const enum PlayerMoves {
 	MoveUp = "Up",
@@ -17,12 +19,12 @@ export class Game {
     constructor(player1: Player, player2: Player) {
         this.player1 = player1;
         this.player2 = player2;
-        this.round = new Round(player1, player2);
+        this.round = new Round(player1, player2, {value: new Match(new Player(""), new Player(""))});
     }
-    public launch(): void {
+    public launch(match: Ref<Match>): void {
 		this.player1.reset();
 		this.player2.reset();
-        this.round = new Round(this.player1, this.player2);
+        this.round = new Round(this.player1, this.player2, match);
         this.round.run();
     }
     public update(move: string, clients: Map<string, SocketStream>, clientId: string): void {

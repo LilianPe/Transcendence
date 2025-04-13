@@ -41,3 +41,9 @@ export function displayLaunchError(message: string) {
 		errorMessage.classList.add("opacity-0");
 	}, 1000);
 }
+
+export function displayWinner(winner: string) {
+	canvasContext.font = "50px Arial";
+	canvasContext.strokeStyle = "white";
+	canvasContext.strokeText("Winner: " + winner, 350, 200);
+}

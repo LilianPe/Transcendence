@@ -1,4 +1,4 @@
-import { launchButton, onOffButton, ws } from "./frontend.js";
+import { launchButton, launchTournamentButton, onOffButton, registerTournamentButton, ws } from "./frontend.js";
 import { offReset, offStart, stopOff } from "./Offline/pongAi.js";
 
 export let online: boolean = true;
@@ -24,6 +24,22 @@ export function launchButtonAddEvent(): void {
 		}
 		else {
 			offStart();
+		}
+	});
+}
+
+export function registerTournamentButtonAddEvent(): void {
+	registerTournamentButton.addEventListener("click", () => {
+		if (online) {
+			ws.send("register");
+		}
+	});
+}
+
+export function launchTournamentButtonAddEvent(): void {
+	launchTournamentButton.addEventListener("click", () => {
+		if (online) {
+			ws.send("launch tournament");
 		}
 	});
 }

@@ -1,13 +1,14 @@
 import { online } from "../events.js";
 import { Ref, ws } from "../frontend.js";
 import { GameState } from "../Pong/Game.js";
-import { displayLaunchError } from "./pongDisplayOnline.js";
+import { displayLaunchError, displayWinner } from "./pongDisplayOnline.js";
 
 interface message {
     type: string;
     error: string;
     state: GameState;
     clientId: string;
+    result: string;
 }
 export let currentState: GameState | null = null;
 export let targetState: GameState | null = null;
@@ -38,6 +39,10 @@ export function handleWebSocket(id: Ref<string>) {
 		 else if (content.type == "state") {
 			targetState = content.state;
 			if (!currentState) currentState = { ...targetState };
+		}
+		else if (content.type == "result") {
+			console.log(content);
+			displayWinner(content.result);
 		}
 	};
 }

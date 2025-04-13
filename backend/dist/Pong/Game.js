@@ -1,14 +1,16 @@
+import { Player } from "./Player.js";
 import { Round } from "./Round.js";
+import { Match } from "./Match.js";
 export class Game {
     constructor(player1, player2) {
         this.player1 = player1;
         this.player2 = player2;
-        this.round = new Round(player1, player2);
+        this.round = new Round(player1, player2, { value: new Match(new Player(""), new Player("")) });
     }
-    launch() {
+    launch(match) {
         this.player1.reset();
         this.player2.reset();
-        this.round = new Round(this.player1, this.player2);
+        this.round = new Round(this.player1, this.player2, match);
         this.round.run();
     }
     update(move, clients, clientId) {

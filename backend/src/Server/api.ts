@@ -57,27 +57,28 @@ function handlePlayerMoves(): void {
 	});
 }
 
-function handleGameInit() {
-	app.post("/game/init", async (req, reply) => {
-        if (game.getGame().getRound().isRunning()) return reply.status(400).send({type: "error", error: "A game is already running."});
-        else if (registeredClients.size < 2) return reply.status(400).send({type: "error", error: "Not enought player registered to launch."});
-		else {
-        	const clientKeys: Array<string> = Array.from(registeredClients.keys());
-            const player1: Player | undefined = registeredClients.get(clientKeys[0])?.player;
-            const player2: Player | undefined = registeredClients.get(clientKeys[1])?.player;
+// A refaire selon le systeme de tournois
+// function handleGameInit() {
+// 	app.post("/game/init", async (req, reply) => {
+//         if (game.getGame().getRound().isRunning()) return reply.status(400).send({type: "error", error: "A game is already running."});
+//         else if (registeredClients.size < 2) return reply.status(400).send({type: "error", error: "Not enought player registered to launch."});
+// 		else {
+//         	const clientKeys: Array<string> = Array.from(registeredClients.keys());
+//             const player1: Player | undefined = registeredClients.get(clientKeys[0])?.player;
+//             const player2: Player | undefined = registeredClients.get(clientKeys[1])?.player;
 
-            if (player1 && player2) {
-                game.launchGame(player1, player2);
-            } else {
-                return reply.status(400).send({ type: "error", error: "Erreur lors de la récupération des joueurs." });
-            }
-        }
-	})
-}
+//             if (player1 && player2) {
+//                 game.launchGame(player1, player2);
+//             } else {
+//                 return reply.status(400).send({ type: "error", error: "Erreur lors de la récupération des joueurs." });
+//             }
+//         }
+// 	})
+// }
 
 function handlePostApi(): void {
 	handlePlayerMoves();
-	handleGameInit();
+	// handleGameInit();
 }
 
 export function handleApiRequest(): void {

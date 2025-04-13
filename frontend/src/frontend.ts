@@ -1,6 +1,6 @@
-import { handleKeyPress, keys, launchButtonAddEvent, online, onlineButtonAddEvent } from "./events.js";
+import { handleKeyPress, keys, launchButtonAddEvent, launchTournamentButtonAddEvent, online, onlineButtonAddEvent, registerTournamentButtonAddEvent } from "./events.js";
 import { offMove, renderLocal } from "./Offline/pongAi.js";
-import { displayLine, displayScore, drawLeftPlayer, drawRightPlayer } from "./Online/pongDisplayOnline.js";
+import { displayLaunchError, displayLine, displayScore, drawLeftPlayer, drawRightPlayer } from "./Online/pongDisplayOnline.js";
 import { currentState, handleWebSocket, targetState } from "./Online/webSocket.js";
 import { PlayerMoves } from "./Pong/Player.js";
 
@@ -23,6 +23,12 @@ onlineButtonAddEvent();
 
 export const launchButton: HTMLButtonElement = document.getElementById("Launch") as HTMLButtonElement;
 launchButtonAddEvent();
+
+export const registerTournamentButton: HTMLButtonElement = document.getElementById("RegisterTournament") as HTMLButtonElement;
+registerTournamentButtonAddEvent();
+
+export const launchTournamentButton: HTMLButtonElement = document.getElementById("LaunchTournament") as HTMLButtonElement;
+launchTournamentButtonAddEvent();
 
 
 export const errorMessage: HTMLParagraphElement = document.getElementById(
@@ -173,7 +179,7 @@ async function printPersonalsElements(mail: string)
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-Client-Id": id,
+            "X-Client-Id": id.value,
         },
         body: JSON.stringify({ mail }),
     });

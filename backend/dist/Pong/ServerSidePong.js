@@ -1,35 +1,32 @@
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
+import { Tournament } from "./Tournament.js";
 export class ServerSidePong {
     constructor() {
-        this.game = new Game(new Player(""), new Player(""));
         this.running = 0;
+        this.tournament = new Tournament(undefined);
+        this.game = new Game(new Player(""), new Player(""));
     }
-    launchGame(player1, player2) {
-        console.log(`New game launched, Player1: ${player1.getName()}, Player2: ${player2.getName()}`);
-        this.game = new Game(player1, player2);
+    launchGame(match) {
+        // console.log(`New game launched, Player1: ${player1.getName()}, Player2: ${player2.getName()}`)
+        this.game = new Game(match.value.getPlayer1(), match.value.getPlayer2());
         this.running = 1;
-        this.game.launch();
+        this.game.launch(match);
     }
-    update(message, clients, registeredClients, clientID) {
+    update(message, clients, registeredTournament, clientID) {
         this.game.update(message, clients, clientID);
         if (message == "start") {
             if (!clients.get(clientID)?.player.isRegistered())
                 clients.get(clientID)?.socketStream.send(JSON.stringify({ type: "error", error: "You are not registered." }));
             else if (this.game.getRound().isRunning())
                 clients.get(clientID)?.socketStream.send(JSON.stringify({ type: "error", error: "A game is already running." }));
-            else if (registeredClients.size < 2)
-                clients.get(clientID)?.socketStream.send(JSON.stringify({ type: "error", error: "Not enought player registered to launch." }));
+            else if (!this.tournament.isLaunched())
+                clients.get(clientID)?.socketStream.send(JSON.stringify({ type: "error", error: "No tournament launched." }));
             else {
-                const clientKeys = Array.from(registeredClients.keys());
-                const player1 = registeredClients.get(clientKeys[0])?.player;
-                const player2 = registeredClients.get(clientKeys[1])?.player;
-                if (player1 && player2) {
-                    this.launchGame(player1, player2);
-                }
-                else {
-                    clients.get(clientID)?.socketStream.send(JSON.stringify({ type: "error", error: "Erreur lors de la récupération des joueurs." }));
-                }
+                console.log("Game launched");
+                const match = this.tournament.nextRound();
+                console.log(`Player1: ${match.value.getPlayer1().getId()} | Player2: ${match.value.getPlayer2().getId()}`);
+                this.launchGame(match);
             }
         }
     }
@@ -37,16 +34,32 @@ export class ServerSidePong {
         if (!this.game.getRound().isRunning())
             return;
         if (this.game.getPlayer1().getId() == clientID) {
-            this.game.getRound().stop();
+            this.game.getRound().stop(clientID);
             clients.get(this.game.getPlayer2().getId())?.socketStream.send(JSON.stringify({ type: "error", error: "Opponent disconected." }));
+            // enlever aussi joueur du tournois et faire gagner l'autre
         }
         if (this.game.getPlayer2().getId() == clientID) {
-            this.game.getRound().stop();
+            this.game.getRound().stop(clientID);
             clients.get(this.game.getPlayer1().getId())?.socketStream.send(JSON.stringify({ type: "error", error: "Opponent disconected." }));
+            // enlever aussi joueur du tournois et faire gagner l'autre
         }
+    }
+    launchTournament(players) {
+        this.createTournament(players);
+        this.tournament.launch();
+    }
+    endTournament() {
+        // Envoyer a la blockchain les resultats du tournois
+        this.tournament.stop();
     }
     getGame() {
         return this.game;
+    }
+    createTournament(players) {
+        this.tournament = new Tournament(players);
+    }
+    getTournament() {
+        return this.tournament;
     }
     getState() {
         const state = {

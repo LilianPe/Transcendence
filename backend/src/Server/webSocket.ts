@@ -12,6 +12,37 @@ export interface Client {
 	socketStream: SocketStream;
 }
 
+export const registeredTournament: Map<string, Player> = new Map();
+
+function registerToTournament(id: string): void {
+	if (registeredClients.get(id)) {
+		if (registeredTournament.get(id)) {
+			clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "You are already registered."}));
+		}
+		else {
+			const player: Player = new Player(id);
+			player.register(id);
+			registeredTournament.set(id, player);
+			// player.register pour set le name a recuperer dans la database
+		}
+	}
+	else {
+		clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "You must be registered."}));
+	}
+}
+
+function launchTournament(id: string): void {
+	if (game.getTournament().isLaunched()) {
+		clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "A tournament is already launched."}));
+	}
+	else if (registeredTournament.size < 2) {
+		clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "Not enought player in tournament to launch."}));
+	}
+	else {
+		game.launchTournament(registeredTournament);
+	}
+}
+
 export function handleWebsocket(): void {
 	app.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
 	app.register(async function (fastify) {
@@ -36,7 +67,13 @@ export function handleWebsocket(): void {
 					)
 				);
 				console.log("Message reçu du client " + clientID + ": ", message.toString());
-				game.update(message.toString(), clients, registeredClients, clientID);
+				if (message == "register") {
+					registerToTournament(clientID);
+				}
+				if (message == "launch tournament") {
+					launchTournament(clientID);
+				}
+				game.update(message.toString(), clients, registeredTournament, clientID);
 			});
 
 			// Gérer les erreurs
