@@ -4,6 +4,7 @@ export class Player {
     private name: string;
     private id: string;
 	private registered: boolean;
+	private tournamentId: number | undefined;
 
     constructor(id: string) {
         this.y = 400 - 50;
@@ -29,6 +30,14 @@ export class Player {
         this.y += 10;
         if (this.y > 700) this.y = 700;
     }
+
+	public setTournamentID(id: number): void {
+		this.tournamentId = id;
+	}
+	public getTournamentID(): number | undefined {
+		return this.tournamentId;
+	}
+
     public getY(): number {
         return this.y;
     }

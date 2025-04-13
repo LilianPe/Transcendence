@@ -31,7 +31,8 @@ export class Tournament {
 		const players: Array<Player> = Array.from(this.players.values());
 		this.matches = [];
 		for (let i: number = 0; i < players.length; i++) {
-			console.log(`Adding: ${players[i].getId()} in matches.`);
+			players[i].setTournamentID(i);
+			console.log(`Adding: ${players[i].getId()} in matches. Tournament id: ${players[i].getTournamentID()}.`);
 			if (!player1){
 				console.log("Adding player1")
 				player1 = players[i];

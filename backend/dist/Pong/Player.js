@@ -25,6 +25,12 @@ export class Player {
         if (this.y > 700)
             this.y = 700;
     }
+    setTournamentID(id) {
+        this.tournamentId = id;
+    }
+    getTournamentID() {
+        return this.tournamentId;
+    }
     getY() {
         return this.y;
     }
