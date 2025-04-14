@@ -31,7 +31,7 @@ import { promises as fs } from 'fs';
 
 export const app: FastifyInstance = fastify(/*options*/);
 
-allowCors("http://localhost:3000", ["POST", "GET"], ["Content-Type", "X-Client-Id", "Mail"]);
+allowCors("http://localhost:3000", ["POST", "GET"], ["Content-Type", "X-Client-Id"]);
 handleApiRequest();
 
 // ELK
@@ -163,14 +163,13 @@ app.post("/info", async (request, reply) => {
 app.post('/upload-avatar', async (request, reply) => {
     try {
         const clientId = request.headers['x-client-id'] as string;
-        const mail = request.headers['mail'] as string;
-        if (!clientId || !mail) {
+        if (!clientId) {
             return reply.status(400).send({ error: 'Missing headers' });
         }
-
+        const { mail } = request.body as { mail: string };
         const { avatar } = request.body as { avatar: string };
-        if (!avatar) {
-            return reply.status(400).send({ error: 'Avatar missing' });
+        if (!avatar || !mail) {
+            return reply.status(400).send({ error: 'Avatar or mail missing' });
         }
 
         if (!avatar.startsWith('data:image/png;base64,')) {

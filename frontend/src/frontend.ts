@@ -188,7 +188,8 @@ async function printPersonalsElements(mail: string)
     const emailElement = document.getElementById("user-email");
     const victoriesElement = document.getElementById("user-victories");
     const defeatsElement = document.getElementById("user-defeats");
-    
+    const avatarElement = document.getElementById("user-avatar") as HTMLImageElement;
+
     if (greetingElement)
         greetingElement.textContent = `Hi ${result.pseudo} !`;
     if (emailElement)
@@ -197,6 +198,8 @@ async function printPersonalsElements(mail: string)
         victoriesElement.textContent = result.victories;
     if (defeatsElement)
         defeatsElement.textContent = result.defeats;
+    if (avatarElement && result.avatar)
+        avatarElement.src = result.avatar;
 };
 
 function convertFileToBase64(file: File): Promise<string> {
@@ -213,18 +216,20 @@ avatarInput.addEventListener("change", async () => {
     const file = avatarInput.files?.[0];
     if (file && file.type === 'image/png') {
         try {
+            const emailElement = document.getElementById("user-email");
+            const email = emailElement ? emailElement.textContent : "";
+            if (!email)
+                return;
             const base64Image = await convertFileToBase64(file);
             const requestBody = {
                 avatar: base64Image,
+                mail: email,
             };
-
-            const mailInput = document.getElementById("user-email") as HTMLInputElement;
             const response = await fetch("http://localhost:4500/upload-avatar", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-Client-Id": id.value,
-                    "Mail": mailInput.value,
                 },
                 body: JSON.stringify(requestBody),
             });

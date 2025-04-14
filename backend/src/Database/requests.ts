@@ -1,7 +1,6 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
-import { unlink } from 'fs/promises';
-import { promises as fs } from 'fs';
+import fs from 'fs/promises';
 
 const { Database } = sqlite3;
 
@@ -134,40 +133,46 @@ export function getPseudo(mail: string): Promise<string | null> {
     });
 }
 
+async function convertFileToBase64(filePath: string): Promise<string> {
+    const fileBuffer = await fs.readFile(filePath);
+    const base64Data = fileBuffer.toString('base64');
+    const mimeType = 'image/png';
+    return `data:${mimeType};base64,${base64Data}`;
+}
+
 export function getAvatar(mail: string): Promise<string | null> {
     const db = openDatabase();
+
     return new Promise((resolve, reject) => {
         db.get(
             `SELECT avatar FROM user WHERE mail = ?`,
             [mail],
-            (err: Error | null, row: UserRow | undefined) => {
-            db.close();
-            if (err) {
-                console.error('Erreur lors de la requête avatar :', err.message);
-                reject(new Error(err.message));
-                return;
-            }
-      
-            if (!row || row.avatar === undefined) {
-                console.log(`Aucun avatar trouvée pour l'email : ${mail}`);
-                resolve(null);
-                return;
-            }
-            resolve(row.avatar);
+            async (err: Error | null, row: UserRow | undefined) => {
+                db.close();
+
+                if (err) {
+                    console.error('Erreur lors de la requête avatar :', err.message);
+                    reject(new Error(err.message));
+                    return;
+                }
+
+                try {
+                    let filePath: string;
+                    if (row?.avatar) {
+                        filePath = path.join('src/Database/Avatars', row.avatar);
+                    } else {
+                        console.log(`Aucun avatar trouvé pour l'email : ${mail}, envoi de l'avatar par défaut`);
+                        filePath = path.join('src/Database/Avatars', 'defaultAvatar.png');
+                    }
+                    const base64Image = await convertFileToBase64(filePath);
+                    resolve(base64Image);
+                } catch (error) {
+                    console.error('Erreur lors de la lecture du fichier avatar :', error);
+                    reject(error);
+                }
             }
         );
     });
-}
-
-
-async function deleteAvatarFile(filename: string): Promise<void> {
-    const filePath = path.join(__dirname, 'Avatars', filename);
-    try {
-      await unlink(filePath);
-      console.log(`Fichier supprimé : ${filename}`);
-    } catch (err) {
-      console.error('Erreur suppression fichier :', (err as Error).message);
-    }
 }
 
 export function setAvatar(mail: string, newAvatar: string): Promise<boolean> {
@@ -186,7 +191,7 @@ export function setAvatar(mail: string, newAvatar: string): Promise<boolean> {
 
                 if (row && row.avatar) {
                     try {
-                        const oldAvatarPath = path.join(__dirname, 'Avatars', row.avatar);
+                        const oldAvatarPath = path.join('src/Database/Avatars', row.avatar);
                         fs.unlink(oldAvatarPath).catch((error) =>
                             console.warn('Erreur lors de la suppression de l’ancien avatar :', error)
                         );
