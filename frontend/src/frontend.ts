@@ -197,5 +197,4 @@ async function printPersonalsElements(mail: string)
         victoriesElement.textContent = result.victories;
     if (defeatsElement)
         defeatsElement.textContent = result.defeats;
-
 };
