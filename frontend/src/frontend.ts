@@ -190,7 +190,7 @@ async function printPersonalsElements(mail: string)
     const defeatsElement = document.getElementById("user-defeats");
     
     if (greetingElement)
-        greetingElement.textContent = `Bonjour, ${result.pseudo}!`;
+        greetingElement.textContent = `Hi ${result.pseudo} !`;
     if (emailElement)
         emailElement.textContent = result.mail;
     if (victoriesElement)
@@ -198,3 +198,7 @@ async function printPersonalsElements(mail: string)
     if (defeatsElement)
         defeatsElement.textContent = result.defeats;
 };
+
+document.getElementById("logout")?.addEventListener("click", function() {
+    location.reload();
+});
