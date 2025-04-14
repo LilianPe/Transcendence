@@ -246,6 +246,10 @@ avatarInput.addEventListener("change", async () => {
             console.error("Erreur lors de l'envoi de la requête :", error);
         }
     }
+    else
+    {
+        displayLaunchError("MUST BE A PNG FILE");
+    }
 });
 
 document.getElementById("logout")?.addEventListener("click", function() {
