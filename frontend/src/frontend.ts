@@ -199,6 +199,50 @@ async function printPersonalsElements(mail: string)
         defeatsElement.textContent = result.defeats;
 };
 
+function convertFileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+const avatarInput = document.getElementById("avatar-upload") as HTMLInputElement;
+avatarInput.addEventListener("change", async () => {
+    const file = avatarInput.files?.[0];
+    if (file && file.type === 'image/png') {
+        try {
+            const base64Image = await convertFileToBase64(file);
+            const requestBody = {
+                avatar: base64Image,
+            };
+
+            const mailInput = document.getElementById("user-email") as HTMLInputElement;
+            const response = await fetch("http://localhost:4500/upload-avatar", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Client-Id": id.value,
+                    "Mail": mailInput.value,
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            console.log("Réponse reçue :", response);
+            const result = await response.json();
+
+            if (response.ok && result.message === "OK") {
+                console.log("Avatar uploaded");
+            } else {
+                throw new Error(result.error || "Upload failed");
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'envoi de la requête :", error);
+        }
+    }
+});
+
 document.getElementById("logout")?.addEventListener("click", function() {
     location.reload();
 });

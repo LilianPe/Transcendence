@@ -1,5 +1,7 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
+import { unlink } from 'fs/promises';
+import { promises as fs } from 'fs';
 
 const { Database } = sqlite3;
 
@@ -152,6 +154,107 @@ export function getAvatar(mail: string): Promise<string | null> {
                 return;
             }
             resolve(row.avatar);
+            }
+        );
+    });
+}
+
+
+async function deleteAvatarFile(filename: string): Promise<void> {
+    const filePath = path.join(__dirname, 'Avatars', filename);
+    try {
+      await unlink(filePath);
+      console.log(`Fichier supprimé : ${filename}`);
+    } catch (err) {
+      console.error('Erreur suppression fichier :', (err as Error).message);
+    }
+}
+
+export function setAvatar(mail: string, newAvatar: string): Promise<boolean> {
+    const db = openDatabase();
+    return new Promise((resolve, reject) => {
+        db.get(
+            `SELECT avatar FROM user WHERE mail = ?`,
+            [mail],
+            (err: Error | null, row: UserRow | undefined) => {
+                if (err) {
+                    db.close();
+                    console.error('Erreur lors de la requête avatar :', err.message);
+                    reject(new Error(err.message));
+                    return;
+                }
+
+                if (row && row.avatar) {
+                    try {
+                        const oldAvatarPath = path.join(__dirname, 'Avatars', row.avatar);
+                        fs.unlink(oldAvatarPath).catch((error) =>
+                            console.warn('Erreur lors de la suppression de l’ancien avatar :', error)
+                        );
+                    } catch (error) {
+                        console.warn('Erreur lors de la suppression de l’ancien avatar :', error);
+                    }
+
+                    db.run(
+                        `UPDATE user SET avatar = NULL WHERE mail = ?`,
+                        [mail],
+                        (err: Error | null) => {
+                            if (err) {
+                                db.close();
+                                console.error('Erreur lors de la suppression de l’avatar en base :', err.message);
+                                reject(new Error(err.message));
+                                return;
+                            }
+                            console.log(`Avatar supprimé pour l'email : ${mail}`);
+                        }
+                    );
+                }
+
+                let extension: string;
+                if (newAvatar.startsWith('data:image/png;base64,')) {
+                    extension = '.png';
+                } else if (newAvatar.startsWith('data:image/jpeg;base64,')) {
+                    extension = '.jpg';
+                } else {
+                    db.close();
+                    reject(new Error('Invalid image format. Only PNG and JPEG are allowed.'));
+                    return;
+                }
+
+                const base64Data = newAvatar.replace(/^data:image\/(png|jpeg);base64,/, '');
+                let buffer: Buffer;
+                try {
+                    buffer = Buffer.from(base64Data, 'base64');
+                } catch {
+                    db.close();
+                    reject(new Error('Invalid base64 data'));
+                    return;
+                }
+
+                const newAvatarName = `avatar-${Date.now()}${extension}`;
+                const newAvatarPath = path.join('src/Database/Avatars', newAvatarName);
+
+                fs.writeFile(newAvatarPath, buffer)
+                    .then(() => {
+                        db.run(
+                            `UPDATE user SET avatar = ? WHERE mail = ?`,
+                            [newAvatarName, mail],
+                            (err: Error | null) => {
+                                db.close();
+                                if (err) {
+                                    console.error('Erreur lors de la mise à jour de l’avatar :', err.message);
+                                    reject(err.message);
+                                    return;
+                                }
+                                console.log(`Nouvel avatar enregistré pour l'email : ${mail}`);
+                                resolve(true);
+                            }
+                        );
+                    })
+                    .catch((error) => {
+                        db.close();
+                        console.error('Erreur lors de l’enregistrement du fichier :', error.message);
+                        reject(new Error(error.message));
+                    });
             }
         );
     });

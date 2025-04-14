@@ -3,11 +3,13 @@ import { LogLevel, LogType } from "././logger/normalization.js";
 import { registerHooks } from "./logger/hook.js";
 import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
-import { checkUserID, checkUserMAIL, createUser, getAvatar, getDefeats, getPseudo, getVictories } from './Database/requests.js';
+import { checkUserID, checkUserMAIL, createUser, getAvatar, getDefeats, getPseudo, getVictories, setAvatar } from './Database/requests.js';
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
 import { handleApiRequest } from "./Server/api.js";
 import { allowCors } from "./Server/cors.js";
 import { Client, handleWebsocket } from "./Server/webSocket.js";
+import { join } from 'path';
+import { promises as fs } from 'fs';
 
 // -------Pour le https-------------
 //
@@ -29,13 +31,12 @@ import { Client, handleWebsocket } from "./Server/webSocket.js";
 
 export const app: FastifyInstance = fastify(/*options*/);
 
-allowCors("http://localhost:3000", ["POST", "GET"], ["Content-Type", "X-Client-Id"]);
+allowCors("http://localhost:3000", ["POST", "GET"], ["Content-Type", "X-Client-Id", "Mail"]);
 handleApiRequest();
 
 // ELK
 
 registerHooks(app);
-
 
 app.get("/", async (req, reply) => {
     logToELK({
@@ -159,6 +160,49 @@ app.post("/info", async (request, reply) => {
     }
 });
 
+app.post('/upload-avatar', async (request, reply) => {
+    try {
+        const clientId = request.headers['x-client-id'] as string;
+        const mail = request.headers['mail'] as string;
+        if (!clientId || !mail) {
+            return reply.status(400).send({ error: 'Missing headers' });
+        }
+
+        const { avatar } = request.body as { avatar: string };
+        if (!avatar) {
+            return reply.status(400).send({ error: 'Avatar missing' });
+        }
+
+        if (!avatar.startsWith('data:image/png;base64,')) {
+            return reply.status(400).send({ error: 'Invalid image format' });
+        }
+
+        const base64Data = avatar.replace(/^data:image\/png;base64,/, '');
+        try {
+            Buffer.from(base64Data, 'base64');
+        } catch {
+            return reply.status(400).send({ error: 'Invalid base64 data' });
+        }
+
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        try {
+            setAvatar(mail, avatar);
+        } catch (error) {
+            request.log.error('setAvatar failed:', error);
+        }
+
+        const fileName = `${Date.now()}-${mail}.png`;
+        const filePath = join(__dirname, 'Avatars', fileName);
+        await fs.writeFile(filePath, buffer);
+
+        return reply.status(200).send({ message: 'OK', fileName });
+    } catch (error) {
+        request.log.error(error);
+        return reply.status(500).send({ error: 'Server error' });
+    }
+});
+  
 // server
 
 const start = async () => {
