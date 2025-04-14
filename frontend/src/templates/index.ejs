@@ -19,6 +19,37 @@
                     </h1>
                 </div>
                 <div class="flex justify-center mb-72 mt-72 bg-amber-50">
+
+					<!-- Box Live chat left -->
+					<div class="flex flex-col items-center" style="margin-right: 100px; margin-top: 100px;">
+
+						<!-- Text top box -->
+						<div style="margin-bottom: 10px; font-weight: bold; font-size: 26px;">Live chat</div>
+
+						<!-- main rectangle -->
+						<div style="width: 500px; height: 650px; background-color: rgba(11, 11, 11, 0.363);">
+
+							<!-- Live chat elements -->
+							<!-- Wrapper pour l'historique des messages -->
+							<div id="messageHistory" style="height: 80%; overflow-y: auto; background-color: #201f1f9c; color: white; padding: 10px; margin-bottom: 20px; border-radius: 8px;">
+								<!-- Historique des messages -->
+								<div>Welcome : Hi, send your messages here :))</div>
+								<!-- Ajouter d'autres messages ici -->
+							</div>
+
+							<!-- Zone pour envoyer un message -->
+							<div style="display: flex; justify-content: space-between;">
+								<input type="text" id="messageInput" placeholder="Type your message..." style="margin-left: 10px; width: 80%; padding: 8px; border-radius: 5px;">
+								<button id="sendButton" style="margin-right: 10px; width: 15%; padding: 8px; border-radius: 5px; background-color: #3498db; color: white; border: none;">Send</button>
+							</div>
+
+						</div>
+
+						<!-- Text bottom box -->
+						<div style="margin-top: 10px; font-weight: bold; font-size: 20px;">/invite /join /block /profile</div>
+
+					</div>
+
                     <div class="flex flex-col items-center">
                         <p class="h-16 mt-2 text-5xl font-semibold text-stone-950">Pong</p>
                         <canvas id="game" class="bg-black w-[800px] h-[800px]"></canvas>

@@ -5,6 +5,8 @@ import { Match } from "./Match.js";
 import { Player } from "./Player.js";
 import { Ref, Tournament } from "./Tournament.js";
 
+import * as SC from "../Blockchain/SC_interact.js";
+
 export class ServerSidePong {
     private game: Game;
     private running: number;
@@ -55,8 +57,26 @@ export class ServerSidePong {
 		this.createTournament(players);
 		this.tournament.launch();
 	}
-	public endTournament(): void {
+	public endTournament(): void
+	{
 		// Envoyer a la blockchain les resultats du tournois
+
+		/*
+
+		objectif :
+		contexte on a			[player1, player2, player3]
+		dont les ids sont		[   1   ,    2   ,    3   ]
+		qui ont respectivement  [2points, 3points, 6points]
+
+		il faudrait 
+	
+		let players_ids: number[] = [1, 2, 3];
+		let scores: number[] = [2, 3, 6];
+
+		*/
+
+		// SC.SC_addTournament( players_ids, scores );
+
 		this.tournament.stop();
 	}
 

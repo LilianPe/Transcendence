@@ -12,3 +12,5 @@ install.pem
 certs/
 frontend/certs/
 backend/certs/
+
+**/.env

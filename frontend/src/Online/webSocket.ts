@@ -2,6 +2,7 @@ import { online } from "../events.js";
 import { Ref, ws } from "../frontend.js";
 import { GameState } from "../Pong/Game.js";
 import { displayLaunchError, displayWinner } from "./pongDisplayOnline.js";
+import { addMessageToHistory } from "../Live_chat/Live_chat.js";
 
 interface message {
     type: string;
@@ -43,6 +44,11 @@ export function handleWebSocket(id: Ref<string>) {
 		else if (content.type == "result") {
 			console.log(content);
 			displayWinner(content.result);
+		}
+		else if (content.type == "LIVECHAT")
+		{
+			let message = content.error.toString().slice(9); // cut LIVECHAT/
+			addMessageToHistory(message);
 		}
 	};
 }

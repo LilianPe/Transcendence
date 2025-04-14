@@ -7,6 +7,10 @@ import { GameState } from "../Pong/Game.js";
 import { Player } from "../Pong/Player.js";
 import { app, clients, game, registeredClients } from "../server.js";
 
+import { WebSocket } from "ws";
+
+// import * as SC from "../Blockchain/SC_interact.js"; //! pour faire des tests
+
 export interface Client {
 	player: Player;
 	socketStream: SocketStream;
@@ -73,7 +77,31 @@ export function handleWebsocket(): void {
 				if (message == "launch tournament") {
 					launchTournament(clientID);
 				}
-				game.update(message.toString(), clients, registeredTournament, clientID);
+
+				// //! DEBUG BLOCK
+				// if (message.toString().endsWith("test"))
+				// {
+				// 	const players = SC.SC_getPlayers( 0 );
+				// 	return;
+				// }
+
+				//. LIVE CHAT
+				if (message.toString().startsWith("LIVECHAT/"))
+				{
+					// Broadcast à tous les clients connectés
+					clients.forEach((client) =>
+					{
+						if (client.socketStream.readyState === WebSocket.OPEN)
+						{
+							console.log("envoyé a qqn\n"); //! debug
+							client.socketStream.send(JSON.stringify({type: "LIVECHAT", error: message.toString()}));
+						}
+					});
+
+					return;
+				}
+				else // si c est un LIVE CHAT pas besoin
+					game.update(message.toString(), clients, registeredTournament, clientID);
 			});
 
 			// Gérer les erreurs

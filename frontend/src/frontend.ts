@@ -8,7 +8,7 @@ export type Ref<T> = {value: T};
 
 // WebSocket connection
 export const ws = new WebSocket("ws://localhost:4500/ws");
-const id: Ref<string> = {value: ""}; 
+export const id: Ref<string> = {value: ""}; 
 handleWebSocket(id);
 
 // Canvas
