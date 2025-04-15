@@ -1,6 +1,7 @@
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 import { Tournament } from "./Tournament.js";
+// import { getUserFromDB } from "../Database/requests.js"
 export class ServerSidePong {
     constructor() {
         this.running = 0;
@@ -51,20 +52,48 @@ export class ServerSidePong {
     endTournament() {
         // Envoyer a la blockchain les resultats du tournois
         /*
-
         objectif :
         contexte on a			[player1, player2, player3]
         dont les ids sont		[   1   ,    2   ,    3   ]
         qui ont respectivement  [2points, 3points, 6points]
-
-        il faudrait
-    
-        let players_ids: number[] = [1, 2, 3];
-        let scores: number[] = [2, 3, 6];
-
         */
-        // SC.SC_addTournament( players_ids, scores );
-        // tournament -> history -> stack les points grace a match history
+        let historic = this.tournament.getHistoric();
+        let match;
+        let id_player1;
+        let id_player2;
+        let playerScores = new Map();
+        for (let i = 0; i < historic.length; i++) {
+            match = historic[i];
+            id_player1 = match.getPlayer1().getDBId();
+            id_player2 = match.getPlayer2().getDBId();
+            const winner = match.getWinner();
+            if (winner === match.getPlayer1()) {
+                const currentScore = playerScores.get(id_player1) ?? 0;
+                playerScores.set(id_player1, currentScore + 1);
+                // Perdant (ajouté à 0 si pas déjà là)
+                if (!playerScores.has(id_player2)) {
+                    playerScores.set(id_player2, 0);
+                }
+            }
+            else if (winner === match.getPlayer2()) {
+                const currentScore = playerScores.get(id_player2) ?? 0;
+                playerScores.set(id_player2, currentScore + 1);
+                // Perdant (ajouté à 0 si pas déjà là)
+                if (!playerScores.has(id_player1)) {
+                    playerScores.set(id_player1, 0);
+                }
+            }
+        }
+        let player_ids = [];
+        let scores = [];
+        for (const [id, score] of playerScores) {
+            player_ids.push(id);
+            scores.push(score);
+        }
+        console.log("ids:", player_ids);
+        console.log("scores:", scores);
+        // SC.SC_addTournament( player_ids, scores );
+        // SC.getStatusInBlockchain( 1 );
         this.tournament.stop();
     }
     getGame() {

@@ -9,6 +9,8 @@ import { app, clients, game, registeredClients } from "../server.js";
 
 import { WebSocket } from "ws";
 
+import { getUserFromDB, getMailFromId } from "../Database/requests.js"
+
 // import * as SC from "../Blockchain/SC_interact.js"; //! pour faire des tests
 
 export interface Client {
@@ -88,6 +90,50 @@ export function handleWebsocket(): void {
 				//. LIVE CHAT
 				if (message.toString().startsWith("LIVECHAT/"))
 				{
+
+					if (message.toString().startsWith("LIVECHAT//profile"))
+					{
+						const profile_pseudo = message.toString().split(" ")[1];
+						getUserFromDB(profile_pseudo, (player) =>
+						{
+							if (!player)
+							{
+								clients.forEach((client) =>
+								{
+									if (client.socketStream.readyState === WebSocket.OPEN && client.player.getId() == clientID)
+									{
+										client.socketStream.send(JSON.stringify({type: "LIVECHAT_PROFILE",error: ""}));
+									}
+								});
+								return;
+							}
+					
+							getMailFromId(player.getDBId(), (mail) =>
+							{
+								if (!mail)
+								{
+									clients.forEach((client) =>
+									{
+										if (client.socketStream.readyState === WebSocket.OPEN && client.player.getId() == clientID)
+										{
+											client.socketStream.send(JSON.stringify({type: "LIVECHAT_PROFILE",error: ""}));
+										}
+									});
+									return;
+								}
+					
+								clients.forEach((client) =>
+								{
+									if (client.socketStream.readyState === WebSocket.OPEN && client.player.getId() == clientID)
+									{
+										client.socketStream.send(JSON.stringify({type: "LIVECHAT_PROFILE",error: mail}));
+									}
+								});
+							});
+						});
+						return ;
+					}
+
 					let sender: string = clientID;
 					let pseudo: string = "random";
 

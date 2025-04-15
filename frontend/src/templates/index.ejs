@@ -92,10 +92,19 @@
                     <img id="user-avatar" src="https://emedia1.nhs.wales/HEIW2/cache/file/F4C33EF0-69EE-4445-94018B01ADCF6FD4.png" alt="Avatar de l'utilisateur" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-gray-200 object-cover hover:brightness-75 cursor-pointer transition duration-200">
                     <input type="file" id="avatar-upload">
                     <div class="space-y-2">
-                        <p class="text-sm text-gray-600"><strong>Email:</strong> <span id="user-email" class="font-medium text-gray-800"></span></p>
-                        <p class="text-sm text-gray-600"><strong>Victories:</strong> <span id="user-victories" class="font-medium text-green-600"></span></p>
-                        <p class="text-sm text-gray-600"><strong>Defeats:</strong> <span id="user-defeats" class="font-medium text-red-600"></span></p>
+
+						<p id="email-line" class="text-sm text-gray-600"><strong>Email:</strong> <span id="user-email" class="font-medium text-gray-800"></span></p>
+						<p id="victories-line" class="text-sm text-gray-600"><strong>Victories:</strong> <span id="user-victories" class="font-medium text-green-600"></span></p>
+						<p id="defeats-line" class="text-sm text-gray-600"><strong>Defeats:</strong> <span id="user-defeats" class="font-medium text-red-600"></span></p>
+						
                         <button id="logout" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Log out</button>
+
+						<!-- Profile interaction buttons -->
+						<button id="profile_close" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Close profile</button>
+						<button id="profile_invite" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Invite</button>
+						<button id="profile_block" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Block</button>
+						<button id="profile_unblock" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Unblock</button>
+
                     </div>
                 </div>
                     <footer class="flex justify-center w-full bg-blue-600">

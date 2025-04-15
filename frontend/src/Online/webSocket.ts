@@ -4,6 +4,8 @@ import { GameState } from "../Pong/Game.js";
 import { displayLaunchError, displayWinner } from "./pongDisplayOnline.js";
 import { addMessageToHistory } from "../Live_chat/Live_chat.js";
 
+import { show_profile } from "../frontend.js";
+
 interface message {
     type: string;
     error: string;
@@ -49,6 +51,22 @@ export function handleWebSocket(id: Ref<string>) {
 		{
 			let message = content.error.toString().slice(9); // cut LIVECHAT/
 			addMessageToHistory(message);
+		}
+		else if (content.type == "LIVECHAT_PROFILE")
+		{
+			const mail = content.error.toString();
+			let message = "Showing the profile linked to : " + mail;
+			if (content.error.toString().length === 0)
+			{
+				message = "Invalid username"
+				addMessageToHistory(message);
+				return;
+			}
+
+			addMessageToHistory(message);
+
+			show_profile( mail );
+
 		}
 	};
 }

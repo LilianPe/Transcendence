@@ -149,4 +149,9 @@ export class Tournament {
 	public isLaunched(): boolean {
 		return this.launched;
 	}
+
+	public getHistoric(): Array<Match>
+	{
+		return this.historic;
+	}
 }

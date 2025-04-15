@@ -2,6 +2,8 @@ import sqlite3 from 'sqlite3';
 import path from 'path';
 import fs from 'fs/promises';
 
+import { Player } from '../Pong/Player.js';
+
 const { Database } = sqlite3;
 
 function openDatabase() {
@@ -13,6 +15,56 @@ function openDatabase() {
 		}
 	});
 	return db;
+}
+
+export function getUserFromDB(pseudo: string, callback: (player: Player | null) => void)
+{
+    const db = openDatabase();
+
+    db.get(
+        `SELECT id, pseudo, victories, defeats FROM user WHERE pseudo = ?`,
+        [pseudo],
+        (err, row: { id: number; pseudo: string; victories: number; defeats: number } | undefined) => {
+            if (err) {
+                console.error('Error retrieving user:', err.message);
+                callback(null);
+            } else if (!row) {
+                console.log('User not found.');
+                callback(null);
+            } else {
+                const player = new Player("");
+                player['name'] = row.pseudo;
+                player['DB_ID'] = row.id;
+                player['score'] = row.victories - row.defeats;
+                player['registered'] = true;
+                callback(player);
+            }
+
+            db.close();
+        }
+    );
+}
+
+export function getMailFromId(id: number, callback: (mail: string | null) => void) {
+    const db = openDatabase();
+
+    db.get(
+        `SELECT mail FROM user WHERE id = ?`,
+        [id],
+        (err, row: { mail: string } | undefined) => {
+            if (err) {
+                console.error('Error retrieving mail:', err.message);
+                callback(null);
+            } else if (!row) {
+                console.log('User not found.');
+                callback(null);
+            } else {
+                callback(row.mail);
+            }
+
+            db.close();
+        }
+    );
 }
 
 export function createUser(mail: string, password: string, pseudo: string) {
@@ -29,6 +81,7 @@ export function createUser(mail: string, password: string, pseudo: string) {
 }
 
 interface UserRow {
+	id: number;
 	password: string;
     avatar: string;
     pseudo: string;
@@ -41,6 +94,7 @@ export function checkUserID(mail: string, password: string, callback: (isValid: 
     const db = openDatabase();
     db.run(
         `CREATE TABLE IF NOT EXISTS user (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             mail TEXT NOT NULL,
             password TEXT NOT NULL,
             pseudo TEXT,

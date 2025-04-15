@@ -4,6 +4,17 @@ import { displayLaunchError, displayLine, displayScore, drawLeftPlayer, drawRigh
 import { currentState, handleWebSocket, targetState } from "./Online/webSocket.js";
 import { PlayerMoves } from "./Pong/Player.js";
 
+import { addMessageToHistory } from "./Live_chat/Live_chat.js";
+
+const logout_button = document.getElementById("logout") as HTMLButtonElement;
+const greeting = document.getElementById("greeting") as HTMLParagraphElement;
+const avatar_upload = document.getElementById("avatar-upload") as HTMLInputElement;
+
+const close_button		= document.getElementById("profile_close") as HTMLButtonElement;
+const invite_button		= document.getElementById("profile_invite") as HTMLButtonElement;
+const block_button		= document.getElementById("profile_block") as HTMLButtonElement;
+const unblock_button	= document.getElementById("profile_unblock") as HTMLButtonElement;
+
 export type Ref<T> = {value: T};
 
 // WebSocket connection
@@ -173,7 +184,7 @@ signinForm.addEventListener("submit", async (e) => {
     console.log(result.message);
 });
 
-async function printPersonalsElements(mail: string)
+export async function printPersonalsElements(mail: string)
 {
     const response = await fetch("http://localhost:4500/info", {
         method: "POST",
@@ -190,6 +201,22 @@ async function printPersonalsElements(mail: string)
     const defeatsElement = document.getElementById("user-defeats");
     const avatarElement = document.getElementById("user-avatar") as HTMLImageElement;
 
+	const emailElementline = document.getElementById("email-line");
+	const victoriesElementline = document.getElementById("victories-line");
+	const defeatsElementline = document.getElementById("defeats-line");
+
+	if (emailElementline)		emailElementline.style.display = "block";
+	if (victoriesElementline)	victoriesElementline.style.display = "block";
+	if (defeatsElementline)		defeatsElementline.style.display = "block";
+	if (avatar_upload)			avatar_upload.style.display = "block";
+	if (avatarElement)			avatarElement.style.display = "block";	
+
+	if (greetingElement)		greetingElement.style.display = "block";
+	// if (emailElement)			emailElement.style.display = "block";
+	// if (victoriesElement)		victoriesElement.style.display = "block";
+	// if (defeatsElement)			defeatsElement.style.display = "block";
+	if (avatarElement)			avatarElement.style.display = "block";
+
     if (greetingElement)
         greetingElement.textContent = `Hi ${result.pseudo} !`;
     if (emailElement)
@@ -201,6 +228,73 @@ async function printPersonalsElements(mail: string)
     if (avatarElement && result.avatar)
         avatarElement.src = result.avatar;
 };
+
+export async function show_profile( mail: string )
+{
+	hidePersonalsElements();
+	const forms = document.getElementById("Forms-connexion");
+	const formPseudo = document.getElementById("form");
+	const userProfile = document.getElementById("user-profile");
+	if (forms && formPseudo && userProfile)
+	{
+		forms.style.display = "none";
+		formPseudo.style.display = "none";
+		userProfile.style.display = "block";
+	}
+	await printPersonalsElements(mail);
+
+	const close_button		= document.getElementById("profile_close");
+	const invite_button		= document.getElementById("profile_invite");
+	const block_button		= document.getElementById("profile_block");
+	const unblock_button	= document.getElementById("profile_unblock");
+
+	if (close_button && invite_button && block_button && unblock_button)
+	{
+		close_button.style.display		= "block";
+		invite_button.style.display		= "block";	
+		block_button.style.display		= "block";
+		unblock_button.style.display	= "block";
+	}
+
+	const avatar_upload = document.getElementById("avatar-upload") as HTMLInputElement;
+	const greetingElement = document.getElementById("greeting");
+	if (avatar_upload)			avatar_upload.style.display = "none";
+	if (greetingElement)		greetingElement.style.display = "none";
+
+	window.scrollTo({
+		top: document.documentElement.scrollHeight,
+		behavior: 'smooth'
+	});
+}
+
+export function hidePersonalsElements()
+{
+	const greetingElement = document.getElementById("greeting");
+
+	const emailElementline = document.getElementById("email-line");
+	const victoriesElementline = document.getElementById("victories-line");
+	const defeatsElementline = document.getElementById("defeats-line");
+
+	const avatarElement = document.getElementById("user-avatar") as HTMLImageElement;
+
+	if (greetingElement) greetingElement.style.display = "none";
+	if (emailElementline) emailElementline.style.display = "none";
+	if (victoriesElementline) victoriesElementline.style.display = "none";
+	if (defeatsElementline) defeatsElementline.style.display = "none";
+	if (avatarElement) avatarElement.style.display = "none";
+
+	if (logout_button)     logout_button.style.display = "none";
+	if (greeting)          greeting.style.display = "none";
+	if (avatar_upload)     avatar_upload.style.display = "none";
+	if (close_button)      close_button.style.display = "none";
+	if (invite_button)     invite_button.style.display = "none";
+
+	if (block_button)      block_button.style.display = "none";
+	if (unblock_button)    unblock_button.style.display = "none";
+
+	const forms = document.getElementById("Forms-connexion");
+	if (forms)		   forms.style.display = "block";	
+}
 
 function convertFileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {

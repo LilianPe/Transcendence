@@ -1,3 +1,4 @@
+import { getUserFromDB } from "../Database/requests.js";
 export class Player {
     constructor(id) {
         this.y = 400 - 50;
@@ -5,10 +6,15 @@ export class Player {
         this.name = "";
         this.id = id;
         this.registered = false;
+        this.DB_ID = -1;
     }
     register(username) {
         this.name = username;
         // console.log(`Set name at: ${this.name}`)
+        getUserFromDB(username, (player) => {
+            if (player)
+                this.DB_ID = player.DB_ID;
+        });
         this.registered = true;
     }
     reset() {
@@ -48,5 +54,8 @@ export class Player {
     }
     isRegistered() {
         return this.registered;
+    }
+    getDBId() {
+        return this.DB_ID;
     }
 }
