@@ -24,7 +24,7 @@ function sendMessage(): void
 	{
 		messageInput.value = ''; // Effacer le champ de saisie après l'envoi
 
-		message = "LIVECHAT/" + id.value + ": " + message;
+		message = "LIVECHAT/" + message;
 		ws.send(message);
 	}
 }

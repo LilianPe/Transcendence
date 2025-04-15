@@ -88,13 +88,25 @@ export function handleWebsocket(): void {
 				//. LIVE CHAT
 				if (message.toString().startsWith("LIVECHAT/"))
 				{
+					let sender: string = clientID;
+					let pseudo: string = "random";
+
+					if (registeredClients.get( sender ))
+					{
+						// console.log(" is registered ------------------ "); //! DEBUG
+						let ref: Client = registeredClients.get( sender )!; // <-- le "!" dit à TS : "je te jure que c'est pas undefined"
+						pseudo = ref.player.getName();
+					}
+
+					let mess: string = "LIVECHAT/" + pseudo + " : " + message.toString().slice(9);
+
 					// Broadcast à tous les clients connectés
 					clients.forEach((client) =>
 					{
 						if (client.socketStream.readyState === WebSocket.OPEN)
 						{
-							console.log("envoyé a qqn\n"); //! debug
-							client.socketStream.send(JSON.stringify({type: "LIVECHAT", error: message.toString()}));
+							// console.log("envoyé a qqn\n"); //! debug
+							client.socketStream.send(JSON.stringify({type: "LIVECHAT", error: mess}));
 						}
 					});
 

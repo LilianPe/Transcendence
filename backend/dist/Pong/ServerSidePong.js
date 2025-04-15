@@ -64,6 +64,7 @@ export class ServerSidePong {
 
         */
         // SC.SC_addTournament( players_ids, scores );
+        // tournament -> history -> stack les points grace a match history
         this.tournament.stop();
     }
     getGame() {

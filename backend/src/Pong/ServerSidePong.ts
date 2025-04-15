@@ -7,6 +7,8 @@ import { Ref, Tournament } from "./Tournament.js";
 
 import * as SC from "../Blockchain/SC_interact.js";
 
+
+
 export class ServerSidePong {
     private game: Game;
     private running: number;
@@ -76,6 +78,8 @@ export class ServerSidePong {
 		*/
 
 		// SC.SC_addTournament( players_ids, scores );
+
+		// tournament -> history -> stack les points grace a match history
 
 		this.tournament.stop();
 	}
