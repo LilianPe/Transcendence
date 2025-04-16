@@ -130,9 +130,6 @@ export class Ball {
     public getDY(): number {
         return this.dy;
     }
-    public getAngle(): number {
-        return this.angle;
-    }
     public getSpeed(): number {
         return this.speed;
     }

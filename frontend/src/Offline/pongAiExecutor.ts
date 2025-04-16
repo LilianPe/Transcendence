@@ -4,7 +4,7 @@ import { Pong } from "../Pong/Pong.js";
 import { displayLine, displayScore, drawLeftPlayer, drawRightPlayer } from "./pongDisplayOff.js";
 import { PlayerMoves } from "../Pong/Player.js";
 
-let game = new Pong();
+export let game = new Pong();
 
 export const enum PlayerType {
 	Player = "PLAYER",
@@ -17,6 +17,7 @@ export const aiKeys = {
 	down: false,
 };
 
+let AITarget: number = 0;
 // ← Contrôle l’état de la boucle IA
 let aiLoopActive = false;
 
@@ -30,7 +31,7 @@ function updateMoves(): void {
 	if (aiKeys.down) {
 		offMove(PlayerMoves.MoveDown, PlayerType.Ai);
 	}
-
+	AIMove(AITarget);
 	requestAnimationFrame(updateMoves);
 }
 
@@ -65,7 +66,7 @@ export function AIMove(targetY: number): void {
 	const currentY = paddle.getY();
 
 	const randomOffset = 0 // Math.floor(Math.random() * 40) - 20; // [-20, +20]
-	const destination = targetY + randomOffset;
+	const destination = targetY - 50 + randomOffset;
 
 	// Simule une intention de bouger
 	if (currentY < destination) {
@@ -84,17 +85,20 @@ export function AIMove(targetY: number): void {
 export function predictLandingY(): number {
 	const ball = game.getGame().getBall();
 
+	console.log("value y :" + ball.getY());
+
 	let dx = ball.getDX(); // distance x
 	let dy = ball.getDY(); // distance y
 
-	let y = 800 * ball.getDY() / ball.getDX() + ball.getY(); // ratio + y
-
+	let y = 770 * ball.getDY() / ball.getDX() + ball.getY(); // ratio + y
+	console.log("value final y :" + y);
 	if (y < 0) {
 		y = -y;
 	} else if (y > 800) {
 		y = 2 * (800) - y;
 	}
-
+	console.log("very value final y :" + y);
+	AITarget = y;
 	return y;
 }
 

@@ -1,5 +1,5 @@
 import { handleKeyPress, keys, launchButtonAddEvent, launchTournamentButtonAddEvent, online, onlineButtonAddEvent, registerTournamentButtonAddEvent } from "./events.js";
-import { offMove, renderLocal } from "./Offline/pongAiExecutor.js";
+import { game, offMove, renderLocal } from "./Offline/pongAiExecutor.js";
 import { displayLaunchError, displayLine, displayScore, displayWinner, drawLeftPlayer, drawRightPlayer } from "./Online/pongDisplayOnline.js";
 import { currentState, handleWebSocket, targetState, tournamentWinner } from "./Online/webSocket.js";
 import { PlayerMoves } from "./Pong/Player.js";

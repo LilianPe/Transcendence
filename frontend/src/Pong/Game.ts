@@ -50,7 +50,6 @@ export class Game {
 export interface GameState {
     ballX: number;
     ballY: number;
-    ballAngle: number;
     player1Y: number;
     player2Y: number;
     player1Score: number;
