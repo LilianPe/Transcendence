@@ -1,5 +1,6 @@
 import { Player } from "./Player.js";
 import { BallObserver } from "./BallObserver.js";
+import { AIMove, predictLandingY } from "../Offline/pongAiExecutor.js";
 
 export class Ball {
     private x: number;
@@ -10,8 +11,6 @@ export class Ball {
     private maxSpeed: number;
     private angle: number;
 
-    private observers: BallObserver[] = [];
-
     constructor() {
         this.x = 395;
         this.y = 395;
@@ -20,16 +19,6 @@ export class Ball {
         this.speed = 9;
         this.maxSpeed = 14;
         this.angle = 0;
-    }
-
-    public subscribe(observer: BallObserver): void {
-        this.observers.push(observer);
-    }
-    
-    private notify(): void {
-        for (const observer of this.observers) {
-            observer.notify();
-        }
     }
 
     public move(p1: Player, p2: Player): void {
@@ -56,7 +45,8 @@ export class Ball {
             this.dx = -this.dx;
             this.adjustSpeed();
             this.adjustAngle(p1.getY());
-            this.notify();
+            let y = predictLandingY();
+            AIMove(y);
         }
 
         if (
@@ -66,7 +56,8 @@ export class Ball {
             this.dx = -this.dx;
             this.adjustSpeed();
             this.adjustAngle(p2.getY());
-            this.notify();
+            let y = predictLandingY();
+            AIMove(y);
         }
 
         if (this.x <= -10) {

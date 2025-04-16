@@ -9,6 +9,7 @@ export class Pong {
         this.game = new Game(new Player(), new Player());
         this.running = 0;
     }
+
     public launchGame(): void {
 		this.game = new Game(new Player(), new Player());
         this.running = 1;
