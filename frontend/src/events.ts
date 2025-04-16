@@ -1,5 +1,5 @@
 import { launchButton, launchTournamentButton, onOffButton, registerTournamentButton, ws } from "./frontend.js";
-import { offReset, offStart, stopOff } from "./Offline/pongAiExecutor.js";
+import { offReset, offStart, stopOff } from "./Offline/offlineManager.js";
 
 export let online: boolean = true;
 export function onlineButtonAddEvent(): void {

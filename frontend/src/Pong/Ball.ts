@@ -1,5 +1,5 @@
-import { AIMove, predictLandingY } from "../Offline/pongAiExecutor.js";
 import { Player } from "./Player.js";
+import { AIMove, predictLandingY } from "../Offline/pongAiExecutor.js";
 
 export class Ball {
     private x: number;
@@ -13,7 +13,7 @@ export class Ball {
         this.x = 395;
         this.y = 395;
         this.dx = 1;
-        this.dy = 0;
+        this.dy = 1;
         this.speed = 9;
         this.maxSpeed = 14;
     }
@@ -53,8 +53,6 @@ export class Ball {
             this.dx = -this.dx;
             this.adjustSpeed();
             this.adjustAngle(p2.getY());
-            predictLandingY();
-            AIMove();
         }
 
         if (this.x <= -10) {
@@ -115,11 +113,10 @@ export class Ball {
         this.x = 395;
         this.y = 395;
         this.dx = this.dx > 0 ? -1 : 1;
-        // this.dy = Math.random() * 2 - 1;
-        this.dy = 0;
+        this.dy = Math.random() * 2 - 1;
         this.speed = 9;
-		predictLandingY();
-		AIMove();
+        predictLandingY();
+        AIMove();
     }
 
     public getX(): number {

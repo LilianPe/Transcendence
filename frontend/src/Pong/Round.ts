@@ -19,8 +19,6 @@ export class Round {
     public run(): void {
         this.running = true;
         const targetFrameTime = 30;
-		// predictLandingY();
-		// AIMove();
 
         const update = (timestamp: number) => {
             if (!this.running) return;

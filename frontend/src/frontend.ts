@@ -1,9 +1,11 @@
 import { handleKeyPress, keys, launchButtonAddEvent, launchTournamentButtonAddEvent, online, onlineButtonAddEvent, registerTournamentButtonAddEvent } from "./events.js";
-import { game, offMove, renderLocal } from "./Offline/pongAiExecutor.js";
+import { game } from "./Offline/offlineManager.js";
+import { offMove } from "./Offline/offlineManager.js";
 import { displayLaunchError, displayLine, displayScore, displayWinner, drawLeftPlayer, drawRightPlayer } from "./Online/pongDisplayOnline.js";
 import { currentState, handleWebSocket, targetState, tournamentWinner } from "./Online/webSocket.js";
+import { GameState } from "./Pong/Game.js";
 import { PlayerMoves } from "./Pong/Player.js";
-
+import { displayLine as displayLineOff, displayScore as displayScoreOff, drawLeftPlayer as drawLeftPlayerOff, drawRightPlayer as drawRightPlayerOff } from "./Offline/pongDisplayOff.js";
 
 const logout_button = document.getElementById("logout") as HTMLButtonElement;
 const greeting = document.getElementById("greeting") as HTMLParagraphElement;
@@ -58,7 +60,15 @@ function lerp(start: number, end: number, alpha: number): number {
 
 function render(): void {
 	if (!online) {
-		renderLocal(canvasContext);
+        const currentState: GameState = game.getState();
+        canvasContext.fillStyle = "black";
+        canvasContext.fillRect(0, 0, 800, 800);
+        displayLineOff(canvasContext);
+        drawLeftPlayerOff(currentState.player1Y, canvasContext);
+        drawRightPlayerOff(currentState.player2Y, canvasContext);
+        displayScoreOff(currentState.player1Score, currentState.player2Score, canvasContext);
+        canvasContext.fillStyle = "white";
+        canvasContext.fillRect(currentState.ballX, currentState.ballY, 10, 10);
 	}
     else if (currentState && targetState) {
         const now = performance.now();

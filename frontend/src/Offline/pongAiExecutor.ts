@@ -1,32 +1,28 @@
-import { displayLaunchError } from "../Online/pongDisplayOnline.js";
-import { GameState } from "../Pong/Game.js";
-import { Pong } from "../Pong/Pong.js";
-import { displayLine, displayScore, drawLeftPlayer, drawRightPlayer } from "./pongDisplayOff.js";
 import { PlayerMoves } from "../Pong/Player.js";
+import { PlayerType } from "./interfaces.js";
+import { game, offMove } from "./offlineManager.js";
 
-export let game = new Pong();
-
-export const enum PlayerType {
-	Player = "PLAYER",
-	Ai = "AI",
-}
-
-// ← Simule l'état des touches pour l'IA
-export const aiKeys = {
+let AI_y_target: number = 0;
+let aiLoopActive = false;
+let aiKeys = {
 	up: false,
 	down: false,
 };
 
-// the IA position targetted
-export let AITarget: number = 0;
-// ← Contrôle l’état de la boucle IA
-let aiLoopActive = false;
+export function startAI(): void {
+	if (!aiLoopActive) {
+		aiLoopActive = true;
+		requestAnimationFrame(updateMoves);
+	}
+}
 
-// ← Boucle appelée à chaque frame quand l’IA est active
+export function stopAI(): void {
+	aiLoopActive = false;
+}
+
 function updateMoves(): void {
 	if (!aiLoopActive) return;
-
-	if (Math.abs(AITarget - game.getGame().getPlayer2().getY()) > 5)
+	if (Math.abs(game.getGame().getPlayer2().getY() - AI_y_target) > 10)
 	{
 		if (aiKeys.up) {
 			offMove(PlayerMoves.MoveUp, PlayerType.Ai);
@@ -43,84 +39,55 @@ function updateMoves(): void {
 	requestAnimationFrame(updateMoves);
 }
 
-// ← Appelé depuis l’extérieur pour activer l’IA
-export function startAI(): void {
-	if (!aiLoopActive) {
-		aiLoopActive = true;
-		requestAnimationFrame(updateMoves);
-	}
-}
-
-// ← Pour désactiver l’IA à tout moment
-export function stopAI(): void {
-	aiLoopActive = false;
-}
-
-export function offStart(): void {
-	if (game.getGame().getRound().isRunning()) {
-		displayLaunchError("A game is already running.");
-	} else {
-		game.getGame().launch();
-		startAI();
-	}
-}
-
-export function offMove(move: PlayerMoves, type: PlayerType = PlayerType.Player): void {
-	game.update(move, type);
-}
-
 export function AIMove(): void {
 	const paddle = game.getGame().getPlayer2();
 	const currentY = paddle.getY();
 
-	// Simule une intention de bouger
-	if (currentY < AITarget) {
+	if (currentY < AI_y_target) {
 		aiKeys.up = false;
 		aiKeys.down = true;
-	} else if (currentY > AITarget) {
+	} else if (currentY > AI_y_target) {
 		aiKeys.down = false;
 		aiKeys.up = true;
 	} else {
-		// Zone neutre
 		aiKeys.up = false;
 		aiKeys.down = false;
 	}
 }
 
-export function predictLandingY() {
+let predictionCount = 0;
+export function predictLandingY(): void {
 	const ball = game.getGame().getBall();
 
-	console.log("value y :" + ball.getY());
+	const x0 = ball.getX();
+	const y0 = ball.getY();
+	const dx = ball.getDX();
+	const dy = ball.getDY();
+	const width = 800;
+	const height = 800;
+	const paddleX = 770;
 
-	let dx = ball.getDX(); // distance x
+	const xTravel = paddleX - x0;
+	let yTravel = (dy / dx) * xTravel;
+	let predictedY = y0 + yTravel;
 
-	let y = (800 - (ball.getX() * 2)) * ball.getDY() / dx + ball.getY() - 50; // ratio + y
-	if (y < 0) {
-		y = -y ;
-	} else if (y > 800) {
-		y = 2 * (800) - y;
+	while (predictedY < 0 || predictedY > height - 10) {
+		if (predictedY < 0) {
+			predictedY = -predictedY;
+		} else if (predictedY > height - 10) {
+			predictedY = 2 * (height - 10) - predictedY;
+		}
 	}
-	AITarget = Math.round(y);
-}
 
-export function renderLocal(canvasContext: CanvasRenderingContext2D): void {
-	const currentState: GameState = game.getState();
-	canvasContext.fillStyle = "black";
-	canvasContext.fillRect(0, 0, 800, 800);
-	displayLine(canvasContext);
-	drawLeftPlayer(currentState.player1Y, canvasContext);
-	drawRightPlayer(currentState.player2Y, canvasContext);
-	displayScore(currentState.player1Score, currentState.player2Score, canvasContext);
-	canvasContext.fillStyle = "white";
-	canvasContext.fillRect(currentState.ballX, currentState.ballY, 10, 10);
-}
+	predictionCount++;
+	let randomOffset = 0;
+	if (predictionCount % 5 === 0) {
+		randomOffset += Math.floor(Math.random() * 170) - 85;
+	}
+	else
+	{
+		randomOffset = Math.floor(Math.random() * 80) - 40;
+	}
 
-export function stopOff(): void {
-	game.getGame().getRound().stop();
-	stopAI(); // Stop IA proprement
-}
-
-export function offReset(): void {
-	game = new Pong();
-	stopAI(); // Reset aussi l’état IA
+	AI_y_target = predictedY - 50 + randomOffset;
 }
