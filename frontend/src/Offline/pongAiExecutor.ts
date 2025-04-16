@@ -22,7 +22,7 @@ export function offStart(): void {
 	}
 }
 
-export function offMove(targetY: number): void {
+export function AIMove(targetY: number): void {
 	const paddle = game.getGame().getPlayer2();
 	const currentY = paddle.getY() + 50;
 
@@ -36,6 +36,11 @@ export function offMove(targetY: number): void {
 			game.update(PlayerMoves.MoveUp, PlayerType.Ai);
 		}
 	}
+}
+
+
+export function offMove(move: PlayerMoves): void {
+	game.update(move, PlayerType.Ai);
 }
 
 

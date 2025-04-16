@@ -1,6 +1,6 @@
 import { BallObserver } from "../Pong/BallObserver.js";
 import { Pong } from "../Pong/Pong.js";
-import { offMove } from "./pongAiExecutor.js";
+import { AIMove } from "./pongAiExecutor.js";
 
 export class PongAIPredictor implements BallObserver {
 	private pong: Pong;
@@ -12,7 +12,7 @@ export class PongAIPredictor implements BallObserver {
 
     public notify(): void {
         const targetY = this.predictLandingY();
-        offMove(targetY);
+        AIMove(targetY);
     }
 
     private predictLandingY(): number {
