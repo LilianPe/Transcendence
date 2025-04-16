@@ -49,7 +49,7 @@ export function handleWebSocket(id: Ref<string>) {
 		}
 		else if (content.type == "LIVECHAT")
 		{
-			let message = content.error.toString().slice(9); // cut LIVECHAT/
+			let message = content.error.toString();
 			addMessageToHistory(message);
 		}
 		else if (content.type == "LIVECHAT_PROFILE")

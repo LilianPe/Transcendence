@@ -5,7 +5,7 @@ import { Match } from "./Match.js";
 import { Player } from "./Player.js";
 import { Ref, Tournament } from "./Tournament.js";
 
-import * as SC from "../Blockchain/SC_interact.js";
+// import * as SC from "../Blockchain/SC_interact.js"; //!
 // import { getUserFromDB } from "../Database/requests.js"
 
 export class ServerSidePong {

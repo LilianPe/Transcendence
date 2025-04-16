@@ -11,6 +11,8 @@ const invite_button		= document.getElementById("profile_invite") as HTMLButtonEl
 const block_button		= document.getElementById("profile_block") as HTMLButtonElement;
 const unblock_button	= document.getElementById("profile_unblock") as HTMLButtonElement;
 
+const greetingElement	= document.getElementById("greeting");
+
 // Fonction pour ajouter un message à l'historique
 export function addMessageToHistory(message: string): void
 {
@@ -35,6 +37,11 @@ function sendMessage(): void
 		{
 			addMessageToHistory(message.slice(9));
 		}
+
+		// if (message.startsWith("LIVECHAT//join"))
+		// {
+		// 	addMessageToHistory(message.slice(9));
+		// }
 
 		ws.send(message);
 	}
@@ -61,5 +68,13 @@ close_button.addEventListener('click', () =>
     });
 });
 
+invite_button.addEventListener('click', () =>
+{
+	if (greetingElement && greetingElement.textContent)
+	{
+		let message = "/invite " + greetingElement.textContent;
+		ws.send(message);
+	}
+});
 
 

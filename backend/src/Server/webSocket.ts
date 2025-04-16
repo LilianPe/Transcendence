@@ -49,6 +49,43 @@ function launchTournament(id: string): void {
 	}
 }
 
+function sendToClientSocket(clientID: string, type: string, error: string)
+{
+	clients.forEach((client) =>
+	{
+		if (client.socketStream.readyState === WebSocket.OPEN && client.player.getId() == clientID)
+		{
+			client.socketStream.send(JSON.stringify({type: type,error: error}));
+		}
+	});
+}
+
+function getPseudoFromClientID(clientID: string) : string
+{
+	let sender: string = clientID;
+	let pseudo: string = "random";
+
+	if (registeredClients.get( sender ))
+	{
+		let ref: Client = registeredClients.get( sender )!; // <-- le "!" dit à TS : "je te jure que c'est pas undefined"
+		pseudo = ref.player.getName();
+	}
+
+	return pseudo;
+}
+
+function getClientFromPseudo(pseudo: string) : Client | null
+{
+	for (const client of registeredClients.values())
+	{
+		if (client.player.getName() === pseudo)
+		{
+			return client;
+		}
+	}
+	return null;
+}
+
 export function handleWebsocket(): void {
 	app.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
 	app.register(async function (fastify) {
@@ -98,13 +135,7 @@ export function handleWebsocket(): void {
 						{
 							if (!player)
 							{
-								clients.forEach((client) =>
-								{
-									if (client.socketStream.readyState === WebSocket.OPEN && client.player.getId() == clientID)
-									{
-										client.socketStream.send(JSON.stringify({type: "LIVECHAT_PROFILE",error: ""}));
-									}
-								});
+								sendToClientSocket(clientID, "LIVECHAT_PROFILE", "");
 								return;
 							}
 					
@@ -112,49 +143,45 @@ export function handleWebsocket(): void {
 							{
 								if (!mail)
 								{
-									clients.forEach((client) =>
-									{
-										if (client.socketStream.readyState === WebSocket.OPEN && client.player.getId() == clientID)
-										{
-											client.socketStream.send(JSON.stringify({type: "LIVECHAT_PROFILE",error: ""}));
-										}
-									});
+									sendToClientSocket(clientID, "LIVECHAT_PROFILE", "");
 									return;
 								}
-					
-								clients.forEach((client) =>
-								{
-									if (client.socketStream.readyState === WebSocket.OPEN && client.player.getId() == clientID)
-									{
-										client.socketStream.send(JSON.stringify({type: "LIVECHAT_PROFILE",error: mail}));
-									}
-								});
+								sendToClientSocket(clientID, "LIVECHAT_PROFILE", mail);
 							});
 						});
 						return ;
 					}
 
-					let sender: string = clientID;
-					let pseudo: string = "random";
-
-					if (registeredClients.get( sender ))
-					{
-						// console.log(" is registered ------------------ "); //! DEBUG
-						let ref: Client = registeredClients.get( sender )!; // <-- le "!" dit à TS : "je te jure que c'est pas undefined"
-						pseudo = ref.player.getName();
-					}
-
-					let mess: string = "LIVECHAT/" + pseudo + " : " + message.toString().slice(9);
+					let pseudo: string = getPseudoFromClientID( clientID );
+					let mess: string = pseudo + " : " + message.toString().slice(9);
 
 					// Broadcast à tous les clients connectés
 					clients.forEach((client) =>
 					{
 						if (client.socketStream.readyState === WebSocket.OPEN)
 						{
-							// console.log("envoyé a qqn\n"); //! debug
 							client.socketStream.send(JSON.stringify({type: "LIVECHAT", error: mess}));
 						}
 					});
+
+					return;
+				}
+				else if (message.toString().startsWith("/invite"))
+				{
+					let inviter_pseudo = getPseudoFromClientID( clientID );
+					let invited_pseudo = message.toString().split(" ")[1];
+
+					const  invited = getClientFromPseudo( invited_pseudo );
+					if (!invited)
+					{
+						sendToClientSocket(clientID, "LIVECHAT", "Invalid username");
+						return;
+					}
+					let mess = inviter_pseudo + " invited you to play pong ! Do /join " + inviter_pseudo + " to join him !"
+
+					//! ICI LOGIQUE D'INVITATION
+
+					sendToClientSocket( invited.player.getId(), "LIVECHAT", mess )
 
 					return;
 				}
