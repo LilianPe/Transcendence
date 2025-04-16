@@ -11,8 +11,6 @@ import { WebSocket } from "ws";
 
 import { getUserFromDB, getMailFromId } from "../Database/requests.js"
 
-// import * as SC from "../Blockchain/SC_interact.js"; //! pour faire des tests
-
 export interface Client {
 	player: Player;
 	socketStream: SocketStream;
@@ -49,6 +47,107 @@ function launchTournament(id: string): void {
 	}
 }
 
+function sendToClientSocket(clientID: string, type: string, error: string)
+{
+	clients.forEach((client) =>
+	{
+		if (client.socketStream.readyState === WebSocket.OPEN && client.player.getId() == clientID)
+		{
+			client.socketStream.send(JSON.stringify({type: type,error: error}));
+		}
+	});
+}
+
+function getPseudoFromClientID(clientID: string) : string
+{
+	let sender: string = clientID;
+	let pseudo: string = "random";
+
+	if (registeredClients.get( sender ))
+	{
+		let ref: Client = registeredClients.get( sender )!; // <-- le "!" dit à TS : "je te jure que c'est pas undefined"
+		pseudo = ref.player.getName();
+	}
+
+	return pseudo;
+}
+
+function getClientFromPseudo(pseudo: string) : Client | null
+{
+	for (const client of registeredClients.values())
+	{
+		if (client.player.getName() === pseudo)
+		{
+			return client;
+		}
+	}
+	return null;
+}
+
+function showProfile(clientID: string, message: string | Buffer<ArrayBufferLike>) : void
+{
+	const profile_pseudo = message.toString().split(" ")[1];
+	getUserFromDB(profile_pseudo, (player) =>
+	{
+		if (!player)
+		{
+			sendToClientSocket(clientID, "LIVECHAT_PROFILE", "");
+			return;
+		}
+
+		getMailFromId(player.getDBId(), (mail) =>
+		{
+			if (!mail)
+			{
+				sendToClientSocket(clientID, "LIVECHAT_PROFILE", "");
+				return;
+			}
+			sendToClientSocket(clientID, "LIVECHAT_PROFILE", mail);
+		});
+	});
+}
+
+function sendMSG(clientID: string, message: string | Buffer<ArrayBufferLike>) : void
+{
+	let pseudo: string = getPseudoFromClientID( clientID );
+	let mess: string = pseudo + " : " + message.toString().slice(9);
+
+	// Broadcast à tous les clients connectés
+	clients.forEach((client) =>
+	{
+		if (client.socketStream.readyState === WebSocket.OPEN)
+		{
+			client.socketStream.send(JSON.stringify({type: "LIVECHAT", error: mess}));
+		}
+	});
+}
+
+function invitePlayer(clientID: string, message: string | Buffer<ArrayBufferLike>) : void
+{
+	let inviter_pseudo = getPseudoFromClientID( clientID );
+	let invited_pseudo = message.toString().split(" ")[1];
+
+	if (!registeredClients.get( clientID ))
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Please log in before inviting people");
+		return;
+	}
+
+	const  invited = getClientFromPseudo( invited_pseudo );
+	if (!invited)
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Invalid username or not connected");
+		return;
+	}
+	let mess = inviter_pseudo + " invited you to play pong ! Do /join " + inviter_pseudo + " to join him !"
+	let mess2 = invited_pseudo + " has been invited to play pong !"
+
+	//! ICI LOGIQUE D'INVITATION
+
+	sendToClientSocket( invited.player.getId(), "LIVECHAT", mess );
+	sendToClientSocket( clientID, "LIVECHAT", mess2 );
+}
+
 export function handleWebsocket(): void {
 	app.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
 	app.register(async function (fastify) {
@@ -80,82 +179,20 @@ export function handleWebsocket(): void {
 					launchTournament(clientID);
 				}
 
-				// //! DEBUG BLOCK
-				// if (message.toString().endsWith("test"))
-				// {
-				// 	const players = SC.SC_getPlayers( 0 );
-				// 	return;
-				// }
-
 				//. LIVE CHAT
 				if (message.toString().startsWith("LIVECHAT/"))
 				{
-
 					if (message.toString().startsWith("LIVECHAT//profile"))
 					{
-						const profile_pseudo = message.toString().split(" ")[1];
-						getUserFromDB(profile_pseudo, (player) =>
-						{
-							if (!player)
-							{
-								clients.forEach((client) =>
-								{
-									if (client.socketStream.readyState === WebSocket.OPEN && client.player.getId() == clientID)
-									{
-										client.socketStream.send(JSON.stringify({type: "LIVECHAT_PROFILE",error: ""}));
-									}
-								});
-								return;
-							}
-					
-							getMailFromId(player.getDBId(), (mail) =>
-							{
-								if (!mail)
-								{
-									clients.forEach((client) =>
-									{
-										if (client.socketStream.readyState === WebSocket.OPEN && client.player.getId() == clientID)
-										{
-											client.socketStream.send(JSON.stringify({type: "LIVECHAT_PROFILE",error: ""}));
-										}
-									});
-									return;
-								}
-					
-								clients.forEach((client) =>
-								{
-									if (client.socketStream.readyState === WebSocket.OPEN && client.player.getId() == clientID)
-									{
-										client.socketStream.send(JSON.stringify({type: "LIVECHAT_PROFILE",error: mail}));
-									}
-								});
-							});
-						});
+						showProfile( clientID, message );
 						return ;
 					}
-
-					let sender: string = clientID;
-					let pseudo: string = "random";
-
-					if (registeredClients.get( sender ))
-					{
-						// console.log(" is registered ------------------ "); //! DEBUG
-						let ref: Client = registeredClients.get( sender )!; // <-- le "!" dit à TS : "je te jure que c'est pas undefined"
-						pseudo = ref.player.getName();
-					}
-
-					let mess: string = "LIVECHAT/" + pseudo + " : " + message.toString().slice(9);
-
-					// Broadcast à tous les clients connectés
-					clients.forEach((client) =>
-					{
-						if (client.socketStream.readyState === WebSocket.OPEN)
-						{
-							// console.log("envoyé a qqn\n"); //! debug
-							client.socketStream.send(JSON.stringify({type: "LIVECHAT", error: mess}));
-						}
-					});
-
+					sendMSG( clientID, message );
+					return;
+				}
+				else if (message.toString().startsWith("/invite"))
+				{
+					invitePlayer( clientID, message );
 					return;
 				}
 				else // si c est un LIVE CHAT pas besoin

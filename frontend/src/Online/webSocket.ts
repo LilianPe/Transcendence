@@ -1,8 +1,8 @@
 import { online } from "../events.js";
 import { Ref, ws } from "../frontend.js";
-import { GameState } from "../Pong/Game.js";
-import { displayLaunchError, displayWinner } from "./pongDisplayOnline.js";
 import { addMessageToHistory } from "../Live_chat/Live_chat.js";
+import { GameState } from "../Pong/Game.js";
+import { displayLaunchError, displayNextMatch } from "./pongDisplayOnline.js";
 
 import { show_profile } from "../frontend.js";
 
@@ -12,9 +12,18 @@ interface message {
     state: GameState;
     clientId: string;
     result: string;
+    nextMatch: string;
 }
 export let currentState: GameState | null = null;
 export let targetState: GameState | null = null;
+export let tournamentWinner: string | undefined;
+function setWinner(winner: string) {
+	tournamentWinner = winner;
+	setTimeout(() => {
+		tournamentWinner = undefined;
+	}, 1000);
+}
+
 export function handleWebSocket(id: Ref<string>) {
 	ws.onopen = () => {
 		console.log("Connected to WebSocket server");
@@ -34,6 +43,9 @@ export function handleWebSocket(id: Ref<string>) {
 			id.value = content.clientId;
 			console.log("My ID is: " + id.value);
 		}
+		if (content.type == "nextMatch") {
+			displayNextMatch(content.nextMatch);
+		}
 		if (!online) return;
 		if (content.type == "error") {
 			displayLaunchError(content.error);
@@ -45,11 +57,11 @@ export function handleWebSocket(id: Ref<string>) {
 		}
 		else if (content.type == "result") {
 			console.log(content);
-			displayWinner(content.result);
+			setWinner(content.result);
 		}
 		else if (content.type == "LIVECHAT")
 		{
-			let message = content.error.toString().slice(9); // cut LIVECHAT/
+			let message = content.error.toString();
 			addMessageToHistory(message);
 		}
 		else if (content.type == "LIVECHAT_PROFILE")

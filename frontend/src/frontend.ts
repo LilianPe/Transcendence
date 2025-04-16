@@ -4,7 +4,6 @@ import { displayLaunchError, displayLine, displayScore, drawLeftPlayer, drawRigh
 import { currentState, handleWebSocket, targetState } from "./Online/webSocket.js";
 import { PlayerMoves } from "./Pong/Player.js";
 
-import { addMessageToHistory } from "./Live_chat/Live_chat.js";
 
 const logout_button = document.getElementById("logout") as HTMLButtonElement;
 const greeting = document.getElementById("greeting") as HTMLParagraphElement;
@@ -78,6 +77,8 @@ function render(): void {
         canvasContext.fillStyle = "black";
         canvasContext.fillRect(0, 0, 800, 800);
         displayLine();
+		if (tournamentWinner)
+        	displayWinner(tournamentWinner);
         drawLeftPlayer(currentState.player1Y, targetState.player1Name);
         drawRightPlayer(currentState.player2Y, targetState.player2Name);
         displayScore(targetState.player1Score, targetState.player2Score);
@@ -175,6 +176,20 @@ signinForm.addEventListener("submit", async (e) => {
             formPseudo.style.display = "none";
             userProfile.style.display = "block";
         }
+
+		const close_button		= document.getElementById("profile_close");
+		const invite_button		= document.getElementById("profile_invite");
+		const block_button		= document.getElementById("profile_block");
+		const unblock_button	= document.getElementById("profile_unblock");
+	
+		if (close_button && invite_button && block_button && unblock_button)
+		{
+			close_button.style.display		= "block";
+			invite_button.style.display		= "none";	
+			block_button.style.display		= "none";
+			unblock_button.style.display	= "none";
+		}
+
         printPersonalsElements(mail);
     }
     else
@@ -232,6 +247,7 @@ export async function printPersonalsElements(mail: string)
 export async function show_profile( mail: string )
 {
 	hidePersonalsElements();
+
 	const forms = document.getElementById("Forms-connexion");
 	const formPseudo = document.getElementById("form");
 	const userProfile = document.getElementById("user-profile");
@@ -259,7 +275,11 @@ export async function show_profile( mail: string )
 	const avatar_upload = document.getElementById("avatar-upload") as HTMLInputElement;
 	const greetingElement = document.getElementById("greeting");
 	if (avatar_upload)			avatar_upload.style.display = "none";
-	if (greetingElement)		greetingElement.style.display = "none";
+	if (greetingElement)
+	{
+		greetingElement.style.display = "block";
+		if (greetingElement.textContent) greetingElement.textContent = greetingElement.textContent.slice(3, -2);
+	}
 
 	window.scrollTo({
 		top: document.documentElement.scrollHeight,

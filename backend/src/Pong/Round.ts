@@ -64,6 +64,9 @@ export class Round {
 			}
 			registeredTournament.clear();
 		}
+		else {
+			game.createNextMatch();
+		}
     }
 
     public getBall(): Ball {

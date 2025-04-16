@@ -45,5 +45,11 @@ export function displayLaunchError(message: string) {
 export function displayWinner(winner: string) {
 	canvasContext.font = "50px Arial";
 	canvasContext.strokeStyle = "white";
-	canvasContext.strokeText("Winner: " + winner, 350, 200);
+	canvasContext.strokeText("Tournament winner: " + winner, 100, 200);
+	// a revoir, les infos sont bien recues mais l'affichage ne marche pas
+}
+
+const nextMatchP: HTMLParagraphElement = document.getElementById("nextMatch") as HTMLParagraphElement;
+export function displayNextMatch(content: string) {
+	nextMatchP.textContent = content;
 }

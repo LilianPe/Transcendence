@@ -46,7 +46,7 @@
 						</div>
 
 						<!-- Text bottom box -->
-						<div style="margin-top: 10px; font-weight: bold; font-size: 20px;">/invite /join /block /profile</div>
+						<div style="margin-top: 10px; font-weight: bold; font-size: 20px;">/profile /join</div>
 
 					</div>
 
@@ -71,25 +71,29 @@
                             <button type="submit" class="">Valider</button>
                         </form>
                     </div>
+					<div class="mt-16 ml-5">
+						<p>Next Match: </p>
+						<p id="nextMatch">???</p>
+					</div>
                 </div>
-                <div id="Forms-connexion" class="flex flex-col space-y-6 max-w-md w-full">
-                    <form id="signup-form" class="flex flex-col items-center bg-white p-6 rounded-lg shadow-lg">
+                <div id="Forms-connexion" class="flex flex-col w-full max-w-md space-y-6">
+                    <form id="signup-form" class="flex flex-col items-center p-6 bg-white rounded-lg shadow-lg">
                         <p class="mb-4 text-xl font-semibold text-gray-800">Create an account :</p>
-                        <input id="PseudoIncription" type="text" placeholder="Pseudo" required class="mb-4 w-4/5 p-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition duration-200"/>
-                        <input id="EmailIncription" type="email" placeholder="Email" required class="mb-4 w-4/5 p-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition duration-200"/>
-                        <input id="PasswordIncription" type="password" placeholder="Mot de passe" required class="mb-4 w-4/5 p-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition duration-200"/>
-                        <button type="submit" class="w-4/5 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">S'inscrire</button>
+                        <input id="PseudoIncription" type="text" placeholder="Pseudo" required class="w-4/5 p-2 mb-4 transition duration-200 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"/>
+                        <input id="EmailIncription" type="email" placeholder="Email" required class="w-4/5 p-2 mb-4 transition duration-200 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"/>
+                        <input id="PasswordIncription" type="password" placeholder="Mot de passe" required class="w-4/5 p-2 mb-4 transition duration-200 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"/>
+                        <button type="submit" class="w-4/5 p-2 text-white transition duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">S'inscrire</button>
                       </form>
-                      <form id="signin-form" class="flex flex-col items-center bg-white p-6 rounded-lg shadow-lg">
+                      <form id="signin-form" class="flex flex-col items-center p-6 bg-white rounded-lg shadow-lg">
                         <p class="mb-4 text-xl font-semibold text-gray-800">Already have an account? Log in :</p>
-                        <input id="EmailConnexion" type="email" placeholder="Email" required class="mb-4 w-4/5 p-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition duration-200"/>
-                        <input id="PasswordConnexion" type="password" placeholder="Mot de passe" required class="mb-4 w-4/5 p-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition duration-200"/>
-                        <button type="submit" class="w-4/5 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">Se connecter</button>
+                        <input id="EmailConnexion" type="email" placeholder="Email" required class="w-4/5 p-2 mb-4 transition duration-200 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"/>
+                        <input id="PasswordConnexion" type="password" placeholder="Mot de passe" required class="w-4/5 p-2 mb-4 transition duration-200 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"/>
+                        <button type="submit" class="w-4/5 p-2 text-white transition duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Se connecter</button>
                       </form>
                 </div>
                 <div id="user-profile" class="max-w-xs p-4 mx-auto bg-white rounded-lg shadow-md" style="display: none;">
                     <p id="greeting" class="mb-4 text-lg font-semibold text-center text-gray-700"></p>
-                    <img id="user-avatar" src="https://emedia1.nhs.wales/HEIW2/cache/file/F4C33EF0-69EE-4445-94018B01ADCF6FD4.png" alt="Avatar de l'utilisateur" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-gray-200 object-cover hover:brightness-75 cursor-pointer transition duration-200">
+                    <img id="user-avatar" src="https://emedia1.nhs.wales/HEIW2/cache/file/F4C33EF0-69EE-4445-94018B01ADCF6FD4.png" alt="Avatar de l'utilisateur" class="object-cover w-20 h-20 mx-auto mb-4 transition duration-200 border-2 border-gray-200 rounded-full cursor-pointer hover:brightness-75">
                     <input type="file" id="avatar-upload">
                     <div class="space-y-2">
 
