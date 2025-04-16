@@ -18,7 +18,7 @@ export const aiKeys = {
 };
 
 // the IA position targetted
-let AITarget: number = 0;
+export let AITarget: number = 0;
 // ← Contrôle l’état de la boucle IA
 let aiLoopActive = false;
 
