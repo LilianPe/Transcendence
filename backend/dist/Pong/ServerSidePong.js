@@ -1,3 +1,5 @@
+// @ts-ignore
+import { clients } from "../server.js";
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 import { Tournament } from "./Tournament.js";
@@ -26,9 +28,17 @@ export class ServerSidePong {
                 clients.get(clientID)?.socketStream.send(JSON.stringify({ type: "error", error: "No tournament launched." }));
             else {
                 console.log("Game launched");
-                const match = this.tournament.nextRound();
-                console.log(`Player1: ${match.value.getPlayer1().getId()} | Player2: ${match.value.getPlayer2().getId()}`);
-                this.launchGame(match);
+                // this.tournament.createNextRound();
+                const match = this.tournament.getNextMatch();
+                if (match) {
+                    console.log(`Player1: ${match.value.getPlayer1().getId()} | Player2: ${match.value.getPlayer2().getId()}`);
+                    this.launchGame(match);
+                }
+                else {
+                    clients.forEach((value, key) => {
+                        value.webSocket.send(JSON.stringify({ type: "error", error: "Matchmaking error." }));
+                    });
+                }
             }
         }
     }
@@ -46,8 +56,25 @@ export class ServerSidePong {
             // enlever aussi joueur du tournois et faire gagner l'autre
         }
     }
+    sendNextMatch(match) {
+        clients.forEach((value, key) => {
+            value.socketStream.send(JSON.stringify({ type: "nextMatch", nextMatch: `${match.getPlayer1().getName()} VS ${match.getPlayer2().getName()}` }));
+        });
+    }
+    createNextMatch() {
+        this.tournament.createNextRound();
+        const nextMatch = this.tournament.getNextMatch()?.value;
+        if (nextMatch)
+            this.sendNextMatch(nextMatch);
+        // enlever dans launch la creation
+    }
     launchTournament(players) {
         this.createTournament(players);
+        this.tournament.createNextRound();
+        const nextMatch = this.tournament.getNextMatch()?.value;
+        if (nextMatch) {
+            this.sendNextMatch(nextMatch);
+        }
         this.tournament.launch();
     }
     endTournament() {

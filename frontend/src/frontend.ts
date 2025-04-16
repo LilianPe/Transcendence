@@ -1,10 +1,9 @@
 import { handleKeyPress, keys, launchButtonAddEvent, launchTournamentButtonAddEvent, online, onlineButtonAddEvent, registerTournamentButtonAddEvent } from "./events.js";
 import { offMove, renderLocal } from "./Offline/pongAi.js";
-import { displayLaunchError, displayLine, displayScore, drawLeftPlayer, drawRightPlayer } from "./Online/pongDisplayOnline.js";
-import { currentState, handleWebSocket, targetState } from "./Online/webSocket.js";
+import { displayLaunchError, displayLine, displayScore, displayWinner, drawLeftPlayer, drawRightPlayer } from "./Online/pongDisplayOnline.js";
+import { currentState, handleWebSocket, targetState, tournamentWinner } from "./Online/webSocket.js";
 import { PlayerMoves } from "./Pong/Player.js";
 
-import { addMessageToHistory } from "./Live_chat/Live_chat.js";
 
 const logout_button = document.getElementById("logout") as HTMLButtonElement;
 const greeting = document.getElementById("greeting") as HTMLParagraphElement;
@@ -78,6 +77,8 @@ function render(): void {
         canvasContext.fillStyle = "black";
         canvasContext.fillRect(0, 0, 800, 800);
         displayLine();
+		if (tournamentWinner)
+        	displayWinner(tournamentWinner);
         drawLeftPlayer(currentState.player1Y, targetState.player1Name);
         drawRightPlayer(currentState.player2Y, targetState.player2Name);
         displayScore(targetState.player1Score, targetState.player2Score);

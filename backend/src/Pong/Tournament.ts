@@ -12,6 +12,7 @@ export class Tournament {
 	private winner: Player | undefined;
 	private players: Map<string, Player> | undefined;
 	private matches: Array<Match> | undefined;
+	private nextMatch: Ref<Match> | undefined;
 	private historic: Array<Match>;
 
 	constructor(players: Map<string, Player> | undefined) {
@@ -94,7 +95,7 @@ export class Tournament {
 		this.matches = nextMatches;
 	}
 
-	private getNextMatch(): Match {
+	private getNxtMatch(): Match {
 		// recupere le premier match pas finit et renvoie les joueurs du match.
 		if (!this.matches) return (new Match(new Player(""), undefined));
 		if (this.matches.length == 1) {
@@ -107,10 +108,10 @@ export class Tournament {
 				return this.matches[i];
 			} 
 		}
-		return (new Match(new Player(""), undefined));
+		return new Match(new Player(""), undefined);
 	}
 
-	public matchmaking(): Ref<Match> {
+	public matchmaking(): void {
 		if (!this.matches) {
 			console.log("creating matches");
 			this.createMatches();
@@ -119,17 +120,17 @@ export class Tournament {
 			if (this.matches.length == 1) {
 				this.winner = this.matches[0].getWinner();
 				this.launched = false;
-				return ({value: new Match(new Player(""), undefined)});
+				//return ({value: new Match(new Player(""), undefined)});
 				// afficher le gagnant ou autre, mais montrer que le tournois est finit
 			}
 			this.createNewRounds();
 		}
-		const ref: Ref<Match> = {value: this.getNextMatch()};
-		return (ref);
+		const ref: Ref<Match> = {value: this.getNxtMatch()};
+		this.nextMatch = ref;
 	}
 
-	public nextRound(): Ref<Match> {		
-		return (this.matchmaking());
+	public createNextRound(): void {		
+		this.matchmaking();
 	}
 
 	public launch(): void {
@@ -153,5 +154,8 @@ export class Tournament {
 	public getHistoric(): Array<Match>
 	{
 		return this.historic;
+	}
+	public getNextMatch(): Ref<Match> | undefined {
+		return this.nextMatch;
 	}
 }

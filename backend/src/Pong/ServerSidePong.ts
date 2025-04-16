@@ -1,5 +1,5 @@
 // @ts-ignore
-import { Client } from "../server.js";
+import { Client, clients } from "../server.js";
 import { Game, GameState } from "./Game.js";
 import { Match } from "./Match.js";
 import { Player } from "./Player.js";
@@ -33,9 +33,17 @@ export class ServerSidePong {
             else if (!this.tournament.isLaunched()) clients.get(clientID)?.socketStream.send(JSON.stringify({type: "error", error: "No tournament launched."}));
 				else {
 					console.log("Game launched");
-					const match: Ref<Match> = this.tournament.nextRound();
-					console.log(`Player1: ${match.value.getPlayer1().getId()} | Player2: ${match.value.getPlayer2().getId()}`)			
-					this.launchGame(match);
+					// this.tournament.createNextRound();
+					const match: Ref<Match> | undefined = this.tournament.getNextMatch();
+					if (match) {
+						console.log(`Player1: ${match.value.getPlayer1().getId()} | Player2: ${match.value.getPlayer2().getId()}`)			
+						this.launchGame(match);
+					}
+					else {
+						clients.forEach((value: Client, key: string) => {
+							value.webSocket.send(JSON.stringify({type: "error", error: "Matchmaking error."}));
+						});
+					}
             }
         }
     }
@@ -54,8 +62,25 @@ export class ServerSidePong {
         }
     }
 
+	private sendNextMatch(match: Match) {
+		clients.forEach((value: Client, key: string) => {
+			value.socketStream.send(JSON.stringify({type: "nextMatch", nextMatch: `${match.getPlayer1().getName()} VS ${match.getPlayer2().getName()}`}));
+		});
+	}
+	public createNextMatch() {
+		this.tournament.createNextRound();
+		const nextMatch: Match | undefined = this.tournament.getNextMatch()?.value;
+		if (nextMatch)
+			this.sendNextMatch(nextMatch);
+		// enlever dans launch la creation
+	}
 	public launchTournament(players: Map<string, Player>): void {
 		this.createTournament(players);
+		this.tournament.createNextRound();
+		const nextMatch: Match | undefined = this.tournament.getNextMatch()?.value;
+		if (nextMatch) {
+			this.sendNextMatch(nextMatch);
+		}
 		this.tournament.launch();
 	}
 	public endTournament(): void
