@@ -17,6 +17,7 @@ export const aiKeys = {
 	down: false,
 };
 
+// the IA position targetted
 let AITarget: number = 0;
 // ← Contrôle l’état de la boucle IA
 let aiLoopActive = false;
@@ -25,13 +26,20 @@ let aiLoopActive = false;
 function updateMoves(): void {
 	if (!aiLoopActive) return;
 
-	if (aiKeys.up) {
-		offMove(PlayerMoves.MoveUp, PlayerType.Ai);
+	if (Math.abs(AITarget - game.getGame().getPlayer2().getY()) > 5)
+	{
+		if (aiKeys.up) {
+			offMove(PlayerMoves.MoveUp, PlayerType.Ai);
+		}
+		if (aiKeys.down) {
+			offMove(PlayerMoves.MoveDown, PlayerType.Ai);
+		}
 	}
-	if (aiKeys.down) {
-		offMove(PlayerMoves.MoveDown, PlayerType.Ai);
+	else
+	{
+		aiKeys.up = false;
+		aiKeys.down = false;
 	}
-	AIMove(AITarget);
 	requestAnimationFrame(updateMoves);
 }
 
@@ -61,18 +69,15 @@ export function offMove(move: PlayerMoves, type: PlayerType = PlayerType.Player)
 	game.update(move, type);
 }
 
-export function AIMove(targetY: number): void {
+export function AIMove(): void {
 	const paddle = game.getGame().getPlayer2();
 	const currentY = paddle.getY();
 
-	const randomOffset = 0 // Math.floor(Math.random() * 40) - 20; // [-20, +20]
-	const destination = targetY - 50 + randomOffset;
-
 	// Simule une intention de bouger
-	if (currentY < destination) {
+	if (currentY < AITarget) {
 		aiKeys.up = false;
 		aiKeys.down = true;
-	} else if (currentY > destination) {
+	} else if (currentY > AITarget) {
 		aiKeys.down = false;
 		aiKeys.up = true;
 	} else {
@@ -82,24 +87,20 @@ export function AIMove(targetY: number): void {
 	}
 }
 
-export function predictLandingY(): number {
+export function predictLandingY() {
 	const ball = game.getGame().getBall();
 
 	console.log("value y :" + ball.getY());
 
 	let dx = ball.getDX(); // distance x
-	let dy = ball.getDY(); // distance y
 
-	let y = 770 * ball.getDY() / ball.getDX() + ball.getY(); // ratio + y
-	console.log("value final y :" + y);
+	let y = (800 - (ball.getX() * 2)) * ball.getDY() / dx + ball.getY() - 50; // ratio + y
 	if (y < 0) {
-		y = -y;
+		y = -y ;
 	} else if (y > 800) {
 		y = 2 * (800) - y;
 	}
-	console.log("very value final y :" + y);
-	AITarget = y;
-	return y;
+	AITarget = Math.round(y);
 }
 
 export function renderLocal(canvasContext: CanvasRenderingContext2D): void {

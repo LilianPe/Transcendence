@@ -43,7 +43,8 @@ export class Ball {
             this.dx = -this.dx;
             this.adjustSpeed();
             this.adjustAngle(p1.getY());
-            AIMove(predictLandingY());
+            predictLandingY();
+            AIMove();
         }
 
         if (
@@ -53,7 +54,8 @@ export class Ball {
             this.dx = -this.dx;
             this.adjustSpeed();
             this.adjustAngle(p2.getY());
-            AIMove(predictLandingY());
+            predictLandingY();
+            AIMove();
         }
 
         if (this.x <= -10) {
