@@ -9,7 +9,6 @@ export class Ball {
     private dy: number;
     private speed: number;
     private maxSpeed: number;
-    private angle: number;
 
     constructor() {
         this.x = 395;
@@ -18,7 +17,6 @@ export class Ball {
         this.dy = 1;
         this.speed = 9;
         this.maxSpeed = 14;
-        this.angle = 0;
     }
 
     public move(p1: Player, p2: Player): void {
@@ -45,8 +43,7 @@ export class Ball {
             this.dx = -this.dx;
             this.adjustSpeed();
             this.adjustAngle(p1.getY());
-            let y = predictLandingY();
-            AIMove(y);
+            AIMove(predictLandingY());
         }
 
         if (
@@ -56,8 +53,7 @@ export class Ball {
             this.dx = -this.dx;
             this.adjustSpeed();
             this.adjustAngle(p2.getY());
-            let y = predictLandingY();
-            AIMove(y);
+            AIMove(predictLandingY());
         }
 
         if (this.x <= -10) {
@@ -112,7 +108,6 @@ export class Ball {
         const relativeHitPoint = this.y - (playerY + 50);
         const normalizedHitPoint = relativeHitPoint / 50;
         this.dy = normalizedHitPoint * 1.5;
-        this.angle = Math.atan2(this.dy, this.dx);
     }
 
     private reset(): void {
@@ -128,6 +123,12 @@ export class Ball {
     }
     public getY(): number {
         return this.y;
+    }
+    public getDX(): number {
+        return this.dx;
+    }
+    public getDY(): number {
+        return this.dy;
     }
     public getAngle(): number {
         return this.angle;

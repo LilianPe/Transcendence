@@ -17,19 +17,34 @@ export const aiKeys = {
 	down: false,
 };
 
-// ← Appelé à chaque frame
-export function updateMoves(): void {
-	// Exemple pour le joueur humain si tu veux (si keys.w etc.)
+// ← Contrôle l’état de la boucle IA
+let aiLoopActive = false;
 
-	// Déplacement IA simulé
+// ← Boucle appelée à chaque frame quand l’IA est active
+function updateMoves(): void {
+	if (!aiLoopActive) return;
+
 	if (aiKeys.up) {
-		offMove(PlayerMoves.MoveUp);
+		offMove(PlayerMoves.MoveUp, PlayerType.Ai);
 	}
 	if (aiKeys.down) {
-		offMove(PlayerMoves.MoveDown);
+		offMove(PlayerMoves.MoveDown, PlayerType.Ai);
 	}
 
 	requestAnimationFrame(updateMoves);
+}
+
+// ← Appelé depuis l’extérieur pour activer l’IA
+export function startAI(): void {
+	if (!aiLoopActive) {
+		aiLoopActive = true;
+		requestAnimationFrame(updateMoves);
+	}
+}
+
+// ← Pour désactiver l’IA à tout moment
+export function stopAI(): void {
+	aiLoopActive = false;
 }
 
 export function offStart(): void {
@@ -37,25 +52,26 @@ export function offStart(): void {
 		displayLaunchError("A game is already running.");
 	} else {
 		game.getGame().launch();
+		startAI();
 	}
 }
 
-export function offMove(move: PlayerMoves): void {
-	game.update(move, PlayerType.Ai);
+export function offMove(move: PlayerMoves, type: PlayerType = PlayerType.Player): void {
+	game.update(move, type);
 }
 
 export function AIMove(targetY: number): void {
 	const paddle = game.getGame().getPlayer2();
-	const currentY = paddle.getY() + 50;
+	const currentY = paddle.getY();
 
-	const randomOffset = Math.floor(Math.random() * 40) - 20; // [-20, +20]
+	const randomOffset = 0 // Math.floor(Math.random() * 40) - 20; // [-20, +20]
 	const destination = targetY + randomOffset;
 
 	// Simule une intention de bouger
-	if (currentY < destination - 5) {
+	if (currentY < destination) {
 		aiKeys.up = false;
 		aiKeys.down = true;
-	} else if (currentY > destination + 5) {
+	} else if (currentY > destination) {
 		aiKeys.down = false;
 		aiKeys.up = true;
 	} else {
@@ -68,20 +84,15 @@ export function AIMove(targetY: number): void {
 export function predictLandingY(): number {
 	const ball = game.getGame().getBall();
 
-	const x0 = ball.getX();
-	const y0 = ball.getY();
-	const angle = ball.getAngle(); // radians
+	let dx = ball.getDX(); // distance x
+	let dy = ball.getDY(); // distance y
 
-	const tableHeight = 800;
-	const targetX = 770;
+	let y = 800 * ball.getDY() / ball.getDX() + ball.getY(); // ratio + y
 
-	const dx = targetX - x0;
-	let y = y0 + Math.tan(angle) * dx;
-
-	if (y > tableHeight) {
-		y = 2 * tableHeight - y;
-	} else if (y < 0) {
+	if (y < 0) {
 		y = -y;
+	} else if (y > 800) {
+		y = 2 * (800) - y;
 	}
 
 	return y;
@@ -101,8 +112,10 @@ export function renderLocal(canvasContext: CanvasRenderingContext2D): void {
 
 export function stopOff(): void {
 	game.getGame().getRound().stop();
+	stopAI(); // Stop IA proprement
 }
 
 export function offReset(): void {
 	game = new Pong();
+	stopAI(); // Reset aussi l’état IA
 }
