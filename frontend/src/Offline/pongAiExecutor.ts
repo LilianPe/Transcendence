@@ -2,8 +2,11 @@ import { displayLaunchError } from "../Online/pongDisplayOnline.js";
 import { GameState } from "../Pong/Game.js";
 import { Pong } from "../Pong/Pong.js";
 import { displayLine, displayScore, drawLeftPlayer, drawRightPlayer } from "./pongDisplayOff.js";
+import { PlayerMoves } from "../Pong/Player.js";
+import { PongAIPredictor } from "./PongAIPredictor.js";
 
 let game = new Pong();
+const ai = new PongAIPredictor(game);
 
 export const enum PlayerType {
 	Player = "PLAYER",
@@ -19,9 +22,22 @@ export function offStart(): void {
 	}
 }
 
-export function offMove(move: string): void {
-	game.update(move, PlayerType.Player);
+export function offMove(targetY: number): void {
+	const paddle = game.getGame().getPlayer2();
+	const currentY = paddle.getY() + 50;
+
+	const randomOffset = Math.floor(Math.random() * 40) - 20; // [-20, +20]
+	const destination = targetY + randomOffset;
+
+	while (Math.abs(paddle.getY() + 50 - destination) > 5) {
+		if (paddle.getY() + 50 < destination) {
+			game.update(PlayerMoves.MoveDown, PlayerType.Ai);
+		} else {
+			game.update(PlayerMoves.MoveUp, PlayerType.Ai);
+		}
+	}
 }
+
 
 export function renderLocal(canvasContext: CanvasRenderingContext2D): void {
 	const currentState: GameState = game.getState();

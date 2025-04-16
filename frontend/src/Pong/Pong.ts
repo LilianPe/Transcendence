@@ -24,6 +24,7 @@ export class Pong {
         const state: GameState = {
             ballX: this.getGame().getBall().getX(),
             ballY: this.getGame().getBall().getY(),
+            ballAngle: this.getGame().getBall().getAngle(),
             player1Y: this.getGame().getPlayer1().getY(),
             player2Y: this.getGame().getPlayer2().getY(),
             player1Score: this.getGame().getPlayer1().getScore(),

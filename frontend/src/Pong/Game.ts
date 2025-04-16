@@ -1,4 +1,4 @@
-import { PlayerType } from "../Offline/pongAi.js";
+import { PlayerType } from "../Offline/pongAiExecutor.js";
 import { Ball } from "./Ball.js";
 import { Player, PlayerMoves } from "./Player.js";
 import { Round } from "./Round.js";
@@ -50,6 +50,7 @@ export class Game {
 export interface GameState {
     ballX: number;
     ballY: number;
+    ballAngle: number;
     player1Y: number;
     player2Y: number;
     player1Score: number;

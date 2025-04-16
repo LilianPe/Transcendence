@@ -1,4 +1,5 @@
 import { Player } from "./Player.js";
+import { BallObserver } from "./BallObserver.js";
 
 export class Ball {
     private x: number;
@@ -7,6 +8,9 @@ export class Ball {
     private dy: number;
     private speed: number;
     private maxSpeed: number;
+    private angle: number;
+
+    private observers: BallObserver[] = [];
 
     constructor() {
         this.x = 395;
@@ -15,6 +19,17 @@ export class Ball {
         this.dy = 1;
         this.speed = 9;
         this.maxSpeed = 14;
+        this.angle = 0;
+    }
+
+    public subscribe(observer: BallObserver): void {
+        this.observers.push(observer);
+    }
+    
+    private notify(): void {
+        for (const observer of this.observers) {
+            observer.notify();
+        }
     }
 
     public move(p1: Player, p2: Player): void {
@@ -36,25 +51,22 @@ export class Ball {
 
         if (
 			collision(20, 30, p1.getY() - 10, p1.getY() + 100)
-			// this.x <= 30 && this.x >= 20 && this.y > p1.getY() - 10 && this.y < p1.getY() + 100
 		) {
             this.x = 31;
             this.dx = -this.dx;
             this.adjustSpeed();
             this.adjustAngle(p1.getY());
+            this.notify();
         }
 
         if (
 			collision(770, 780, p2.getY() - 10, p2.getY() + 100)
-            // this.x + 10 >= 770 &&
-            // this.x + 10 <= 780 &&
-            // this.y > p2.getY() - 10 &&
-            // this.y < p2.getY() + 100
         ) {
             this.x = 769;
             this.dx = -this.dx;
             this.adjustSpeed();
             this.adjustAngle(p2.getY());
+            this.notify();
         }
 
         if (this.x <= -10) {
@@ -109,6 +121,7 @@ export class Ball {
         const relativeHitPoint = this.y - (playerY + 50);
         const normalizedHitPoint = relativeHitPoint / 50;
         this.dy = normalizedHitPoint * 1.5;
+        this.angle = Math.atan2(this.dy, this.dx);
     }
 
     private reset(): void {
@@ -124,6 +137,9 @@ export class Ball {
     }
     public getY(): number {
         return this.y;
+    }
+    public getAngle(): number {
+        return this.angle;
     }
     public getSpeed(): number {
         return this.speed;
