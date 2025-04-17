@@ -28,6 +28,8 @@ export class Match {
 	public end(): void {
 		if (this.ended) return;
 		this.ended = true;
+		if (this.player1.isLogout()) this.winner = this.player2;
+		if (this.player2.isLogout()) this.winner = this.player1;
 		if (this.player1.getScore() == 3) {
 			this.winner = this.player1;
 		}

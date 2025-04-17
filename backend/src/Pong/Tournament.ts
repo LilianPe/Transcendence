@@ -1,6 +1,8 @@
 // tournois marche a 2 mais a + de deux, toujours les deux meme qui jouent et pas de fin, revoir matchmaking.
 // + stocker les resultats
 
+import { clients, game } from "../server.js";
+import { Client, registeredTournament } from "../Server/webSocket.js";
 import { Match } from "./Match.js";
 import { Player } from "./Player.js";
 
@@ -9,6 +11,7 @@ export type Ref<T> = {value: T};
 export class Tournament {
 	private date: number;
 	private launched: boolean;
+	private ended: boolean;
 	private winner: Player | undefined;
 	private players: Map<string, Player> | undefined;
 	private matches: Array<Match> | undefined;
@@ -18,6 +21,7 @@ export class Tournament {
 	constructor(players: Map<string, Player> | undefined) {
 		this.date = 0;
 		this.launched = false;
+		this.ended = false;
 		this.players = players;
 		this.matches = undefined;
 		this.winner = undefined;
@@ -32,6 +36,7 @@ export class Tournament {
 		const players: Array<Player> = Array.from(this.players.values());
 		this.matches = [];
 		for (let i: number = 0; i < players.length; i++) {
+			if (players[i].isLogout()) continue;
 			players[i].setTournamentID(i);
 			console.log(`Adding: ${players[i].getId()} in matches. Tournament id: ${players[i].getTournamentID()}.`);
 			if (!player1){
@@ -68,14 +73,15 @@ export class Tournament {
 	}
 	
 	private createNewRounds(): void {
-		console.log("Round 2");
 		// cree des nouveaux matchs mais par rapport a matches.getWinner;
 		if (!this.matches) return;
-		console.log("Debug");
 		let nextMatches: Array<Match> = [];
 		let player1: Player | undefined;
 		let player2: Player | undefined;
 		for (let i: number = this.matches.length - 1; i >= 0 ; i--) {
+			if (this.matches[i].getWinner()?.isLogout()) {
+				continue;
+			}
 			if (!player1) player1 = this.matches[i].getWinner();
 			else if (!player2) {
 				console.log(`Match ${i}: Ended: ${this.matches[i].isEnded}, winner: ${this.matches[i].getWinner()}`);
@@ -83,21 +89,22 @@ export class Tournament {
 			}
 			else {
 				nextMatches.push(new Match(player1, player2));
-				console.log(`New match: Player1 :${player1.getId()}`);
+				// console.log(`New match: Player1 :${player1.getId()}`);
 				player1 = this.matches[i].getWinner();
 				player2 = undefined;
 			}
 		}
 		if (player1) {
 			nextMatches.push(new Match(player1, player2));
-			console.log(`New match: Player1 :${player1.getId()}`);
+			// console.log(`New match: Player1 :${player1.getId()}, ${player2}`);
 		}
 		this.matches = nextMatches;
 	}
 
-	private getNxtMatch(): Match {
+	private getNxtMatch(): Match | undefined{
 		// recupere le premier match pas finit et renvoie les joueurs du match.
 		if (!this.matches) return (new Match(new Player(""), undefined));
+		if (this.ended) return undefined;
 		if (this.matches.length == 1) {
 			console.log("Returning final.");
 			this.matches[0].setFinal();
@@ -111,21 +118,39 @@ export class Tournament {
 		return new Match(new Player(""), undefined);
 	}
 
+	public nextRound() {
+		if (!this.matches) return;
+		console.log("All played");
+		if (this.matches.length == 1) {
+			console.log("TOurnamend end");
+			this.winner = this.matches[0].getWinner();
+			this.launched = false;
+			const cli: Array<Client> = Array.from(clients.values());
+			for (let i: number = 0; i < cli.length; i++) {
+				cli[i].socketStream.send(JSON.stringify({type: "result", result: this.matches[0].getWinner()?.getName()}));
+			}
+			registeredTournament.clear();
+			game.endTournament();
+			this.nextMatch = undefined;
+			this.ended = true;
+		}
+		else {
+			this.createNewRounds();
+			if (this.allPlayed()) {
+				this.nextRound();
+			}
+		}
+	}
 	public matchmaking(): void {
 		if (!this.matches) {
 			console.log("creating matches");
 			this.createMatches();
 		}
 		else if (this.allPlayed()) {
-			if (this.matches.length == 1) {
-				this.winner = this.matches[0].getWinner();
-				this.launched = false;
-				//return ({value: new Match(new Player(""), undefined)});
-				// afficher le gagnant ou autre, mais montrer que le tournois est finit
-			}
-			this.createNewRounds();
+			this.nextRound();
 		}
-		const ref: Ref<Match> = {value: this.getNxtMatch()};
+		const nextMatch: Match | undefined = this.getNxtMatch();
+		const ref: Ref<Match> | undefined = nextMatch ? {value: nextMatch} : undefined;
 		this.nextMatch = ref;
 	}
 
@@ -156,6 +181,11 @@ export class Tournament {
 		return this.historic;
 	}
 	public getNextMatch(): Ref<Match> | undefined {
+		if (!this.nextMatch?.value) return undefined;
 		return this.nextMatch;
+	}
+	public removePlayerFromTournament(clientID: string): void {
+		const player: Player | undefined = this.players?.get(clientID);
+		if (player) this.players?.delete(clientID);
 	}
 }

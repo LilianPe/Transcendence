@@ -51,5 +51,6 @@ export function displayWinner(winner: string) {
 
 const nextMatchP: HTMLParagraphElement = document.getElementById("nextMatch") as HTMLParagraphElement;
 export function displayNextMatch(content: string) {
+	console.log(content);
 	nextMatchP.textContent = content;
 }

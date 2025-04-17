@@ -3,13 +3,13 @@ import { LogLevel, LogType } from "././logger/normalization.js";
 import { registerHooks } from "./logger/hook.js";
 import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
+import { promises as fs } from 'fs';
+import { join } from 'path';
 import { checkUserID, checkUserMAIL, createUser, getAvatar, getDefeats, getPseudo, getVictories, setAvatar } from './Database/requests.js';
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
 import { handleApiRequest } from "./Server/api.js";
 import { allowCors } from "./Server/cors.js";
 import { Client, handleWebsocket } from "./Server/webSocket.js";
-import { join } from 'path';
-import { promises as fs } from 'fs';
 
 // -------Pour le https-------------
 //
@@ -58,25 +58,25 @@ handleWebsocket();
 
 // Registrations
 
-app.post("/register", async (request, reply) => {
-    const username: string = (request.body as { username: string }).username;
-	const id: string = request.headers["x-client-id"] as string;
+// app.post("/register", async (request, reply) => {
+//     const username: string = (request.body as { username: string }).username;
+// 	const id: string = request.headers["x-client-id"] as string;
 
-	console.log(`new registration request: ${username}`)
-    if (!username) {
-        return reply.status(400).send({message: "Username can't be blank"});
-    }
-	const client: Client | undefined = clients.get(id);
-	if (client) {
-		client.player.register(username);
-		console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
-		registeredClients.set(id, client);
-		reply.send({message: `Inscription reussie pour ${username}`})
-	}
-	else {
-		reply.status(500).send({message: "Internal Error"});
-	}
-});
+// 	console.log(`new registration request: ${username}`)
+//     if (!username) {
+//         return reply.status(400).send({message: "Username can't be blank"});
+//     }
+// 	const client: Client | undefined = clients.get(id);
+// 	if (client) {
+// 		client.player.register(username);
+// 		console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
+// 		registeredClients.set(id, client);
+// 		reply.send({message: `Inscription reussie pour ${username}`})
+// 	}
+// 	else {
+// 		reply.status(500).send({message: "Internal Error"});
+// 	}
+// });
 
 
 // Inscription
@@ -106,6 +106,16 @@ app.post("/inscription", async (request, reply) => {
 
 // Connexion
 
+function alreadyRegistered(mail: string): boolean {
+	for (const [key, value] of registeredClients) {
+        if (value.player.getMail() === mail) {
+            console.log("ALREADY REGISTERED");
+            return true;
+        }
+    }
+	return false
+}
+
 app.post("/connexion", async (request, reply) => {
     const mail: string = (request.body as { mail: string }).mail;
     const password: string = (request.body as { password: string }).password;
@@ -121,12 +131,17 @@ app.post("/connexion", async (request, reply) => {
         checkUserID(mail, password, resolve);
     });
     if (isValid) {
-        if (client)
-        {
+		if (client)
+		{
+			if (alreadyRegistered(mail)) {
+				console.log("ALREADY REGISTERED");
+				client.socketStream.send(JSON.stringify({type: "error", error: "Already registered somewhere else."}));
+				return reply.status(400).send({message: "Already registered somewhere else."});
+			} 
             const pseudo = await getPseudo(mail);
             if (pseudo)
             {
-                client.player.register(pseudo);
+                client.player.register(pseudo, mail);
                 console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${pseudo}`);
                 registeredClients.set(id, client);
                 reply.status(200).send({message: `OK`});

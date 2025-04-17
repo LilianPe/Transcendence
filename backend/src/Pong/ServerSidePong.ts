@@ -1,5 +1,5 @@
 // @ts-ignore
-import { Client, clients } from "../server.js";
+import { Client, clients, registeredClients } from "../server.js";
 import { Game, GameState } from "./Game.js";
 import { Match } from "./Match.js";
 import { Player } from "./Player.js";
@@ -36,7 +36,7 @@ export class ServerSidePong {
 					// this.tournament.createNextRound();
 					const match: Ref<Match> | undefined = this.tournament.getNextMatch();
 					if (match) {
-						console.log(`Player1: ${match.value.getPlayer1().getId()} | Player2: ${match.value.getPlayer2().getId()}`)			
+						// console.log(`Player1: ${match.value.getPlayer1().getId()} | Player2: ${match.value.getPlayer2().getId()}`)			
 						this.launchGame(match);
 					}
 					else {
@@ -48,23 +48,34 @@ export class ServerSidePong {
         }
     }
 
+	private notifyDisconection(clientID: string): void {
+		const disconected: Player | undefined = registeredClients.get(clientID)?.player;
+		if (!disconected) return;
+		disconected.disconect();
+		clients.forEach((value: Client, key: string) => {
+			value.socketStream.send(JSON.stringify({type: "error", error: `${disconected.getName()} disconected.`}));
+		});
+	}
+
     public check(clients: Map<string, Client>, clientID: string): void {
-        if (!this.game.getRound().isRunning()) return;
+		this.notifyDisconection(clientID);
         if (this.game.getPlayer1().getId() == clientID) {
             this.game.getRound().stop(clientID);
-            clients.get(this.game.getPlayer2().getId())?.socketStream.send(JSON.stringify({type: "error", error: "Opponent disconected."}));
-			// enlever aussi joueur du tournois et faire gagner l'autre
         }
         if (this.game.getPlayer2().getId() == clientID) {
             this.game.getRound().stop(clientID);
-            clients.get(this.game.getPlayer1().getId())?.socketStream.send(JSON.stringify({type: "error", error: "Opponent disconected."}));
-			// enlever aussi joueur du tournois et faire gagner l'autre
         }
+		this.tournament.removePlayerFromTournament(clientID);
     }
 
 	private sendNextMatch(match: Match) {
 		clients.forEach((value: Client, key: string) => {
 			value.socketStream.send(JSON.stringify({type: "nextMatch", nextMatch: `${match.getPlayer1().getName()} VS ${match.getPlayer2().getName()}`}));
+		});
+	}
+	private resetNextMatch(s: string) {
+		clients.forEach((value: Client, key: string) => {
+			value.socketStream.send(JSON.stringify({type: "nextMatch", nextMatch: `${s}`}));
 		});
 	}
 	public createNextMatch() {
@@ -148,6 +159,7 @@ export class ServerSidePong {
 		// SC.getStatusInBlockchain( 1 );
 
 		this.tournament.stop();
+		this.resetNextMatch("???");
 	}
 
     public getGame(): Game {

@@ -1,4 +1,4 @@
-import { getUserFromDB } from "../Database/requests.js"
+import { getUserFromDB } from "../Database/requests.js";
 
 export class Player {
     private y: number;
@@ -6,8 +6,10 @@ export class Player {
     private name: string;
     private id: string;
 	private registered: boolean;
+	private logout: boolean;
 	private tournamentId: number | undefined;
 	private DB_ID: number;
+	private mail: string;
 
     constructor(id: string) {
         this.y = 400 - 50;
@@ -15,11 +17,14 @@ export class Player {
         this.name = "";
         this.id = id;
         this.registered = false;
+        this.logout = false;
 		this.DB_ID = -1;
+		this.mail = "";
     }
-	public register(username: string): void
+	public register(username: string, mail: string): void
 	{
 		this.name = username;
+		this.mail = mail;
 		// console.log(`Set name at: ${this.name}`)
 
 		getUserFromDB( username, (player) =>
@@ -68,7 +73,16 @@ export class Player {
     public isRegistered(): boolean {
         return this.registered;
     }
+    public disconect(): void {
+        this.logout = true;
+    }
+    public isLogout(): boolean {
+        return this.logout;
+    }
     public getDBId(): number {
         return this.DB_ID;
+    }
+    public getMail(): string {
+        return this.mail;
     }
 }

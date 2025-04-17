@@ -6,10 +6,13 @@ export class Player {
         this.name = "";
         this.id = id;
         this.registered = false;
+        this.logout = false;
         this.DB_ID = -1;
+        this.mail = "";
     }
-    register(username) {
+    register(username, mail) {
         this.name = username;
+        this.mail = mail;
         // console.log(`Set name at: ${this.name}`)
         getUserFromDB(username, (player) => {
             if (player)
@@ -55,7 +58,16 @@ export class Player {
     isRegistered() {
         return this.registered;
     }
+    disconect() {
+        this.logout = true;
+    }
+    isLogout() {
+        return this.logout;
+    }
     getDBId() {
         return this.DB_ID;
+    }
+    getMail() {
+        return this.mail;
     }
 }

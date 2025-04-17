@@ -1,5 +1,5 @@
 // @ts-ignore
-import { clients } from "../server.js";
+import { clients, registeredClients } from "../server.js";
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 import { Tournament } from "./Tournament.js";
@@ -31,7 +31,7 @@ export class ServerSidePong {
                 // this.tournament.createNextRound();
                 const match = this.tournament.getNextMatch();
                 if (match) {
-                    console.log(`Player1: ${match.value.getPlayer1().getId()} | Player2: ${match.value.getPlayer2().getId()}`);
+                    // console.log(`Player1: ${match.value.getPlayer1().getId()} | Player2: ${match.value.getPlayer2().getId()}`)			
                     this.launchGame(match);
                 }
                 else {
@@ -42,23 +42,33 @@ export class ServerSidePong {
             }
         }
     }
-    check(clients, clientID) {
-        if (!this.game.getRound().isRunning())
+    notifyDisconection(clientID) {
+        const disconected = registeredClients.get(clientID)?.player;
+        if (!disconected)
             return;
+        disconected.disconect();
+        clients.forEach((value, key) => {
+            value.socketStream.send(JSON.stringify({ type: "error", error: `${disconected.getName()} disconected.` }));
+        });
+    }
+    check(clients, clientID) {
+        this.notifyDisconection(clientID);
         if (this.game.getPlayer1().getId() == clientID) {
             this.game.getRound().stop(clientID);
-            clients.get(this.game.getPlayer2().getId())?.socketStream.send(JSON.stringify({ type: "error", error: "Opponent disconected." }));
-            // enlever aussi joueur du tournois et faire gagner l'autre
         }
         if (this.game.getPlayer2().getId() == clientID) {
             this.game.getRound().stop(clientID);
-            clients.get(this.game.getPlayer1().getId())?.socketStream.send(JSON.stringify({ type: "error", error: "Opponent disconected." }));
-            // enlever aussi joueur du tournois et faire gagner l'autre
         }
+        this.tournament.removePlayerFromTournament(clientID);
     }
     sendNextMatch(match) {
         clients.forEach((value, key) => {
             value.socketStream.send(JSON.stringify({ type: "nextMatch", nextMatch: `${match.getPlayer1().getName()} VS ${match.getPlayer2().getName()}` }));
+        });
+    }
+    resetNextMatch(s) {
+        clients.forEach((value, key) => {
+            value.socketStream.send(JSON.stringify({ type: "nextMatch", nextMatch: `${s}` }));
         });
     }
     createNextMatch() {
@@ -123,6 +133,7 @@ export class ServerSidePong {
         // SC.SC_addTournament( player_ids, scores );
         // SC.getStatusInBlockchain( 1 );
         this.tournament.stop();
+        this.resetNextMatch("???");
     }
     getGame() {
         return this.game;
