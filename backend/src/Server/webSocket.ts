@@ -238,6 +238,55 @@ async function tryBlockPlayer(clientID: string, message: string | Buffer<ArrayBu
 	await DB.BlockPlayer( blocker.player.getDBId(), blocked.player.getDBId() );
 }
 
+async function tryUnblockPlayer(clientID: string, message: string | Buffer<ArrayBufferLike>) : Promise<void>
+{
+	let blocker_pseudo = getPseudoFromClientID( clientID );
+	let blocked_pseudo = message.toString().split(" ")[1];
+
+	const  blocker = getClientFromPseudo( blocker_pseudo );
+	if (!blocker)
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Please log in before unblocking people");
+		return;
+	}
+
+	const  blocked = getClientFromPseudo( blocked_pseudo );
+	if (!blocked)
+	{
+		const temp = blocked_pseudo + " is not connected, wait before he is here to unblock him"
+		sendToClientSocket(clientID, "LIVECHAT", temp);
+		return;
+	}
+
+	if (!registeredClients.get( clientID ))
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Please log in before unblocking people");
+		return;
+	}
+
+	if (blocker_pseudo == blocked_pseudo)
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "You can't unblock yourself");
+		return;
+	}
+
+	const already_blocked = await DB.XhasBlockedY( blocker.player.getDBId(), blocked.player.getDBId() );
+	if (!already_blocked)
+	{
+		const temp = blocked_pseudo + " is already not blocked"
+		sendToClientSocket(clientID, "LIVECHAT", temp);
+		return;
+	}
+
+	let mess = blocker_pseudo + " unblocked you :))"
+	let mess2 = blocked_pseudo + " has been unblocked"
+
+	sendToClientSocket( blocked.player.getId(), "LIVECHAT", mess );
+	sendToClientSocket( clientID, "LIVECHAT", mess2 );
+
+	await DB.UnblockPlayer( blocker.player.getDBId(), blocked.player.getDBId() );
+}
+
 export function handleWebsocket(): void {
 	app.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
 	app.register(async function (fastify) {
@@ -288,6 +337,11 @@ export function handleWebsocket(): void {
 				else if (message.toString().startsWith("/block"))
 				{
 					tryBlockPlayer( clientID, message );
+					return;
+				}
+				else if (message.toString().startsWith("/unblock"))
+				{
+					tryUnblockPlayer( clientID, message );
 					return;
 				}
 				else // si c est un LIVE CHAT pas besoin

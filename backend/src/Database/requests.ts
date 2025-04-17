@@ -433,3 +433,20 @@ export async function BlockPlayer(blocker: number, blocked: number): Promise<voi
 		}
 	);
 }
+
+export async function UnblockPlayer(blocker: number, blocked: number): Promise<void> {
+	await create_blocked_relations_if_not_here();
+	const db = openDatabase();
+	db.run(
+		`DELETE FROM blocked_relations WHERE user_id = ? AND blocked_id = ?`,
+		[blocker, blocked],
+		(err) => {
+			db.close();
+			if (err) {
+				console.error("Error unblocking player:", err.message);
+			} else {
+				console.log(`Player ${blocker} has unblocked ${blocked}`);
+			}
+		}
+	);
+}

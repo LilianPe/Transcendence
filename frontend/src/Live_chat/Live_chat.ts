@@ -86,7 +86,14 @@ block_button.addEventListener('click', () =>
 	}
 });
 
-
+unblock_button.addEventListener('click', () =>
+{
+	if (greetingElement && greetingElement.textContent)
+	{
+		let message = "/unblock " + greetingElement.textContent;
+		ws.send(message);
+	}
+});
 
 
 
