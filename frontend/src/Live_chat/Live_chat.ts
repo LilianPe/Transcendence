@@ -77,4 +77,21 @@ invite_button.addEventListener('click', () =>
 	}
 });
 
+block_button.addEventListener('click', () =>
+{
+	if (greetingElement && greetingElement.textContent)
+	{
+		let message = "/block " + greetingElement.textContent;
+		ws.send(message);
+	}
+});
+
+
+
+
+
+
+
+
+
 

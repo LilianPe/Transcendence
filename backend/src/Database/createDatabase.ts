@@ -25,3 +25,18 @@ db.run(`CREATE TABLE IF NOT EXISTS user (
         console.log('Table created or already exists.');
     }
 });
+
+db.run(`CREATE TABLE IF NOT EXISTS blocked_relations (
+	user_id INTEGER NOT NULL,
+	blocked_id INTEGER NOT NULL,
+	FOREIGN KEY(user_id) REFERENCES user(id),
+	FOREIGN KEY(blocked_id) REFERENCES user(id)
+)`, (err) => {
+	if (err) {
+		console.error("Error creating blocked_relations table:", err.message);
+	} else {
+		console.log("blocked_relations table created or already exists.");
+	}
+});
+
+

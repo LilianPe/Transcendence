@@ -368,3 +368,68 @@ export function getDefeats(mail: string): Promise<number | null> {
         );
     });
 }
+
+function create_blocked_relations_if_not_here(): Promise<void> {
+	const db = openDatabase();
+	return new Promise((resolve, reject) => {
+		db.run(
+			`CREATE TABLE IF NOT EXISTS blocked_relations (
+				user_id INTEGER NOT NULL,
+				blocked_id INTEGER NOT NULL,
+				FOREIGN KEY(user_id) REFERENCES user(id),
+				FOREIGN KEY(blocked_id) REFERENCES user(id)
+			)`,
+			(err) => {
+				db.close();
+				if (err) {
+					console.error("Error creating blocked_relations table:", err.message);
+					reject(err);
+				} else {
+					console.log("blocked_relations table created or already exists.");
+					resolve();
+				}
+			}
+		);
+	});
+}
+
+export async function XhasBlockedY(id_X: number, id_Y: number): Promise<boolean> {
+	await create_blocked_relations_if_not_here();
+	const db = openDatabase();
+	return new Promise((resolve, reject) => {
+		db.get(
+			`SELECT 1 FROM blocked_relations WHERE user_id = ? AND blocked_id = ?`,
+			[id_X, id_Y],
+			(err, row) => {
+				db.close();
+				if (err) {
+					console.error("Error checking block relation:", err.message);
+					reject(err);
+				} else {
+					resolve(!!row); // true if row exists
+				}
+			}
+		);
+	});
+}
+
+export async function BlockPlayer(blocker: number, blocked: number): Promise<void> {
+	await create_blocked_relations_if_not_here();
+	const db = openDatabase();
+	db.run(
+		`INSERT INTO blocked_relations (user_id, blocked_id) VALUES (?, ?)`,
+		[blocker, blocked],
+		(err) => {
+			db.close();
+			if (err) {
+				if (err.message.includes("UNIQUE constraint")) {
+					console.warn("Block relation already exists.");
+				} else {
+					console.error("Error blocking player:", err.message);
+				}
+			} else {
+				console.log(`Player ${blocker} has blocked ${blocked}`);
+			}
+		}
+	);
+}

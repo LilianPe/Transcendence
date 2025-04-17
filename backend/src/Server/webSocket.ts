@@ -9,7 +9,7 @@ import { app, clients, game, registeredClients } from "../server.js";
 
 import { WebSocket } from "ws";
 
-import { getUserFromDB, getMailFromId } from "../Database/requests.js"
+import * as DB from "../Database/requests.js";
 
 export interface Client {
 	player: Player;
@@ -87,7 +87,7 @@ function getClientFromPseudo(pseudo: string) : Client | null
 function showProfile(clientID: string, message: string | Buffer<ArrayBufferLike>) : void
 {
 	const profile_pseudo = message.toString().split(" ")[1];
-	getUserFromDB(profile_pseudo, (player) =>
+	DB.getUserFromDB(profile_pseudo, (player) =>
 	{
 		if (!player)
 		{
@@ -95,7 +95,7 @@ function showProfile(clientID: string, message: string | Buffer<ArrayBufferLike>
 			return;
 		}
 
-		getMailFromId(player.getDBId(), (mail) =>
+		DB.getMailFromId(player.getDBId(), (mail) =>
 		{
 			if (!mail)
 			{
@@ -107,25 +107,49 @@ function showProfile(clientID: string, message: string | Buffer<ArrayBufferLike>
 	});
 }
 
-function sendMSG(clientID: string, message: string | Buffer<ArrayBufferLike>) : void
+async function sendMSG(clientID: string, message: string | Buffer<ArrayBufferLike>) : Promise<void>
 {
 	let pseudo: string = getPseudoFromClientID( clientID );
 	let mess: string = pseudo + " : " + message.toString().slice(9);
 
+	let		sender_id: number = -1;
+	const	sender = getClientFromPseudo( pseudo );
+	if (sender)
+	{
+		sender_id = sender.player.getDBId();
+	}
+
 	// Broadcast à tous les clients connectés
-	clients.forEach((client) =>
+	for (const client of clients.values())
 	{
 		if (client.socketStream.readyState === WebSocket.OPEN)
 		{
+			if (sender_id != -1 && sender)
+			{
+				const	receiver = client;
+				const blocked = await DB.XhasBlockedY( receiver.player.getDBId(), sender.player.getDBId() );
+				if (blocked)
+				{
+					continue;
+				}
+			}
+
 			client.socketStream.send(JSON.stringify({type: "LIVECHAT", error: mess}));
 		}
-	});
+	};
 }
 
-function invitePlayer(clientID: string, message: string | Buffer<ArrayBufferLike>) : void
+async function invitePlayer(clientID: string, message: string | Buffer<ArrayBufferLike>) : Promise<void>
 {
 	let inviter_pseudo = getPseudoFromClientID( clientID );
 	let invited_pseudo = message.toString().split(" ")[1];
+
+	const  inviter = getClientFromPseudo( inviter_pseudo );
+	if (!inviter)
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Please log in before inviting people");
+		return;
+	}
 
 	if (!registeredClients.get( clientID ))
 	{
@@ -136,16 +160,82 @@ function invitePlayer(clientID: string, message: string | Buffer<ArrayBufferLike
 	const  invited = getClientFromPseudo( invited_pseudo );
 	if (!invited)
 	{
-		sendToClientSocket(clientID, "LIVECHAT", "Invalid username or not connected");
+		const temp = invited_pseudo + " is not connected, can't invite him";
+		sendToClientSocket(clientID, "LIVECHAT", temp);
 		return;
 	}
+
+	if (inviter_pseudo == invited_pseudo)
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "You can't invite yourself");
+		return;
+	}
+
+	const blocked = await DB.XhasBlockedY( invited.player.getDBId(), inviter.player.getDBId() );
+	if (blocked)
+	{
+		const temp = invited_pseudo + " blocked you, can't invite him"
+		sendToClientSocket(clientID, "LIVECHAT", temp);
+		return;
+	}
+
 	let mess = inviter_pseudo + " invited you to play pong ! Do /join " + inviter_pseudo + " to join him !"
 	let mess2 = invited_pseudo + " has been invited to play pong !"
 
-	//! ICI LOGIQUE D'INVITATION
-
 	sendToClientSocket( invited.player.getId(), "LIVECHAT", mess );
 	sendToClientSocket( clientID, "LIVECHAT", mess2 );
+
+	//! ICI LOGIQUE D'INVITATION
+
+}
+
+async function tryBlockPlayer(clientID: string, message: string | Buffer<ArrayBufferLike>) : Promise<void>
+{
+	let blocker_pseudo = getPseudoFromClientID( clientID );
+	let blocked_pseudo = message.toString().split(" ")[1];
+
+	const  blocker = getClientFromPseudo( blocker_pseudo );
+	if (!blocker)
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Please log in before blocking people");
+		return;
+	}
+
+	const  blocked = getClientFromPseudo( blocked_pseudo );
+	if (!blocked)
+	{
+		const temp = blocked_pseudo + " is not connected, wait before he is here to block him"
+		sendToClientSocket(clientID, "LIVECHAT", temp);
+		return;
+	}
+
+	if (!registeredClients.get( clientID ))
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Please log in before blocking people");
+		return;
+	}
+
+	if (blocker_pseudo == blocked_pseudo)
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "You can't block yourself");
+		return;
+	}
+
+	const already_blocked = await DB.XhasBlockedY( blocker.player.getDBId(), blocked.player.getDBId() );
+	if (already_blocked)
+	{
+		const temp = blocked_pseudo + " is already blocked"
+		sendToClientSocket(clientID, "LIVECHAT", temp);
+		return;
+	}
+
+	let mess = blocker_pseudo + " blocked you ://"
+	let mess2 = blocked_pseudo + " has been blocked"
+
+	sendToClientSocket( blocked.player.getId(), "LIVECHAT", mess );
+	sendToClientSocket( clientID, "LIVECHAT", mess2 );
+
+	await DB.BlockPlayer( blocker.player.getDBId(), blocked.player.getDBId() );
 }
 
 export function handleWebsocket(): void {
@@ -193,6 +283,11 @@ export function handleWebsocket(): void {
 				else if (message.toString().startsWith("/invite"))
 				{
 					invitePlayer( clientID, message );
+					return;
+				}
+				else if (message.toString().startsWith("/block"))
+				{
+					tryBlockPlayer( clientID, message );
 					return;
 				}
 				else // si c est un LIVE CHAT pas besoin
