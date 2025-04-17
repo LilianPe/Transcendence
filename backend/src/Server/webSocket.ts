@@ -10,6 +10,11 @@ import { app, clients, game, registeredClients } from "../server.js";
 import { WebSocket } from "ws";
 
 import * as DB from "../Database/requests.js";
+import { Match } from "../Pong/Match.js";
+
+import { Ref, Tournament } from "../Pong/Tournament.js";
+
+const invitations: Map<number, number> = new Map<number, number>();
 
 export interface Client {
 	player: Player;
@@ -179,14 +184,116 @@ async function invitePlayer(clientID: string, message: string | Buffer<ArrayBuff
 		return;
 	}
 
+	const blocked2 = await DB.XhasBlockedY( inviter.player.getDBId(), invited.player.getDBId() );
+	if (blocked2)
+	{
+		const temp = "Please unblock " + invited_pseudo + " before"
+		sendToClientSocket(clientID, "LIVECHAT", temp);
+		return;
+	}
+
+	if (invitations.get(inviter.player.getDBId()) == invited.player.getDBId())
+	{
+		const temp = "You already invited " + invited_pseudo;
+		sendToClientSocket(clientID, "LIVECHAT", temp);
+		return;
+	}
+
+	if (game.getTournament().isLaunched())
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Wait until the current tournament is finished");
+		return;
+	}
+
 	let mess = inviter_pseudo + " invited you to play pong ! Do /join " + inviter_pseudo + " to join him !"
 	let mess2 = invited_pseudo + " has been invited to play pong !"
 
 	sendToClientSocket( invited.player.getId(), "LIVECHAT", mess );
 	sendToClientSocket( clientID, "LIVECHAT", mess2 );
 
-	//! ICI LOGIQUE D'INVITATION
+	//* ICI LOGIQUE D'INVITATION ↓
 
+	invitations.set(inviter.player.getDBId(), invited.player.getDBId());
+}
+
+async function tryJoin(clientID: string, message: string | Buffer<ArrayBufferLike>) : Promise<void>
+{
+	let joiner_pseudo = getPseudoFromClientID( clientID );
+	let joined_pseudo = message.toString().split(" ")[1];
+
+	const  joiner = getClientFromPseudo( joiner_pseudo );
+	if (!joiner)
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Please log in before joining people");
+		return;
+	}
+
+	const  joined = getClientFromPseudo( joined_pseudo );
+	if (!joined)
+	{
+		const temp = "Invalid nickname, or " + joined_pseudo + " is not connected, can't join";
+		sendToClientSocket(clientID, "LIVECHAT", temp);
+		return;
+	}
+
+	if (joiner.player.getDBId() == joined.player.getDBId())
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "You can't join yourself");
+		return;
+	}
+
+	if (!registeredClients.get( clientID ))
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Please log in before joining people");
+		return;
+	}
+
+	if (!registeredClients.get( joined.player.getId() ))
+	{
+		const temp = joined_pseudo + " is not connected, can't join";
+		sendToClientSocket(clientID, "LIVECHAT", temp);
+		return;
+	}
+
+	const blocked = await DB.XhasBlockedY( joined.player.getDBId(), joiner.player.getDBId() );
+	if (blocked)
+	{
+		const temp = joined_pseudo + " blocked you, can't join :("
+		sendToClientSocket(clientID, "LIVECHAT", temp);
+		return;
+	}
+
+	if (game.getTournament().isLaunched())
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Wait until the current tournament is finished");
+		return;
+	}
+
+	const joiner_id = joiner.player.getDBId();
+	const joined_id = joined.player.getDBId();
+
+	//* ICI LOGIQUE DE JOIN ↓
+
+	if (invitations.get(joined_id) == joiner_id)
+	{
+		let mess = "A game between " + joiner_pseudo + " and " + joined_pseudo + " will start, be ready !";
+	
+		sendToClientSocket( joiner.player.getId(), "LIVECHAT", mess );
+		sendToClientSocket( joined.player.getId(), "LIVECHAT", mess );
+
+		invitations.delete(joined.player.getDBId());
+
+		//! OUI C EST ici ↓ ca veut pas à l aide :'(
+		// objectif : start un match entre "joiner.player" et "joined.player"
+		// let match = new Match(joiner.player, joined.player);
+		// game.launchGame(match);
+	}
+	else
+	{
+		const temp = joined_pseudo + " didn't invite you, (maybe he invited someone else after), can't join :("
+		sendToClientSocket(clientID, "LIVECHAT", temp);
+		return;
+	}
 }
 
 async function tryBlockPlayer(clientID: string, message: string | Buffer<ArrayBufferLike>) : Promise<void>
@@ -324,6 +431,11 @@ export function handleWebsocket(): void {
 					if (message.toString().startsWith("LIVECHAT//profile"))
 					{
 						showProfile( clientID, message );
+						return ;
+					}
+					if (message.toString().startsWith("LIVECHAT//join"))
+					{
+						tryJoin( clientID, message );
 						return ;
 					}
 					sendMSG( clientID, message );
