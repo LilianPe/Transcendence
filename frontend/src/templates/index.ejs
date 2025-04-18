@@ -1,8 +1,7 @@
-<!-- A rebouger dans le front -->
-
 <!DOCTYPE html>
 <html lang="fr">
     <head>
+        <script src="https://cdn.tailwindcss.com"></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Transcendence</title>
@@ -10,109 +9,132 @@
         <link rel="stylesheet" href="/dist/output.css" />
     </head>
 
-    <body>
+    <body class="bg-gradient-to-b from-gray-900 via-blue-900 to-gray-900">
         <header>
             <div class="flex flex-col">
                 <div class="fixed flex justify-center w-full bg-black">
-                    <h1 class="m-4 font-mono text-4xl font-medium text-violet-950">
+                    <h1 class="m-4 font-mono text-4xl font-medium text-blue-400">
                         Transcendence
                     </h1>
                 </div>
-                <div class="flex justify-center mb-72 mt-72 bg-amber-50">
+                <div class="flex justify-center mt-72 mb-10">
+                    <!-- Box Live chat left -->
+                    <div class="flex flex-col items-center" style="margin-right: 100px; margin-top: 100px;">
 
-					<!-- Box Live chat left -->
-					<div class="flex flex-col items-center" style="margin-right: 100px; margin-top: 100px;">
+                        <!-- Text top box -->
+                        <div class="text-blue-400" style="margin-bottom: 10px; font-weight: bold; font-size: 26px;">Live chat</div>
 
-						<!-- Text top box -->
-						<div style="margin-bottom: 10px; font-weight: bold; font-size: 26px;">Live chat</div>
+                        <!-- main rectangle -->
+                        <div style="width: 500px; height: 650px; background: linear-gradient(to bottom, #222222, #111111); border: 4px solid #4b92d3; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);">
 
-						<!-- main rectangle -->
-						<div style="width: 500px; height: 650px; background-color: rgba(11, 11, 11, 0.363);">
+                            <!-- Live chat elements -->
+                            <!-- Wrapper pour l'historique des messages -->
+                            <div id="messageHistory" class="text-blue-400" style="height: 80%; overflow-y: auto; color: white; padding: 10px; margin-bottom: 20px; border-radius: 8px;">
+                                <!-- Historique des messages -->
+                                <div>Welcome : Hi, send your messages here :))</div>
+                                <!-- Ajouter d'autres messages ici -->
+                            </div>
 
-							<!-- Live chat elements -->
-							<!-- Wrapper pour l'historique des messages -->
-							<div id="messageHistory" style="height: 80%; overflow-y: auto; background-color: #201f1f9c; color: white; padding: 10px; margin-bottom: 20px; border-radius: 8px;">
-								<!-- Historique des messages -->
-								<div>Welcome : Hi, send your messages here :))</div>
-								<!-- Ajouter d'autres messages ici -->
-							</div>
+                            <!-- Zone pour envoyer un message -->
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <input type="text" id="messageInput" placeholder="Type your message..." class="border-2 border-gray-500 bg-gray-800 bg-opacity-50 text-gray-200 rounded-lg p-2 mt-1.5" style="margin-left: 10px; width: 80%; height: 50px;">
+                                <button id="sendButton" class="text-gray-900 bg-blue-400 hover:bg-blue-500 rounded-lg transition-all duration-200 px-4" style="margin-right: 10px; width: 15%; height: 50px; font-size: 16px; font-weight: 500;">
+                                    Send
+                                </button>
+                            </div>
 
-							<!-- Zone pour envoyer un message -->
-							<div style="display: flex; justify-content: space-between;">
-								<input type="text" id="messageInput" placeholder="Type your message..." style="margin-left: 10px; width: 80%; padding: 8px; border-radius: 5px;">
-								<button id="sendButton" style="margin-right: 10px; width: 15%; padding: 8px; border-radius: 5px; background-color: #3498db; color: white; border: none;">Send</button>
-							</div>
+                        </div>
 
-						</div>
+                        <!-- Text bottom box -->
+                        <div class="text-blue-400" style="margin-top: 10px; font-weight: bold; font-size: 20px;">/profile /join</div>
 
-						<!-- Text bottom box -->
-						<div style="margin-top: 10px; font-weight: bold; font-size: 20px;">/profile /join</div>
-
-					</div>
+                    </div>
 
                     <div class="flex flex-col items-center">
-                        <p class="h-16 mt-2 text-5xl font-semibold text-stone-950">Pong</p>
-                        <canvas id="game" class="bg-black w-[800px] h-[800px]"></canvas>
-                        <button id="onOffButton" class="mt-2 mb-2 font-medium">Play Offline</button>
-                        <button id="Launch" class="mt-2 mb-2 font-medium">Launch game</button>
-                        <button id="RegisterTournament" class="mt-2 mb-2 font-medium">Register to tournament</button>
-                        <button id="LaunchTournament" class="mt-2 mb-2 font-medium">Launch tournament</button>
-                        <p
-                            id="LaunchError"
-                            class="h-0 font-bold text-red-500 transition-opacity duration-500 opacity-0"
-                        >
+                        <p class="h-16 mt-2 text-5xl font-semibold text-blue-400">Pong</p>
+                        <canvas id="game" class="bg-black w-[800px] h-[800px]" style="border: 4px solid #4b92d3; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);"></canvas>
+                        <button id="onOffButton" class="mt-4 mb-2 text-sm text-blue-400 bg-gray-900 hover:bg-gray-700 hover:scale-105 rounded-lg transition-all duration-200 px-4 py-2">
+                            Play Offline
+                        </button>
+
+                        <button id="Launch" class="mt-2 mb-2 text-sm text-blue-400 bg-gray-900 hover:bg-gray-700 hover:scale-105 rounded-lg transition-all duration-200 px-4 py-2">
+                            Launch game
+                        </button>
+
+                        <button id="RegisterTournament" class="mt-2 mb-2 text-sm text-blue-400 bg-gray-900 hover:bg-gray-700 hover:scale-105 rounded-lg transition-all duration-200 px-4 py-2">
+                            Register to tournament
+                        </button>
+
+                        <button id="LaunchTournament" class="mt-2 mb-2 text-sm text-blue-400 bg-gray-900 hover:bg-gray-700 hover:scale-105 rounded-lg transition-all duration-200 px-4 py-2">
+                            Launch tournament
+                        </button>
+                        <p id="LaunchError" class="text-blue-400 h-0 font-bold text-red-500 transition-opacity duration-500 opacity-0">
                             Game is already Running
                         </p>
-                        <form id="form" class="mt-5" method="post" action="http://localhost:4500/register">
-                            <label for="username">User name:</label>
-                            <br />
-                            <input id="username" type="text" name="username" class="border-2 border-solid" />
-                            <br />
-                            <button type="submit" class="">Valider</button>
+                        <form id="form" class="mt-5 flex items-center" method="post" action="http://localhost:4500/register">
+                            <input 
+                                id="username" 
+                                type="text" 
+                                name="username" 
+                                class="border-2 border-gray-500 bg-gray-800 bg-opacity-50 text-gray-200 rounded-lg p-2 mt-1.5"
+                                placeholder="Enter your username"
+                            />
+                            <button 
+                                type="submit" 
+                                class="mt-2 mb-2 text-sm text-blue-400 bg-gray-900 hover:bg-gray-700 hover:scale-105 rounded-lg transition-all duration-200 px-4 py-2 ml-2"
+                            >
+                                Valider
+                            </button>
                         </form>
+
                     </div>
-					<div class="mt-16 ml-5">
-						<p>Next Match: </p>
-						<p id="nextMatch">???</p>
-					</div>
+                    <div class="mt-16 ml-5 text-blue-400">
+                        <p>Next Match: </p>
+                        <p id="nextMatch">???</p>
+                    </div>
                 </div>
-                <div id="Forms-connexion" class="flex flex-col w-full max-w-md space-y-6">
-                    <form id="signup-form" class="flex flex-col items-center p-6 bg-white rounded-lg shadow-lg">
-                        <p class="mb-4 text-xl font-semibold text-gray-800">Create an account :</p>
-                        <input id="PseudoIncription" type="text" placeholder="Pseudo" required class="w-4/5 p-2 mb-4 transition duration-200 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"/>
-                        <input id="EmailIncription" type="email" placeholder="Email" required class="w-4/5 p-2 mb-4 transition duration-200 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"/>
-                        <input id="PasswordIncription" type="password" placeholder="Mot de passe" required class="w-4/5 p-2 mb-4 transition duration-200 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"/>
-                        <button type="submit" class="w-4/5 p-2 text-white transition duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">S'inscrire</button>
-                      </form>
-                      <form id="signin-form" class="flex flex-col items-center p-6 bg-white rounded-lg shadow-lg">
-                        <p class="mb-4 text-xl font-semibold text-gray-800">Already have an account? Log in :</p>
-                        <input id="EmailConnexion" type="email" placeholder="Email" required class="w-4/5 p-2 mb-4 transition duration-200 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"/>
-                        <input id="PasswordConnexion" type="password" placeholder="Mot de passe" required class="w-4/5 p-2 mb-4 transition duration-200 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"/>
-                        <button type="submit" class="w-4/5 p-2 text-white transition duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Se connecter</button>
-                      </form>
+
+                <!-- Les deux formulaires de connexion -->
+
+                <div id="Forms-connexion" class="flex flex-col items-center justify-center min-h-screen w-full space-y-10">
+                    <form id="signup-form" class="flex flex-col items-center p-8 w-[500px] bg-gray-900 rounded-lg shadow-lg">
+                        <p class="mb-6 text-2xl font-semibold text-blue-400">Create an account :</p>
+                        <input id="PseudoIncription" type="text" placeholder="Pseudo" required class="border-2 border-gray-500 bg-gray-800 bg-opacity-50 text-gray-200 rounded-lg p-2 mt-1.5"/>
+                        <input id="EmailIncription" type="email" placeholder="Email" required class="border-2 border-gray-500 bg-gray-800 bg-opacity-50 text-gray-200 rounded-lg p-2 mt-1.5"/>
+                        <input id="PasswordIncription" type="password" placeholder="Mot de passe" required class="border-2 border-gray-500 bg-gray-800 bg-opacity-50 text-gray-200 rounded-lg p-2 mt-1.5 mb-1.5"/>
+                        <button type="submit" class="w-full p-3 text-white transition duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">S'inscrire</button>
+                    </form>
+
+                    <form id="signin-form" class="flex flex-col items-center p-8 w-[500px] bg-gray-900 rounded-lg shadow-lg">
+                        <p class="mb-6 text-2xl font-semibold text-blue-400">Already have an account ? Log in :</p>
+                        <input id="EmailConnexion" type="email" placeholder="Email" required class="border-2 border-gray-500 bg-gray-800 bg-opacity-50 text-gray-200 rounded-lg p-2 mt-1.5"/>
+                        <input id="PasswordConnexion" type="password" placeholder="Mot de passe" required class="border-2 border-gray-500 bg-gray-800 bg-opacity-50 text-gray-200 rounded-lg p-2 mt-1.5 mb-1.5"/>
+                        <button type="submit" class="w-full p-3 text-white transition duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Se connecter</button>
+                    </form>
                 </div>
+
+                <!-- fin des formulaires de connextion -->
+
                 <div id="user-profile" class="max-w-xs p-4 mx-auto bg-white rounded-lg shadow-md" style="display: none;">
-                    <p id="greeting" class="mb-4 text-lg font-semibold text-center text-gray-700"></p>
+                    <p id="greeting" class="mb-4 text-lg font-semibold text-center text-blue-400"></p>
                     <img id="user-avatar" src="https://emedia1.nhs.wales/HEIW2/cache/file/F4C33EF0-69EE-4445-94018B01ADCF6FD4.png" alt="Avatar de l'utilisateur" class="object-cover w-20 h-20 mx-auto mb-4 transition duration-200 border-2 border-gray-200 rounded-full cursor-pointer hover:brightness-75">
                     <input type="file" id="avatar-upload">
                     <div class="space-y-2">
+                        <p id="email-line" class="text-sm text-blue-400"><strong>Email:</strong> <span id="user-email" class="font-medium text-gray-800"></span></p>
+                        <p id="victories-line" class="text-sm text-blue-400"><strong>Victories:</strong> <span id="user-victories" class="font-medium text-green-600"></span></p>
+                        <p id="defeats-line" class="text-sm text-blue-400"><strong>Defeats:</strong> <span id="user-defeats" class="font-medium text-red-600"></span></p>
 
-						<p id="email-line" class="text-sm text-gray-600"><strong>Email:</strong> <span id="user-email" class="font-medium text-gray-800"></span></p>
-						<p id="victories-line" class="text-sm text-gray-600"><strong>Victories:</strong> <span id="user-victories" class="font-medium text-green-600"></span></p>
-						<p id="defeats-line" class="text-sm text-gray-600"><strong>Defeats:</strong> <span id="user-defeats" class="font-medium text-red-600"></span></p>
-						
                         <button id="logout" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Log out</button>
 
-						<!-- Profile interaction buttons -->
-						<button id="profile_close" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Close profile</button>
-						<button id="profile_invite" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Invite</button>
-						<button id="profile_block" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Block</button>
-						<button id="profile_unblock" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Unblock</button>
-
+                        <!-- Profile interaction buttons -->
+                        <button id="profile_close" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Close profile</button>
+                        <button id="profile_invite" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Invite</button>
+                        <button id="profile_block" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Block</button>
+                        <button id="profile_unblock" class="w-full py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">Unblock</button>
                     </div>
                 </div>
-                    <footer class="flex justify-center w-full bg-blue-600">
-                    <p class="m-4 font-mono text-4xl font-medium text-violet-950">Insert credits</p>
+                <footer class="flex justify-center w-full bg-black">
+                    <p class="m-4 font-mono text-4xl font-medium text-blue-400">Insert credits</p>
                 </footer>
             </div>
         </header>
