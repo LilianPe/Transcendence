@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-    background-color: #ffffff;
+	cursor: url('/dist/ressources/cursor_neon_32_px.png') 9 4, auto; /* Curseur perso */
 }
 
 .trail-dot {
