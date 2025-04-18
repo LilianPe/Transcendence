@@ -17,85 +17,58 @@
     </head>
 
     <body class="bg-gradient-to-b from-gray-900 via-blue-900 to-gray-900">
-        <header>
-            <div class="flex flex-col">
-                <div class="fixed flex justify-center w-full bg-black">
-                    <h1 class="m-4 font-mono text-4xl font-medium text-blue-400">
-                        Transcendence
-                    </h1>
-                </div>
-                <div class="flex justify-center mb-10 mt-72">
-                    <!-- Box Live chat left -->
-                    <div class="flex flex-col items-center" style="margin-right: 100px; margin-top: 100px;">
+        <div class="flex flex-col">
+            <div class="fixed flex justify-center w-full bg-black">
+                <h1 class="m-4 font-mono text-4xl font-medium text-blue-400">
+                    Transcendence
+                </h1>
+            </div>
+            <div class="flex flex-col justify-center mt-20 mb-10 2xl:flex-row 2xl:mt-72">
+                <!-- Box Live chat left -->
+                <div class="flex flex-col items-center mt-20 mb-10 2xl:mr-20">
+                    <!-- Text top box -->
+                    <div class="text-blue-400 mb-2.5 font-bold text-2xl">Live chat</div>
 
-                        <!-- Text top box -->
-                        <div class="text-blue-400" style="margin-bottom: 10px; font-weight: bold; font-size: 26px;">Live chat</div>
-
-                        <!-- main rectangle -->
-                        <div style="width: 500px; height: 650px; background: linear-gradient(to bottom, #222222, #111111); border: 4px solid #4b92d3; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);">
-
-                            <!-- Live chat elements -->
-                            <!-- Wrapper pour l'historique des messages -->
-                            <div id="messageHistory" class="text-blue-400" style="height: 80%; overflow-y: auto; color: white; padding: 10px; margin-bottom: 20px; border-radius: 8px;">
-                                <!-- Historique des messages -->
-                                <div>Welcome : Hi, send your messages here :))</div>
-                                <!-- Ajouter d'autres messages ici -->
-                            </div>
-
-                            <!-- Zone pour envoyer un message -->
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <input type="text" id="messageInput" placeholder="Type your message..." class="border-2 border-gray-500 bg-gray-800 bg-opacity-50 text-gray-200 rounded-lg p-2 mt-1.5" style="margin-left: 10px; width: 80%; height: 50px;">
-                                <button id="sendButton" class="px-4 text-gray-900 transition-all duration-200 bg-blue-400 rounded-lg hover:bg-blue-500" style="margin-right: 10px; width: 15%; height: 50px; font-size: 16px; font-weight: 500;">
-                                    Send
-                                </button>
-                            </div>
-
+                    <!-- Main rectangle -->
+                    <div class="w-[500px] h-[650px] bg-gradient-to-b from-[#222222] to-[#111111] border-4 border-[#4b92d3] rounded-xl shadow-lg">
+                        <!-- Live chat elements -->
+                        <!-- Wrapper pour l'historique des messages -->
+                        <div id="messageHistory" class="h-[80%] overflow-y-auto text-white p-2.5 mb-5 rounded-lg">
+                            <div>Welcome : Hi, send your messages here :))</div>
                         </div>
 
-                        <!-- Text bottom box -->
-                        <div class="text-blue-400" style="margin-top: 10px; font-weight: bold; font-size: 20px;">/profile /join</div>
-
-                    </div>
-
-                    <div class="flex flex-col items-center">
-                        <p class="h-16 mt-2 text-5xl font-semibold text-blue-400">Pong</p>
-                        <canvas id="game" class="bg-black w-[800px] h-[800px]" style="border: 4px solid #4b92d3; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);"></canvas>
-                        <button id="onOffButton" class="px-4 py-2 mt-4 mb-2 text-sm text-blue-400 transition-all duration-200 bg-gray-900 rounded-lg hover:bg-gray-700 hover:scale-105">Play Offline</button>
-
-                        <button id="Launch" class="px-4 py-2 mt-2 mb-2 text-sm text-blue-400 transition-all duration-200 bg-gray-900 rounded-lg hover:bg-gray-700 hover:scale-105">
-                            Launch game
-                        </button>
-
-                        <button id="RegisterTournament" class="px-4 py-2 mt-2 mb-2 text-sm text-blue-400 transition-all duration-200 bg-gray-900 rounded-lg hover:bg-gray-700 hover:scale-105">
-                            Register to tournament
-                        </button>
-
-                        <button id="LaunchTournament" class="px-4 py-2 mt-2 mb-2 text-sm text-blue-400 transition-all duration-200 bg-gray-900 rounded-lg hover:bg-gray-700 hover:scale-105">
-                            Launch tournament
-                        </button>
-                        <p id="LaunchError" class="h-0 font-bold text-red-500 transition-opacity duration-500 opacity-0">
-                            Game is already Running
-                        </p>
-                        <!-- <form id="form" class="flex items-center mt-5" method="post" action="http://localhost:4500/register">
-                            <input 
-                                id="username" 
-                                type="text" 
-                                name="username" 
-                                class="border-2 border-gray-500 bg-gray-800 bg-opacity-50 text-gray-200 rounded-lg p-2 mt-1.5"
-                                placeholder="Enter your username"
-                            />
-                            <button 
-                                type="submit" 
-                                class="px-4 py-2 mt-2 mb-2 ml-2 text-sm text-blue-400 transition-all duration-200 bg-gray-900 rounded-lg hover:bg-gray-700 hover:scale-105"
-                            >
-                                Valider
+                        <!-- Zone pour envoyer un message -->
+                        <div class="flex items-center justify-between">
+                            <input type="text" id="messageInput" placeholder="Type your message..." class="border-2 border-gray-500 bg-gray-800 bg-opacity-50 text-gray-200 rounded-lg p-2 ml-2.5 w-4/5 h-12">
+                            <button id="sendButton" class="px-4 text-gray-900 transition-all duration-200 bg-blue-400 rounded-lg hover:bg-blue-500 mr-2.5 w-1/5 h-12 text-base font-medium">
+                                Send
                             </button>
-                        </form> -->
-
+                        </div>
                     </div>
-                    <div class="mt-16 ml-5 text-blue-400">
-                        <p>Next Match: </p>
-                        <p id="nextMatch">???</p>
+
+                    <!-- Text bottom box -->
+                    <div class="text-blue-400 mt-2.5 font-bold text-xl">/profile /join</div>
+                </div>
+
+                <!-- Box Pong right -->
+                <div class="flex flex-col items-center">
+                    <p class="h-16 mt-2 text-5xl font-semibold text-blue-400">Pong</p>
+                    <canvas id="game" class="bg-black w-[800px] h-[800px] border-4 border-[#4b92d3] rounded-xl shadow-lg"></canvas>
+                    <p class="mt-5 text-blue-400">Next Match:</p>
+                    <p id="nextMatch" class="text-blue-400">???</p>
+                    <button id="onOffButton" class="px-4 py-2 mt-4 mb-2 text-sm text-blue-400 transition-all duration-200 bg-gray-900 rounded-lg hover:bg-gray-700 hover:scale-105">Play Offline</button>
+                    <button id="Launch" class="px-4 py-2 mt-2 mb-2 text-sm text-blue-400 transition-all duration-200 bg-gray-900 rounded-lg hover:bg-gray-700 hover:scale-105">
+                        Launch game
+                    </button>
+                    <button id="RegisterTournament" class="px-4 py-2 mt-2 mb-2 text-sm text-blue-400 transition-all duration-200 bg-gray-900 rounded-lg hover:bg-gray-700 hover:scale-105">
+                        Register to tournament
+                    </button>
+                    <button id="LaunchTournament" class="px-4 py-2 mt-2 mb-2 text-sm text-blue-400 transition-all duration-200 bg-gray-900 rounded-lg hover:bg-gray-700 hover:scale-105">
+                        Launch tournament
+                    </button>
+                    <p id="LaunchError" class="h-0 font-bold text-red-500 transition-opacity duration-500 opacity-0">
+                        Game is already Running
+                    </p>
                     </div>
                 </div>
 
@@ -161,25 +134,5 @@
                 }
             });
         </script>
-
-        <style>
-            .trail-dot {
-                position: fixed;
-                width: 8px;
-                height: 8px;
-                background-color: #4b92d3;
-                border-radius: 50%;
-                pointer-events: none;
-                transform: translate(-50%, -50%);
-                animation: fadeOut 0.5s forwards;
-            }
-
-            @keyframes fadeOut {
-                to {
-                    opacity: 0;
-                    transform: translate(-50%, -50%) scale(0.5);
-                }
-            }
-        </style>
     </body>
 </html>

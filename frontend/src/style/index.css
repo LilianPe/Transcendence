@@ -5,3 +5,21 @@
 body {
     background-color: #ffffff;
 }
+
+.trail-dot {
+	position: fixed;
+	width: 8px;
+	height: 8px;
+	background-color: #4b92d3;
+	border-radius: 50%;
+	pointer-events: none;
+	transform: translate(-50%, -50%);
+	animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeOut {
+	to {
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(0.5);
+	}
+}
