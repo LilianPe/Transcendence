@@ -7,6 +7,13 @@
         <title>Transcendence</title>
         <script type="module" src="/dist/frontend.js"></script>
         <link rel="stylesheet" href="/dist/output.css" />
+
+		<style>
+			body
+			{
+				cursor: url('/dist/ressources/cursor_neon_32_px.png') 9 4, auto; /* Curseur perso */
+			}
+		</style>
     </head>
 
     <body class="bg-gradient-to-b from-gray-900 via-blue-900 to-gray-900">
@@ -138,5 +145,43 @@
                 </footer>
             </div>
         </header>
+        <script>
+            const trail = [];
+            const maxTrail = 20; // nombre de points dans la traînée
+
+            document.addEventListener('mousemove', (e) => {
+                const dot = document.createElement('div');
+                dot.className = 'trail-dot';
+                dot.style.left = `${e.clientX}px`;
+                dot.style.top = `${e.clientY}px`;
+                document.body.appendChild(dot);
+                trail.push(dot);
+
+                if (trail.length > maxTrail) {
+                    const oldDot = trail.shift();
+                    oldDot.remove();
+                }
+            });
+        </script>
+
+        <style>
+            .trail-dot {
+                position: fixed;
+                width: 8px;
+                height: 8px;
+                background-color: #4b92d3; /* même couleur que ton thème */
+                border-radius: 50%;
+                pointer-events: none;
+                transform: translate(-50%, -50%);
+                animation: fadeOut 0.5s forwards;
+            }
+
+            @keyframes fadeOut {
+                to {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(0.5);
+                }
+            }
+        </style>
     </body>
 </html>
