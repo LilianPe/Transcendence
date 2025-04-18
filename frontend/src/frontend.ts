@@ -323,7 +323,7 @@ export function hidePersonalsElements()
 	if (unblock_button)    unblock_button.style.display = "none";
 
 	const forms = document.getElementById("Forms-connexion");
-	if (forms)		   forms.style.display = "block";	
+	if (forms)		   forms.style.display = "flex";	
 }
 
 function convertFileToBase64(file: File): Promise<string> {
