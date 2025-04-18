@@ -8,11 +8,13 @@ export function onlineButtonAddEvent(): void {
 			online = false;
 			onOffButton.textContent = "Play Online";
 			offReset();
+			console.log("Playing offline");
 		} 
 		else {
 			online = true;
 			onOffButton.textContent = "Play Offline";
 			stopOff();
+			console.log("Playing online");
 		}
 	}); 
 }

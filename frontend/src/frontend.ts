@@ -1,11 +1,10 @@
 import { handleKeyPress, keys, launchButtonAddEvent, launchTournamentButtonAddEvent, online, onlineButtonAddEvent, registerTournamentButtonAddEvent } from "./events.js";
-import { game } from "./Offline/offlineManager.js";
-import { offMove } from "./Offline/offlineManager.js";
+import { game, offMove } from "./Offline/offlineManager.js";
+import { displayLine as displayLineOff, displayScore as displayScoreOff, drawLeftPlayer as drawLeftPlayerOff, drawRightPlayer as drawRightPlayerOff } from "./Offline/pongDisplayOff.js";
 import { displayLaunchError, displayLine, displayScore, displayWinner, drawLeftPlayer, drawRightPlayer } from "./Online/pongDisplayOnline.js";
 import { currentState, handleWebSocket, targetState, tournamentWinner } from "./Online/webSocket.js";
 import { GameState } from "./Pong/Game.js";
 import { PlayerMoves } from "./Pong/Player.js";
-import { displayLine as displayLineOff, displayScore as displayScoreOff, drawLeftPlayer as drawLeftPlayerOff, drawRightPlayer as drawRightPlayerOff } from "./Offline/pongDisplayOff.js";
 
 const logout_button = document.getElementById("logout") as HTMLButtonElement;
 const greeting = document.getElementById("greeting") as HTMLParagraphElement;
@@ -117,24 +116,24 @@ function updateMoves() {
 requestAnimationFrame(updateMoves);
 
 // gestion de l'envoie du formulaire
-const form: HTMLFormElement = document.getElementById("form") as HTMLFormElement;
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+// const form: HTMLFormElement = document.getElementById("form") as HTMLFormElement;
+// form.addEventListener("submit", async (e) => {
+//     e.preventDefault();
 
-    const usernameInput: HTMLInputElement = document.getElementById("username") as HTMLInputElement;
-    const username: string = usernameInput.value;
+//     const usernameInput: HTMLInputElement = document.getElementById("username") as HTMLInputElement;
+//     const username: string = usernameInput.value;
 
-    const response = await fetch("http://localhost:4500/register", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-Client-Id": id.value,
-        },
-        body: JSON.stringify({ username }),
-    });
-    const result = await response.json();
-    console.log(result.message);
-});
+//     const response = await fetch("http://localhost:4500/register", {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/json",
+//             "X-Client-Id": id.value,
+//         },
+//         body: JSON.stringify({ username }),
+//     });
+//     const result = await response.json();
+//     console.log(result.message);
+// });
 
 const signupForm: HTMLFormElement = document.getElementById("signup-form") as HTMLFormElement;
 signupForm.addEventListener("submit", async (e) => {
