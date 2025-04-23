@@ -177,15 +177,12 @@ signinForm.addEventListener("submit", async (e) => {
     if (result.message === "OK")
     {
         const forms = document.getElementById("Forms-connexion");
-        const formPseudo = document.getElementById("form");
         const userProfile = document.getElementById("user-profile");
-        if (forms && formPseudo && userProfile)
+        if (forms && userProfile)
         {
             forms.style.display = "none";
-            formPseudo.style.display = "none";
             userProfile.style.display = "block";
         }
-
 		const close_button		= document.getElementById("profile_close");
 		const invite_button		= document.getElementById("profile_invite");
 		const block_button		= document.getElementById("profile_block");

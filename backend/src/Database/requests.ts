@@ -70,6 +70,21 @@ export function getMailFromId(id: number, callback: (mail: string | null) => voi
 export function createUser(mail: string, password: string, pseudo: string) {
 
 	const db = openDatabase();
+    db.run(`CREATE TABLE IF NOT EXISTS user (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        mail TEXT NOT NULL,
+        password TEXT NOT NULL,
+        pseudo TEXT,
+        avatar TEXT,
+        victories INTEGER DEFAULT 0,
+        defeats INTEGER DEFAULT 0
+    )`, (err) => {
+        if (err) {
+            console.error('Error creating table:', err.message);
+        } else {
+            console.log('Table created or already exists.');
+        }
+    });
     db.run(`INSERT INTO user (mail, password, pseudo) VALUES (?, ?, ?)`, [mail, password, pseudo], function(err) {
         if (err) {
             console.error('Error inserting user:', err.message);
