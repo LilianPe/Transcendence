@@ -1,7 +1,10 @@
 import { logToELK } from "../logger/logToElk.js";
 import { LogLevel, LogType } from "../logger/normalization.js";
+import { Match } from "../Pong/Match.js";
 import { Player } from "../Pong/Player.js";
-import { app, game, registeredClients } from "../server.js";
+import { Ref } from "../Pong/Tournament.js";
+import { app, clients, game, registeredClients } from "../server.js";
+import { Client, registeredTournament } from "./webSocket.js";
 
 function handleGetApi(): void {
 	app.get("/game/state", async (req, reply) => {
@@ -58,27 +61,44 @@ function handlePlayerMoves(): void {
 }
 
 // A refaire selon le systeme de tournois
-// function handleGameInit() {
-// 	app.post("/game/init", async (req, reply) => {
-//         if (game.getGame().getRound().isRunning()) return reply.status(400).send({type: "error", error: "A game is already running."});
-//         else if (registeredClients.size < 2) return reply.status(400).send({type: "error", error: "Not enought player registered to launch."});
-// 		else {
-//         	const clientKeys: Array<string> = Array.from(registeredClients.keys());
-//             const player1: Player | undefined = registeredClients.get(clientKeys[0])?.player;
-//             const player2: Player | undefined = registeredClients.get(clientKeys[1])?.player;
+function handleGameInit() {
+	app.post("/game/init/game", async (req, reply) => {
+        if (game.getGame().getRound().isRunning()) return reply.status(409).send({type: "error", error: "A game is already running."});
+        else if (!game.getTournament().isLaunched()) return reply.status(400).send({type: "error", error: "No tournament launched."});
+        else if (registeredTournament.size < 2) return reply.status(400).send({type: "error", error: "Not enought player registered to tournament."});
+		else {
+			const match: Ref<Match> | undefined = game.getTournament().getNextMatch();
+			if (match) {
+				game.launchGame(match);
+			}
+			else {
+				return reply.status(400).send({type: "error", error: "Matchmaking error."});	
+			}
+        	game.update("start", clients, registeredTournament, "");
+			return reply.status(201).send({ message: "Game launched." });
+		}
+	})
+}
 
-//             if (player1 && player2) {
-//                 game.launchGame(player1, player2);
-//             } else {
-//                 return reply.status(400).send({ type: "error", error: "Erreur lors de la récupération des joueurs." });
-//             }
-//         }
-// 	})
-// }
+function handleTournamentInit() {
+	app.post("/game/init/tournament", async (req, reply) => {
+		if (game.getTournament().isLaunched()) {
+			return reply.status(409).send({type: "error", error: "A tournament is already launched."});	
+		}
+		else if (registeredTournament.size < 2) {
+			return reply.status(400).send({type: "error", error: "Not enought player in tournament to launch."});	
+		}
+		else {
+			game.launchTournament(registeredTournament);
+			return reply.status(201).send({ message: "Tournament launched." });
+		}
+	})
+}
 
 function handlePostApi(): void {
 	handlePlayerMoves();
-	// handleGameInit();
+	handleGameInit();
+	handleTournamentInit();
 }
 
 export function handleApiRequest(): void {

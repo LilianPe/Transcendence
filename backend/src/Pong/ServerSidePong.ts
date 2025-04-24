@@ -27,7 +27,9 @@ export class ServerSidePong {
     public update(message: string, clients: Map<string, Client>, registeredTournament: Map<string, Player>, clientID: string): void {
         this.game.update(message, clients, clientID);
         
+		console.log(message);
 		if (message == "start") {
+			console.log("debug");
 			if (!clients.get(clientID)?.player.isRegistered()) clients.get(clientID)?.socketStream.send(JSON.stringify({type: "error", error: "You are not registered."}));
             else if (this.game.getRound().isRunning()) clients.get(clientID)?.socketStream.send(JSON.stringify({type: "error", error: "A game is already running."}));
             else if (!this.tournament.isLaunched()) clients.get(clientID)?.socketStream.send(JSON.stringify({type: "error", error: "No tournament launched."}));

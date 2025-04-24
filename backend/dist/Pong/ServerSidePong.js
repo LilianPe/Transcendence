@@ -19,7 +19,9 @@ export class ServerSidePong {
     }
     update(message, clients, registeredTournament, clientID) {
         this.game.update(message, clients, clientID);
+        console.log(message);
         if (message == "start") {
+            console.log("debug");
             if (!clients.get(clientID)?.player.isRegistered())
                 clients.get(clientID)?.socketStream.send(JSON.stringify({ type: "error", error: "You are not registered." }));
             else if (this.game.getRound().isRunning())
