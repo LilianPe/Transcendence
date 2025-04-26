@@ -122,7 +122,7 @@ app.post("/connexion", async (request, reply) => {
 
 	const id: string = request.headers["x-client-id"] as string;
 
-	console.log(`new connexion request: ${mail} ${password}`)
+	console.log(`new connexion request: ${mail}`)
     if (!mail || !password) {
         return reply.status(400).send({message: "Connexion failed"});
     }
