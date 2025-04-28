@@ -67,12 +67,17 @@ export function getMailFromId(id: number, callback: (mail: string | null) => voi
     );
 }
 
-const VAULT_ADDR = 'http://hashicorp_vault:8200';
-const VAULT_TOKEN = 'root';
+const VAULT_ADDR = 'http://hashicorp_vault:8300';
+
+async function getVaultToken() {
+    const token = await fs.readFile('/vault/token/root_token.txt', 'utf-8');
+    return token.trim();
+  }
 
 async function storePasswordInVault(mail: string, password: string) {
-  const path = `secret/data/users/${mail}`;
-  const url = `${VAULT_ADDR}/v1/${path}`;
+    const VAULT_TOKEN = await getVaultToken();
+    const path = `secret/data/users/${mail}`;
+    const url = `${VAULT_ADDR}/v1/${path}`;
 
   try {
     await axios.post(
@@ -98,7 +103,7 @@ async function storePasswordInVault(mail: string, password: string) {
 
 export async function createUser(mail: string, password: string, pseudo: string) {
 	const db = openDatabase();
-  
+    
 	db.serialize(() => {
 	  db.run(`CREATE TABLE IF NOT EXISTS user (
 		  id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -143,7 +148,8 @@ interface UserRow {
 async function getPasswordFromVault(email: string): Promise<string | null> {
 	const path = `secret/data/users/${email}`;
 	const url = `${VAULT_ADDR}/v1/${path}`;
-  
+    const VAULT_TOKEN = await getVaultToken();
+
 	try {
 	  const response = await axios.get(url, {
 		headers: {
@@ -162,76 +168,98 @@ async function getPasswordFromVault(email: string): Promise<string | null> {
 	}
   }
   
-  export function checkUserID(mail: string, password: string, callback: (isValid: boolean) => void) {
-	const db = openDatabase();
-  
-	db.serialize(() => {
-	  db.run(
-		`CREATE TABLE IF NOT EXISTS user (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			mail TEXT NOT NULL UNIQUE,
-			pseudo TEXT,
-			avatar TEXT,
-			victories INTEGER DEFAULT 0,
-			defeats INTEGER DEFAULT 0
-		)`,
-		(err) => {
-		  if (err) {
-			console.error('Erreur création table:', err.message);
-			callback(false);
-			db.close();
-			return;
-		  }
-  
-		  db.get(`SELECT * FROM user WHERE mail = ?`, [mail], async (err, row) => {
-			if (err) {
-			  console.error('Erreur recherche utilisateur:', err.message);
-			  callback(false);
-			} else if (!row) {
-			  console.log('Utilisateur non trouvé.');
-			  callback(false);
-			} else {
-			  console.log('Utilisateur trouvé, récupération du mot de passe...');
-			  try {
-				const storedPassword = await getPasswordFromVault(mail);
-				if (!storedPassword) {
-				  callback(false);
-				  return;
-				}
-				const isMatch = (storedPassword === password);
-				callback(isMatch);
-			  } catch (error) {
-				console.error('Erreur Vault:', error);
-				callback(false);
-			  }
-			}
-			db.close();
-		  });
-		}
-	  );
-	});
-  }
+export function checkUserID(mail: string, password: string, callback: (isValid: boolean) => void) {
+  const db = openDatabase();
+
+  db.serialize(() => {
+    db.run(
+      `CREATE TABLE IF NOT EXISTS user (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        mail TEXT NOT NULL UNIQUE,
+        pseudo TEXT,
+        avatar TEXT,
+        victories INTEGER DEFAULT 0,
+        defeats INTEGER DEFAULT 0
+      )`,
+      (err) => {
+        if (err) {
+          console.error('Erreur création table:', err.message);
+          callback(false);
+          db.close();
+          return;
+        }
+
+        db.get(`SELECT * FROM user WHERE mail = ?`, [mail], async (err, row) => {
+          if (err) {
+            console.error('Erreur recherche utilisateur:', err.message);
+            callback(false);
+          } else if (!row) {
+            console.log('Utilisateur non trouvé.');
+            callback(false);
+          } else {
+            console.log('Utilisateur trouvé, récupération du mot de passe...');
+            try {
+              const storedPassword = await getPasswordFromVault(mail);
+              if (!storedPassword) {
+                callback(false);
+                return;
+              }
+              const isMatch = (storedPassword === password);
+              callback(isMatch);
+            } catch (error) {
+              console.error('Erreur Vault:', error);
+              callback(false);
+            }
+          }
+          db.close();
+        });
+      }
+    );
+  });
+}
+
 
 export function checkUserMAIL(mail: string, callback: (isValid: boolean) => void) {
 	
     const db = openDatabase();
-    db.get('SELECT COUNT(*) AS count FROM user WHERE mail = ?', [mail], (err, row: UserRow) => {
-        if (err) {
-            console.error('Error querying user:', err.message);
-            callback(false);
-            db.close();
-            return;
+    db.serialize(() => {
+        db.run(
+          `CREATE TABLE IF NOT EXISTS user (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            mail TEXT NOT NULL UNIQUE,
+            pseudo TEXT,
+            avatar TEXT,
+            victories INTEGER DEFAULT 0,
+            defeats INTEGER DEFAULT 0
+          )`,
+          (err) => {
+            if (err) {
+              console.error('Erreur création table:', err.message);
+              callback(false);
+              db.close();
+              return;
+            }
+    
+        db.get('SELECT COUNT(*) AS count FROM user WHERE mail = ?', [mail], (err, row: UserRow) => {
+            if (err) {
+                console.error('Error querying user:', err.message);
+                callback(false);
+                db.close();
+                return;
+            }
+            if (!row) {
+                callback(false);
+                db.close();
+                return;
+            }
+            else {
+                callback(true);
+                db.close();
+                return
+            }
+          });
         }
-        if (!row) {
-            callback(false);
-            db.close();
-            return;
-        }
-        else {
-            callback(true);
-            db.close();
-            return
-        }
+      );
     });
 }
 

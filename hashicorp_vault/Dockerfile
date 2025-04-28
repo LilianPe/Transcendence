@@ -1,13 +1,29 @@
-FROM hashicorp/vault:1.15
+FROM debian:bullseye-slim
 
 WORKDIR /vault
 
-# Copier les fichiers de configuration (optionnel, à créer selon vos besoins)
-# Exemple : fichier de configuration pour Vault
+RUN apt-get update && apt-get install -y && apt-get upgrade -y \
+    curl \
+    gnupg \
+    jq \
+    netcat \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com bullseye main" | tee /etc/apt/sources.list.d/vault.list \
+    && apt-get update && apt-get install -y \
+    vault \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /vault/token
+
 COPY config/vault.hcl /vault/config/vault.hcl
 
-EXPOSE 8200
+COPY config/setup.sh /vault/setup.sh
 
-USER vault
+RUN chmod +x /vault/setup.sh
 
-CMD ["vault", "server", "-config=/vault/config/vault.hcl"]
+EXPOSE 8300
+
+ENTRYPOINT ["/vault/setup.sh"]
