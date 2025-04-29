@@ -66,6 +66,8 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    networks:
+      - webnet
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.12.1
@@ -80,7 +82,8 @@ services:
     command: bash /usr/local/bin/setup_kibana.sh
     depends_on:
       - elasticsearch
-
+    networks:
+      - webnet
 
   logstash:
     image: docker.elastic.co/logstash/logstash:8.12.1
@@ -89,20 +92,24 @@ services:
       - ./elk/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     depends_on:
       - elasticsearch
-
+    networks:
+      - webnet
   nginx:
     ports:
       - "62000:80"
+      - "62001:443"
     build:
       context: ./elk/nginx
     volumes:
       - ./elk/nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+      - ./certs:/tmp/ssl:ro
     container_name: elk-nginx
     depends_on:
       - elasticsearch
       - kibana
       - logstash
-
+    networks:
+      - webnet
 
 
 volumes:
