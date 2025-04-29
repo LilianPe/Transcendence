@@ -82,11 +82,11 @@ export function predictLandingY(): void {
 	predictionCount++;
 	let randomOffset = 0;
 	if (predictionCount % 5 === 0) {
-		randomOffset += Math.floor(Math.random() * 170) - 85;
+		randomOffset += Math.floor(Math.random() * 180) - 85;
 	}
 	else
 	{
-		randomOffset = Math.floor(Math.random() * 80) - 40;
+		randomOffset = Math.floor(Math.random() * 95) - 40;
 	}
 
 	AI_y_target = predictedY - 50 + randomOffset;
