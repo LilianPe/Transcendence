@@ -19,7 +19,7 @@ export class Game {
     constructor(player1: Player, player2: Player) {
         this.player1 = player1;
         this.player2 = player2;
-        this.round = new Round(player1, player2, {value: new Match(new Player(""), new Player(""))});
+        this.round = new Round(player1, player2, {value: new Match(new Player(""), new Player(""), 0)});
     }
     public launch(match: Ref<Match>): void {
 		this.player1.reset();

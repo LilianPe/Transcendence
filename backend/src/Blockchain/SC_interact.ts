@@ -30,7 +30,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const contractJson = JSON.parse(readFileSync(join(__dirname, './TournamentScores.json'), 'utf-8'));
+const contractJson = JSON.parse(readFileSync(join('/app/src/Blockchain/TournamentScores.json'), 'utf-8'));
 
 
 

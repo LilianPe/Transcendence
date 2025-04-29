@@ -8,11 +8,13 @@ export class Match {
 	private player2: Player;
 	private winner: Player | undefined;
 	private ended: boolean;
+	private round: number;
 	private final: boolean;
 
-	constructor(player1: Player, player2: Player | undefined) {
+	constructor(player1: Player, player2: Player | undefined, round: number) {
 		this.player1 = player1;
 		this.final = false;
+		this.round = round;
 		if (player2) {
 			this.player2 = player2;
 			this.winner = undefined;
@@ -50,6 +52,9 @@ export class Match {
 	}
 	public getWinner(): Player | undefined {
 		return this.winner;
+	}
+	public getRound(): number {
+		return this.round;
 	}
 	public setFinal(): void {
 		this.final = true;

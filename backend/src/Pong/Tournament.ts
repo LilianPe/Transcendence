@@ -10,6 +10,7 @@ export type Ref<T> = {value: T};
 
 export class Tournament {
 	private date: number;
+	private round: number;
 	private launched: boolean;
 	private ended: boolean;
 	private winner: Player | undefined;
@@ -23,6 +24,7 @@ export class Tournament {
 		this.launched = false;
 		this.ended = false;
 		this.players = players;
+		this.round = 1;
 		this.matches = undefined;
 		this.winner = undefined;
 		this.historic = [];
@@ -48,7 +50,7 @@ export class Tournament {
 				player2 = players[i];
 			} 
 			else {
-				this.matches.push(new Match(player1, player2));
+				this.matches.push(new Match(player1, player2, this.round));
 				console.log(`New match created: Player1: ${player1.getId()} | Player2: ${player2.getId()}`);
 				player1 = players[i];
 				player2 = undefined;
@@ -57,7 +59,7 @@ export class Tournament {
 		if (player1) {
 			const s = player2 ? player2.getId() : "undef";
 			console.log(`New match created: Player1: ${player1.getId()} | Player2: ${s}`);
-			this.matches.push(new Match(player1, player2));
+			this.matches.push(new Match(player1, player2, this.round));
 		}
 	}
 	
@@ -78,6 +80,7 @@ export class Tournament {
 		let nextMatches: Array<Match> = [];
 		let player1: Player | undefined;
 		let player2: Player | undefined;
+		this.round++;
 		for (let i: number = this.matches.length - 1; i >= 0 ; i--) {
 			if (this.matches[i].getWinner()?.isLogout()) {
 				continue;
@@ -88,14 +91,14 @@ export class Tournament {
 				player2 = this.matches[i].getWinner();
 			}
 			else {
-				nextMatches.push(new Match(player1, player2));
+				nextMatches.push(new Match(player1, player2, this.round));
 				// console.log(`New match: Player1 :${player1.getId()}`);
 				player1 = this.matches[i].getWinner();
 				player2 = undefined;
 			}
 		}
 		if (player1) {
-			nextMatches.push(new Match(player1, player2));
+			nextMatches.push(new Match(player1, player2, this.round));
 			// console.log(`New match: Player1 :${player1.getId()}, ${player2}`);
 		}
 		this.matches = nextMatches;
@@ -103,7 +106,7 @@ export class Tournament {
 
 	private getNxtMatch(): Match | undefined{
 		// recupere le premier match pas finit et renvoie les joueurs du match.
-		if (!this.matches) return (new Match(new Player(""), undefined));
+		if (!this.matches) return (new Match(new Player(""), undefined, this.round));
 		if (this.ended) return undefined;
 		if (this.matches.length == 1) {
 			console.log("Returning final.");
@@ -115,7 +118,7 @@ export class Tournament {
 				return this.matches[i];
 			} 
 		}
-		return new Match(new Player(""), undefined);
+		return new Match(new Player(""), undefined, this.round);
 	}
 
 	public nextRound() {

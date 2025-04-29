@@ -5,7 +5,7 @@ import { Match } from "./Match.js";
 import { Player } from "./Player.js";
 import { Ref, Tournament } from "./Tournament.js";
 
-// import * as SC from "../Blockchain/SC_interact.js"; //!
+import * as SC from "../Blockchain/SC_interact.js"; //!
 // import { getUserFromDB } from "../Database/requests.js"
 
 export class ServerSidePong {
@@ -119,6 +119,8 @@ export class ServerSidePong {
 		{
 			match = historic[i];
 
+			const points: number = match.getRound();
+
 			id_player1 = match.getPlayer1().getDBId();
 			id_player2 = match.getPlayer2().getDBId();
 
@@ -126,7 +128,7 @@ export class ServerSidePong {
 			if (winner === match.getPlayer1())
 			{
 				const currentScore = playerScores.get(id_player1) ?? 0;
-				playerScores.set(id_player1, currentScore + 1);
+				playerScores.set(id_player1, currentScore + points);
 
 				// Perdant (ajouté à 0 si pas déjà là)
 				if (!playerScores.has(id_player2)) {
@@ -136,7 +138,7 @@ export class ServerSidePong {
 			else if (winner === match.getPlayer2())
 			{
 				const currentScore = playerScores.get(id_player2) ?? 0;
-				playerScores.set(id_player2, currentScore + 1);
+				playerScores.set(id_player2, currentScore + points);
 
 				// Perdant (ajouté à 0 si pas déjà là)
 				if (!playerScores.has(id_player1)) {
@@ -157,8 +159,9 @@ export class ServerSidePong {
 		console.log("ids:", player_ids);
 		console.log("scores:", scores);
 
-		// SC.SC_addTournament( player_ids, scores );
-		// SC.getStatusInBlockchain( 1 );
+		//! decom
+		SC.SC_addTournament( player_ids, scores );
+		// SC.getStatusInBlockchain( 0 );
 
 		this.tournament.stop();
 		this.resetNextMatch("???");

@@ -287,7 +287,7 @@ async function tryJoin(clientID: string, message: string | Buffer<ArrayBufferLik
 
 		invitations.delete(joined.player.getDBId());
 
-		let match: Ref<Match> = {value: new Match(joiner.player, joined.player)};
+		let match: Ref<Match> = {value: new Match(joiner.player, joined.player, 0)};
 		game.launchGame(match);
 
 	}
