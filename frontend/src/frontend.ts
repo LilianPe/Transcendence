@@ -18,7 +18,7 @@ const unblock_button	= document.getElementById("profile_unblock") as HTMLButtonE
 export type Ref<T> = {value: T};
 
 // WebSocket connection
-export const ws = new WebSocket("ws://localhost:4500/ws");
+export const ws = new WebSocket("wss://transcendence-vgw4.onrender.com/ws");
 export const id: Ref<string> = {value: ""}; 
 handleWebSocket(id);
 
@@ -145,7 +145,7 @@ signupForm.addEventListener("submit", async (e) => {
     const mail: string = mailInput.value;
     const password: string = passwordInput.value;
     
-    const response = await fetch("http://localhost:4500/inscription", {
+    const response = await fetch("https://transcendence-vgw4.onrender.com/inscription", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -165,7 +165,7 @@ signinForm.addEventListener("submit", async (e) => {
     const mail: string = mailInput.value;
     const password: string = passwordInput.value;
 
-    const response = await fetch("http://localhost:4500/connexion", {
+    const response = await fetch("https://transcendence-vgw4.onrender.com/connexion", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -207,7 +207,7 @@ signinForm.addEventListener("submit", async (e) => {
 
 export async function printPersonalsElements(mail: string)
 {
-    const response = await fetch("http://localhost:4500/info", {
+    const response = await fetch("https://transcendence-vgw4.onrender.com/info", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -345,7 +345,7 @@ avatarInput.addEventListener("change", async () => {
                 avatar: base64Image,
                 mail: email,
             };
-            const response = await fetch("http://localhost:4500/upload-avatar", {
+            const response = await fetch("https://transcendence-vgw4.onrender.com/upload-avatar", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

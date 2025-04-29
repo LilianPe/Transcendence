@@ -31,7 +31,7 @@ import { Client, handleWebsocket } from "./Server/webSocket.js";
 
 export const app: FastifyInstance = fastify(/*options*/);
 
-allowCors("http://localhost:3000", ["POST", "GET"], ["Content-Type", "X-Client-Id"]);
+allowCors("https://transcendence-web.onrender.com", ["POST", "GET"], ["Content-Type", "X-Client-Id"]);
 handleApiRequest();
 
 // ELK
@@ -222,7 +222,7 @@ app.post('/upload-avatar', async (request, reply) => {
 const start = async () => {
     try {
         await app.listen({ port: 4500, host: "0.0.0.0" });
-        console.log("🚀 Backend server running on http://localhost:4500");
+        console.log("🚀 Backend server running on https://transcendence-vgw4.onrender.com");
     } catch (err) {
         console.error(err);
         process.exit(1);
