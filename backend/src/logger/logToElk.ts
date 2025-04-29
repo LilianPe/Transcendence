@@ -1,7 +1,7 @@
 import { LogEntry } from "./normalization";
 
 export function logToELK(entry: LogEntry) {
-    fetch("http://logstash:5000", {
+    fetch("https://logstash:5000", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(entry),

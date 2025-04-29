@@ -5,11 +5,14 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./frontend:/app
-      - ./certs:/tmp/ssl:ro
+      - ./certs/fullchain.crt:/tmp/ssl/transcendence.crt:ro
+      - ./certs/transcendence.key:/tmp/ssl/transcendence.key:ro
+      - ./certs/ca.crt:/tmp/ssl/ca.crt:ro
     ports:
       - "3000:3000"
     networks:
       - webnet
+      - elknet
     working_dir: /app
     command: sh -c "npm install && npm run tsc && npm run dev"
   backend:
@@ -18,16 +21,21 @@ services:
       dockerfile: Dockerfile
     environment:
       - METAMASK_KEY=${METAMASK_KEY}
+      - NODE_EXTRA_CA_CERTS=/tmp/ssl/ca.crt
     ports:
       - "4500:4500"
     volumes:
       - ./backend:/app
       - shared-data:/vault/token/
-      - ./certs:/tmp/ssl:ro
+      - ./certs/fullchain.crt:/tmp/ssl/transcendence.crt:ro
+      - ./certs/transcendence.key:/tmp/ssl/transcendence.key:ro
+      - ./certs/ca.crt:/tmp/ssl/ca.crt:ro
     working_dir: /app
     networks:
       - webnet
+      - elknet
     command: sh -c "npm install && npm run build && npm run dev"
+
   hashicorp_vault:
     build:
       context: ./hashicorp_vault
@@ -43,6 +51,8 @@ services:
       - ./certs:/tmp/ssl:ro
     networks:
       - webnet
+      - elknet
+      
   waf:
     build:
       context: ./waf
@@ -56,66 +66,84 @@ services:
     depends_on:
       - frontend
       - backend
+  
+  # ─────── ELASTICSEARCH ───────
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.1
-    container_name: elk-elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - xpack.monitoring.collection.enabled=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    container_name: elasticsearch
+    env_file: .env
+    ports:
+      - "9200:9200"
+      - "9300:9300"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+      - ./certs:/usr/share/elasticsearch/config/certs:ro
+      - ./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     networks:
-      - webnet
+      - elknet
 
+  # ─────── KIBANA ───────
   kibana:
     image: docker.elastic.co/kibana/kibana:8.12.1
-    container_name: elk-kibana
+    container_name: kibana
+    env_file: .env
+    ports:
+      - "9400:5601"
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - SERVER_BASEPATH=/kibana
-      - SERVER_REWRITEBASEPATH=true
+      - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      - SERVER_SSL_ENABLED=true
+      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/fullchain.crt
+      - SERVER_SSL_KEY=/usr/share/kibana/config/certs/transcendence.key
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/usr/share/kibana/config/certs/ca.crt
+      - ELASTICSEARCH_SSL_VERIFICATIONMODE=certificate
     volumes:
-      - ./elk/kibana-config/setup.sh:/usr/local/bin/setup_kibana.sh
-      - ./elk/kibana-config/dashboards:/usr/local/bin/dashboards
-    command: bash /usr/local/bin/setup_kibana.sh
+      - ./certs:/usr/share/kibana/config/certs:ro
+      - ./elk/kibana/config/setup_kibana.sh:/usr/local/bin/setup_kibana.sh:ro
+      - ./elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    command: /usr/local/bin/setup_kibana.sh
     depends_on:
       - elasticsearch
     networks:
-      - webnet
+      - elknet
 
+
+  # ─────── LOGSTASH ───────
   logstash:
     image: docker.elastic.co/logstash/logstash:8.12.1
-    container_name: elk-logstash
-    volumes:
-      - ./elk/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-    depends_on:
-      - elasticsearch
-    networks:
-      - webnet
-  nginx:
+    container_name: logstash
+    env_file: .env
     ports:
-      - "62000:80"
-      - "62001:443"
-    build:
-      context: ./elk/nginx
+      - "9500:5000"
     volumes:
-      - ./elk/nginx/.htpasswd:/etc/nginx/.htpasswd:ro
-      - ./certs:/tmp/ssl:ro
-    container_name: elk-nginx
+      - ./elk/logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./certs:/usr/share/logstash/config/certs:ro
     depends_on:
       - elasticsearch
-      - kibana
-      - logstash
     networks:
-      - webnet
+      - elknet
 
-
+  # ─────── FILEBEAT ───────
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.12.1
+    container_name: filebeat
+    env_file: .env
+    volumes:
+      - ./logs:/logs:ro
+      - ./elk/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./certs:/usr/share/filebeat/config/certs:ro
+    depends_on:
+      - elasticsearch
+    networks:
+      - elknet
+      
 volumes:
   esdata:
   shared-data:
 
 networks:
   webnet:
+    driver: bridge
+  elknet:
     driver: bridge

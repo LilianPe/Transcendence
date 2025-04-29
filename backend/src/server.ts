@@ -219,7 +219,7 @@ app.post('/upload-avatar', async (request, reply) => {
 const start = async () => {
     try {
         await app.listen({ port: 4500, host: "0.0.0.0" });
-        console.log("🚀 Backend server running on http://localhost:4500");
+        console.log("🚀 Backend server running on https://localhost:4500");
     } catch (err) {
         console.error(err);
         process.exit(1);

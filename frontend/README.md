@@ -26,7 +26,7 @@ A clean development environment using **Vite**, **TypeScript**, **Tailwind CSS**
 
     make build
     make start
-    Open your browser: http://localhost:3000
+    Open your browser: https://localhost:3000
 
     Edit any file in frontend/src/ or frontend/index.html — Vite will reload instantly.
 

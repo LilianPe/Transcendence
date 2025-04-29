@@ -30,7 +30,7 @@ Depuis la racine du projet (transcendence) :
     make build
     make start
 
-📍 Le backend sera disponible sur : http://localhost:5000
+📍 Le backend sera disponible sur : https://localhost:5000
 
 ## 🔁 Développement avec hot reload
 

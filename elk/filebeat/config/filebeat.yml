@@ -1,0 +1,13 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /logs/*.log
+
+output.elasticsearch:
+  hosts: ["https://elasticsearch:9200"]
+  protocol: "https"
+  username: "${ELASTIC_USERNAME}"
+  password: "${ELASTIC_PASSWORD}"
+  ssl.certificate_authorities: [ "/usr/share/filebeat/config/certs/ca.crt" ]
+  index: "filebeat-%{+yyyy.MM.dd}"
