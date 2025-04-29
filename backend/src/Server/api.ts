@@ -5,7 +5,7 @@ import { Player } from "../Pong/Player.js";
 import { Ref } from "../Pong/Tournament.js";
 import { app, clients, game, registeredClients } from "../server.js";
 import { a_game_is_already_running, Client, registeredTournament } from "./webSocket.js";
-import * as SC from "../Blockchain/SC_interact.js";
+// import * as SC from "../Blockchain/SC_interact.js";
 
 function handleGetApi(): void {
 	app.get("/game/state", async (req, reply) => {
@@ -104,7 +104,7 @@ function handlePostApi(): void {
 	handlePlayerMoves();
 	handleGameInit();
 	handleTournamentInit();
-	handleBlockchain();
+	// handleBlockchain();
 }
 
 export function handleApiRequest(): void {
@@ -116,25 +116,25 @@ export function handleApiRequest(): void {
 
 // blockchain
 
-function handleBlockchain(): void
-{
-	app.post("/blockchain", async (req, reply) =>
-		{
-			logToELK({
-				level: LogLevel.INFO,
-				message: "request post at /blockchain",
-				service: "backend",
-				type: LogType.REQUEST,
-				timestamp: new Date().toISOString(),
-		});
+// function handleBlockchain(): void
+// {
+// 	app.post("/blockchain", async (req, reply) =>
+// 		{
+// 			logToELK({
+// 				level: LogLevel.INFO,
+// 				message: "request post at /blockchain",
+// 				service: "backend",
+// 				type: LogType.REQUEST,
+// 				timestamp: new Date().toISOString(),
+// 		});
 		
-		const { tournamentid } = req.body as { tournamentid: number; };
+// 		const { tournamentid } = req.body as { tournamentid: number; };
 
-		if (!tournamentid)
-		{
-			return reply.status(400).send({ error: "Missing tournamentid" });	
-		}
+// 		if (!tournamentid)
+// 		{
+// 			return reply.status(400).send({ error: "Missing tournamentid" });	
+// 		}
 
-		return {message: SC.getStatusInBlockchain( tournamentid )}
-	});
-}
+// 		return {message: SC.getStatusInBlockchain( tournamentid )}
+// 	});
+// }

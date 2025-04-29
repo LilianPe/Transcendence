@@ -3,7 +3,6 @@ import { clients, registeredClients } from "../server.js";
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 import { Tournament } from "./Tournament.js";
-import * as SC from "../Blockchain/SC_interact.js";
 // import { getUserFromDB } from "../Database/requests.js"
 export class ServerSidePong {
     constructor() {
@@ -144,7 +143,7 @@ export class ServerSidePong {
         }
         console.log("ids:", player_ids);
         console.log("scores:", scores);
-        SC.SC_addTournament(player_ids, scores);
+        // SC.SC_addTournament( player_ids, scores );
         this.tournament.stop();
         this.resetNextMatch("???");
     }

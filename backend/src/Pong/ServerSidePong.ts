@@ -5,7 +5,7 @@ import { Match } from "./Match.js";
 import { Player } from "./Player.js";
 import { Ref, Tournament } from "./Tournament.js";
 
-import * as SC from "../Blockchain/SC_interact.js";
+// import * as SC from "../Blockchain/SC_interact.js";
 // import { getUserFromDB } from "../Database/requests.js"
 
 export class ServerSidePong {
@@ -171,7 +171,7 @@ export class ServerSidePong {
 		console.log("ids:", player_ids);
 		console.log("scores:", scores);
 
-		SC.SC_addTournament( player_ids, scores );
+		// SC.SC_addTournament( player_ids, scores );
 
 		this.tournament.stop();
 		this.resetNextMatch("???");

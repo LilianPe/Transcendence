@@ -26,7 +26,7 @@ import { handleWebsocket } from "./Server/webSocket.js";
 //
 // ----------------------------------
 export const app = fastify( /*options*/);
-allowCors("https://localhost:3100", ["POST", "GET"], ["Content-Type", "X-Client-Id"]);
+allowCors("http://localhost:3000", ["POST", "GET"], ["Content-Type", "X-Client-Id"]);
 handleApiRequest();
 // ELK
 registerHooks(app);

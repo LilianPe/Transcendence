@@ -15,8 +15,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    environment:
-      - METAMASK_KEY=${METAMASK_KEY}
+    # environment:
+      # - METAMASK_KEY=${METAMASK_KEY}
     ports:
       - "4500:4500"
     volumes:
