@@ -144,7 +144,7 @@ signupForm.addEventListener("submit", async (e) => {
     const pseudo: string = pseudoInput.value;
     const mail: string = mailInput.value;
     const password: string = passwordInput.value;
-
+    
     const response = await fetch("http://localhost:4500/inscription", {
         method: "POST",
         headers: {
