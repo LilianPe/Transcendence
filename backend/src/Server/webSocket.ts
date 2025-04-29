@@ -149,6 +149,8 @@ async function invitePlayer(clientID: string, message: string | Buffer<ArrayBuff
 	let inviter_pseudo = getPseudoFromClientID( clientID );
 	let invited_pseudo = message.toString().split(" ")[1];
 
+	//! VERIF SI UNE GAME EST EN COURS
+
 	const  inviter = getClientFromPseudo( inviter_pseudo );
 	if (!inviter)
 	{
@@ -269,6 +271,8 @@ async function tryJoin(clientID: string, message: string | Buffer<ArrayBufferLik
 		return;
 	}
 
+	//! VERIF SI UNE GAME EST EN COURS
+
 	const joiner_id = joiner.player.getDBId();
 	const joined_id = joined.player.getDBId();
 
@@ -283,10 +287,9 @@ async function tryJoin(clientID: string, message: string | Buffer<ArrayBufferLik
 
 		invitations.delete(joined.player.getDBId());
 
-		//! OUI C EST ici ↓ ca veut pas à l aide :'(
-		// objectif : start un match entre "joiner.player" et "joined.player"
-		// let match = new Match(joiner.player, joined.player);
-		// game.launchGame(match);
+		let match: Ref<Match> = {value: new Match(joiner.player, joined.player)};
+		game.launchGame(match);
+
 	}
 	else
 	{
