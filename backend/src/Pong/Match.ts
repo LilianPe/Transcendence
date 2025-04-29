@@ -1,6 +1,7 @@
 // va servir a stocker les resultats des match
 // stockera 2 joueurs et leur score respectif
 
+import { game } from "../server.js";
 import { Player } from "./Player.js";
 
 export class Match {
@@ -30,6 +31,7 @@ export class Match {
 	public end(): void {
 		if (this.ended) return;
 		this.ended = true;
+		game.stopSolo();
 		if (this.player1.isLogout()) this.winner = this.player2;
 		if (this.player2.isLogout()) this.winner = this.player1;
 		if (this.player1.getScore() == 3) {

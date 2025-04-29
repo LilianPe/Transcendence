@@ -4,7 +4,7 @@ import { Match } from "../Pong/Match.js";
 import { Player } from "../Pong/Player.js";
 import { Ref } from "../Pong/Tournament.js";
 import { app, clients, game, registeredClients } from "../server.js";
-import { Client, registeredTournament } from "./webSocket.js";
+import { a_game_is_already_running, Client, registeredTournament } from "./webSocket.js";
 import * as SC from "../Blockchain/SC_interact.js";
 
 function handleGetApi(): void {
@@ -88,6 +88,10 @@ function handleTournamentInit() {
 		}
 		else if (registeredTournament.size < 2) {
 			return reply.status(400).send({type: "error", error: "Not enought player in tournament to launch."});	
+		}
+		if (a_game_is_already_running())
+		{
+			return reply.status(400).send({type: "error", error: "Wait for the game to end."});
 		}
 		else {
 			game.launchTournament(registeredTournament);

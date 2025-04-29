@@ -23,31 +23,56 @@ export interface Client {
 
 export const registeredTournament: Map<string, Player> = new Map();
 
-function registerToTournament(id: string): void {
+
+export function a_game_is_already_running(): boolean
+{
+	if (game.getGame() && (game.getSolo()))
+	{
+		return true;
+	}
+	return false;
+}
+
+
+function registerToTournament(id: string): void
+{
 	const client: Client | undefined = registeredClients.get(id);
-	if (client) {
-		if (registeredTournament.get(id)) {
+	if (client)
+	{
+		if (registeredTournament.get(id))
+		{
 			clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "You are already registered."}));
 		}
-		else {
+		else
+		{
 			const player: Player = client.player;
 			registeredTournament.set(id, player);
 			// player.register pour set le name a recuperer dans la database
 		}
 	}
-	else {
+	else
+	{
 		clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "You must be registered."}));
 	}
 }
 
-function launchTournament(id: string): void {
-	if (game.getTournament().isLaunched()) {
+function launchTournament(id: string): void
+{
+	if (game.getTournament().isLaunched())
+	{
 		clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "A tournament is already launched."}));
 	}
-	else if (registeredTournament.size < 2) {
+	else if (registeredTournament.size < 2)
+	{
 		clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "Not enought player in tournament to launch."}));
 	}
-	else {
+	else
+	{
+		if (a_game_is_already_running())
+		{
+			clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "A game is already running."}));
+			return ;
+		}
 		game.launchTournament(registeredTournament);
 	}
 }
@@ -271,7 +296,10 @@ async function tryJoin(clientID: string, message: string | Buffer<ArrayBufferLik
 		return;
 	}
 
-	//! VERIF SI UNE GAME EST EN COURS
+	if (a_game_is_already_running())
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Wait until the current game is finished");
+	}
 
 	const joiner_id = joiner.player.getDBId();
 	const joined_id = joined.player.getDBId();
@@ -289,7 +317,6 @@ async function tryJoin(clientID: string, message: string | Buffer<ArrayBufferLik
 
 		let match: Ref<Match> = {value: new Match(joiner.player, joined.player, 0)};
 		game.launchGame(match);
-
 	}
 	else
 	{
