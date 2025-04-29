@@ -32,6 +32,9 @@ reset:
 	docker system prune -af --volumes
 	docker compose up --build
 
+init: certs env
+	@echo "You should feed your .env !"
+
 certs:
 	mkdir -p certs
 
