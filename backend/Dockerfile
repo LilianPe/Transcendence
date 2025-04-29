@@ -1,7 +1,8 @@
 FROM node:20
-
 WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 EXPOSE 4500
-
-# COPY . .
-# RUN mkdir -p dist/Blockchain && cp src/Blockchain/TournamentScores.json dist/Blockchain/
+CMD ["node", "dist/server.js"]
