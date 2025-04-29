@@ -8,17 +8,14 @@ import fastify from "fastify";
 // Partie serveur
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// --------------https--------------
-// import fs from "fs";
-// certificat ssl
-// const options = {
-//     https: {
-//         key: fs.readFileSync(path.join(__dirname, "../certs/localhost+2-key.pem")),
-//         cert: fs.readFileSync(path.join(__dirname, "../certs/localhost+2.pem")),
-//     },
-// };
-// ---------------------------------
-const app = fastify( /*options*/);
+import fs from "fs";
+const options = {
+    https: {
+        key: fs.readFileSync(path.join("/tmp/ssl/transcendence.key")),
+        cert: fs.readFileSync(path.join("/tmp/ssl/transcendence.crt")),
+    },
+};
+const app = fastify(options);
 app.register(fastifyStatic, {
     root: path.join(__dirname, "../dist"), // Chemin vers le dossier dist
     prefix: "/dist/", // Préfixe pour accéder aux fichiers

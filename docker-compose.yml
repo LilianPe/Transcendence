@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./frontend:/app
+      - ./certs:/tmp/ssl:ro
     ports:
       - "3000:3000"
     networks:
@@ -22,6 +23,7 @@ services:
     volumes:
       - ./backend:/app
       - shared-data:/vault/token/
+      - ./certs:/tmp/ssl:ro
     working_dir: /app
     networks:
       - webnet
@@ -35,9 +37,10 @@ services:
     cap_add:
       - IPC_LOCK
     environment:
-      VAULT_ADDR: http://localhost:8300
+      VAULT_ADDR: https://localhost:8300
     volumes:
       - shared-data:/vault/token/
+      - ./certs:/tmp/ssl:ro
     networks:
       - webnet
   waf:
@@ -48,6 +51,8 @@ services:
       - "3100:6000"
     networks:
       - webnet
+    volumes:
+      - ./certs:/tmp/ssl:ro
     depends_on:
       - frontend
       - backend

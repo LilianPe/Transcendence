@@ -3,7 +3,7 @@ import { LogLevel, LogType } from "././logger/normalization.js";
 import { registerHooks } from "./logger/hook.js";
 import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
-import { promises as fs } from 'fs';
+import { promises } from 'fs';
 import { join } from 'path';
 import { checkUserID, checkUserMAIL, createUser, getAvatar, getDefeats, getPseudo, getVictories, setAvatar } from './Database/requests.js';
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
@@ -11,25 +11,22 @@ import { handleApiRequest } from "./Server/api.js";
 import { allowCors } from "./Server/cors.js";
 import { Client, handleWebsocket } from "./Server/webSocket.js";
 
-// -------Pour le https-------------
-//
-// import fs from "fs";
-// import path from "path";
-// import { fileURLToPath } from "url";
 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// const options = {
-//     https: {
-//         key: fs.readFileSync(path.join(__dirname, "../certs/localhost+2-key.pem")),
-//         cert: fs.readFileSync(path.join(__dirname, "../certs/localhost+2.pem")),
-//     },
-// };
-//
-// ----------------------------------
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-export const app: FastifyInstance = fastify(/*options*/);
+const options = {
+    https: {
+        key: fs.readFileSync(path.join("/tmp/ssl/transcendence.key")),
+        cert: fs.readFileSync(path.join("/tmp/ssl/transcendence.crt")),
+    },
+};
+
+export const app: FastifyInstance = fastify(options);
 
 allowCors("https://localhost:3100", ["POST", "GET"], ["Content-Type", "X-Client-Id"]);
 handleApiRequest();
@@ -208,7 +205,7 @@ app.post('/upload-avatar', async (request, reply) => {
 
         const fileName = `${Date.now()}-${mail}.png`;
         const filePath = join(__dirname, 'Avatars', fileName);
-        await fs.writeFile(filePath, buffer);
+        await promises.writeFile(filePath, buffer);
 
         return reply.status(200).send({ message: 'OK', fileName });
     } catch (error) {

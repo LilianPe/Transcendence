@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import axios from 'axios';
 import { Player } from '../Pong/Player.js';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const { Database } = sqlite3;
 
@@ -67,7 +68,7 @@ export function getMailFromId(id: number, callback: (mail: string | null) => voi
     );
 }
 
-const VAULT_ADDR = 'http://hashicorp_vault:8300';
+const VAULT_ADDR = 'https://hashicorp_vault:8300';
 
 async function getVaultToken() {
     const token = await fs.readFile('/vault/token/root_token.txt', 'utf-8');

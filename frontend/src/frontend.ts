@@ -18,7 +18,7 @@ const unblock_button	= document.getElementById("profile_unblock") as HTMLButtonE
 export type Ref<T> = {value: T};
 
 // WebSocket connection
-export const ws = new WebSocket("ws://localhost:4500/ws");
+export const ws = new WebSocket("wss://localhost:4500/ws");
 export const id: Ref<string> = {value: ""}; 
 handleWebSocket(id);
 
@@ -115,26 +115,6 @@ function updateMoves() {
 // setInterval(updateMoves, 1000 / 60)
 requestAnimationFrame(updateMoves);
 
-// gestion de l'envoie du formulaire
-// const form: HTMLFormElement = document.getElementById("form") as HTMLFormElement;
-// form.addEventListener("submit", async (e) => {
-//     e.preventDefault();
-
-//     const usernameInput: HTMLInputElement = document.getElementById("username") as HTMLInputElement;
-//     const username: string = usernameInput.value;
-
-//     const response = await fetch("http://localhost:4500/register", {
-//         method: "POST",
-//         headers: {
-//             "Content-Type": "application/json",
-//             "X-Client-Id": id.value,
-//         },
-//         body: JSON.stringify({ username }),
-//     });
-//     const result = await response.json();
-//     console.log(result.message);
-// });
-
 const signupForm: HTMLFormElement = document.getElementById("signup-form") as HTMLFormElement;
 signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -145,7 +125,7 @@ signupForm.addEventListener("submit", async (e) => {
     const mail: string = mailInput.value;
     const password: string = passwordInput.value;
     
-    const response = await fetch("http://localhost:4500/inscription", {
+    const response = await fetch("https://localhost:4500/inscription", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -165,7 +145,7 @@ signinForm.addEventListener("submit", async (e) => {
     const mail: string = mailInput.value;
     const password: string = passwordInput.value;
 
-    const response = await fetch("http://localhost:4500/connexion", {
+    const response = await fetch("https://localhost:4500/connexion", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -207,7 +187,7 @@ signinForm.addEventListener("submit", async (e) => {
 
 export async function printPersonalsElements(mail: string)
 {
-    const response = await fetch("http://localhost:4500/info", {
+    const response = await fetch("https://localhost:4500/info", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -345,7 +325,7 @@ avatarInput.addEventListener("change", async () => {
                 avatar: base64Image,
                 mail: email,
             };
-            const response = await fetch("http://localhost:4500/upload-avatar", {
+            const response = await fetch("https://localhost:4500/upload-avatar", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
