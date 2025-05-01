@@ -67,40 +67,6 @@ export function getMailFromId(id: number, callback: (mail: string | null) => voi
     );
 }
 
-const VAULT_ADDR = 'http://hashicorp_vault:8300';
-
-async function getVaultToken() {
-    const token = await fs.readFile('/vault/token/root_token.txt', 'utf-8');
-    return token.trim();
-  }
-
-async function storePasswordInVault(mail: string, password: string) {
-    const VAULT_TOKEN = await getVaultToken();
-    const path = `secret/data/users/${mail}`;
-    const url = `${VAULT_ADDR}/v1/${path}`;
-
-  try {
-    await axios.post(
-      url,
-      {
-        data: {
-          password: password
-        }
-      },
-      {
-        headers: {
-          "X-Vault-Token": VAULT_TOKEN,
-        }
-      }
-    );
-    console.log(`Mot de passe stocké dans Vault pour ${mail}`);
-  } catch (error: any) {
-    console.error('Erreur lors du stockage dans Vault:', error.response?.data || error.message);
-    throw error;
-  }
-}
-
-
 export async function createUser(mail: string, password: string, pseudo: string) {
 	const db = openDatabase();
     
@@ -108,6 +74,7 @@ export async function createUser(mail: string, password: string, pseudo: string)
 	  db.run(`CREATE TABLE IF NOT EXISTS user (
 		  id INTEGER PRIMARY KEY AUTOINCREMENT,
 		  mail TEXT NOT NULL UNIQUE,
+		  password TEXT NOT NULL,
 		  pseudo TEXT,
 		  avatar TEXT,
 		  victories INTEGER DEFAULT 0,
@@ -120,16 +87,11 @@ export async function createUser(mail: string, password: string, pseudo: string)
 		  }
 	  });
   
-	  db.run(`INSERT INTO user (mail, pseudo) VALUES (?, ?)`, [mail, pseudo], async function(err) {
+	  db.run(`INSERT INTO user (mail, password, pseudo) VALUES (?, ?, ?)`, [mail, password, pseudo], async function(err) {
 		  if (err) {
 			  console.error('Erreur insertion user:', err.message);
 		  } else {
 			  console.log(`User ${pseudo} inséré avec ID ${this.lastID}`);
-			  try {
-				await storePasswordInVault(mail, password);
-			  } catch (vaultError) {
-				console.error('Erreur lors du stockage du mot de passe dans Vault');
-			  }
 		  }
 		  db.close();
 	  });
@@ -144,80 +106,49 @@ interface UserRow {
     defeats: number;
     victories: number;
 }
-
-async function getPasswordFromVault(email: string): Promise<string | null> {
-	const path = `secret/data/users/${email}`;
-	const url = `${VAULT_ADDR}/v1/${path}`;
-    const VAULT_TOKEN = await getVaultToken();
-
-	try {
-	  const response = await axios.get(url, {
-		headers: {
-		  "X-Vault-Token": VAULT_TOKEN,
-		}
-	  });
-	  const password = response.data.data.data.password;
-	  return password;
-	} catch (error: any) {
-	  if (error.response?.status === 404) {
-		console.error('Mot de passe non trouvé pour cet email.');
-		return null;
-	  }
-	  console.error('Erreur de récupération Vault:', error.response?.data || error.message);
-	  throw error;
-	}
-  }
   
 export function checkUserID(mail: string, password: string, callback: (isValid: boolean) => void) {
-  const db = openDatabase();
-
-  db.serialize(() => {
-    db.run(
-      `CREATE TABLE IF NOT EXISTS user (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        mail TEXT NOT NULL UNIQUE,
-        pseudo TEXT,
-        avatar TEXT,
-        victories INTEGER DEFAULT 0,
-        defeats INTEGER DEFAULT 0
-      )`,
-      (err) => {
-        if (err) {
-          console.error('Erreur création table:', err.message);
-          callback(false);
-          db.close();
-          return;
-        }
-
-        db.get(`SELECT * FROM user WHERE mail = ?`, [mail], async (err, row) => {
-          if (err) {
-            console.error('Erreur recherche utilisateur:', err.message);
-            callback(false);
-          } else if (!row) {
-            console.log('Utilisateur non trouvé.');
-            callback(false);
-          } else {
-            console.log('Utilisateur trouvé, récupération du mot de passe...');
-            try {
-              const storedPassword = await getPasswordFromVault(mail);
-              if (!storedPassword) {
-                callback(false);
-                return;
-              }
-              const isMatch = (storedPassword === password);
-              callback(isMatch);
-            } catch (error) {
-              console.error('Erreur Vault:', error);
-              callback(false);
-            }
-          }
-          db.close();
-        });
-      }
-    );
-  });
-}
-
+	const db = openDatabase();
+  
+	db.serialize(() => {
+	  db.run(
+		`CREATE TABLE IF NOT EXISTS user (
+		  id INTEGER PRIMARY KEY AUTOINCREMENT,
+		  mail TEXT NOT NULL UNIQUE,
+		  password TEXT NOT NULL,
+		  pseudo TEXT,
+		  avatar TEXT,
+		  victories INTEGER DEFAULT 0,
+		  defeats INTEGER DEFAULT 0
+		)`,
+		(err) => {
+		  if (err) {
+			console.error('Erreur création table:', err.message);
+			callback(false);
+			db.close();
+			return;
+		  }
+		  db.get(`SELECT password FROM user WHERE mail = ?`, [mail], (err, row: { password: string } | undefined) => {
+			if (err) {
+			  console.error('Erreur recherche utilisateur:', err.message);
+			  callback(false);
+			} else if (!row) {
+			  console.log('Utilisateur non trouvé.');
+			  callback(false);
+			} else {
+			  if (row.password === password) {
+				callback(true);
+			  } else {
+				callback(false);
+			  }
+			}
+			db.close();
+		  });
+		}
+	  );
+	});
+  }
+  
 
 export function checkUserMAIL(mail: string, callback: (isValid: boolean) => void) {
 	
@@ -227,6 +158,7 @@ export function checkUserMAIL(mail: string, callback: (isValid: boolean) => void
           `CREATE TABLE IF NOT EXISTS user (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             mail TEXT NOT NULL UNIQUE,
+			password TEXT NOT NULL,
             pseudo TEXT,
             avatar TEXT,
             victories INTEGER DEFAULT 0,

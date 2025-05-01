@@ -13,6 +13,7 @@ const db = new Database(path.join('db.sqlite'), (err) => {
 db.run(`CREATE TABLE IF NOT EXISTS user (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
     mail TEXT NOT NULL,
+	password TEXT NOT NULL,
     pseudo TEXT,
     avatar TEXT,
     victories INTEGER DEFAULT 0,
