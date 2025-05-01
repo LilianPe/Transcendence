@@ -25,11 +25,33 @@ curl -s -X PUT "https://elasticsearch:9200/_snapshot/my_fs_backup" \
     }
   }' \
   && echo " ✓ Repository created" \
-  || echo " ℹ️  Repository may already exist, continuing…"
+  || echo " ℹ️ Repository may already exist, continuing…"
 
-# … after registering snapshot repository …
+# 3) Create Snapshot Lifecycle Policy (SLM)
+echo "🕒 Creating SLM policy 'weekly-snapshots'…"
+curl -s -X PUT "https://elasticsearch:9200/_slm/policy/weekly-snapshots" \
+  -u "elastic:${ELASTIC_PASSWORD}" \
+  --cacert /usr/share/kibana/config/certs/ca.crt \
+  -H "Content-Type: application/json" \
+  -d '{
+    "schedule": "0 30 1 ? * SUN",
+    "name":      "<snapshot-{now/d}>",
+    "repository":"my_fs_backup",
+    "config": {
+      "indices":            ["*"],
+      "ignore_unavailable": true,
+      "include_global_state": false
+    },
+    "retention": {
+      "expire_after": "30d",
+      "min_count":     5,
+      "max_count":     50
+    }
+  }' \
+  && echo " ✅ SLM policy created" \
+  || echo " ⚠️ SLM policy may already exist, continuing…"
 
-# 𝄞 Install ILM policy
+# 4) Install ILM policy
 echo "🔧 Installing ILM policy 'logs_retention'…"
 curl -s -X PUT "https://elasticsearch:9200/_ilm/policy/logs_retention" \
   -u "elastic:${ELASTIC_PASSWORD}" \
@@ -39,10 +61,7 @@ curl -s -X PUT "https://elasticsearch:9200/_ilm/policy/logs_retention" \
   && echo " ✓ logs_retention policy created" \
   || echo " ℹ️ logs_retention already exists, skipping…"
 
-# … then set kibana_system password & launch Kibana as before
-
-
-# 3) Set kibana_system password
+# 5) Set kibana_system password
 echo "🔐 Setting kibana_system password…"
 curl -s -X POST "https://elasticsearch:9200/_security/user/kibana_system/_password" \
   -u "elastic:${ELASTIC_PASSWORD}" \
@@ -51,6 +70,6 @@ curl -s -X POST "https://elasticsearch:9200/_security/user/kibana_system/_passwo
   -d "{\"password\":\"${ELASTIC_PASSWORD}\"}" \
   && echo " ✓ kibana_system password set"
 
-# 4) Launch Kibana
+# 6) Launch Kibana
 echo "🚀 Launching Kibana…"
 exec /usr/local/bin/kibana-docker
