@@ -30,8 +30,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const contractJson = JSON.parse(readFileSync(join(__dirname, './TournamentScores.json'), 'utf-8'));
-
+const contractJson = JSON.parse(readFileSync(join('/app/src/Blockchain/TournamentScores.json'), 'utf-8'));
 
 
 dotenv.config();
@@ -112,14 +111,13 @@ export async function SC_getTime( tournament_id: number )
 export async function getStatusInBlockchain( tournaments_count: number )
 {
 	console.log("WHAT IS IN THE BLOCKCHAIN :");
-	for (let i = 0; i < tournaments_count; i++)
-	{
-		console.log("");
-		console.log(i);
-		SC_getPlayers( i );
-		SC_getScores( i );
-		SC_getTime( i );
-	}
+
+	console.log("");
+	console.log( tournaments_count );
+	SC_getPlayers( tournaments_count );
+	SC_getScores( tournaments_count );
+	SC_getTime( tournaments_count );
+
 	console.log("");
 }
 

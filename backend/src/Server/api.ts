@@ -5,6 +5,7 @@ import { Player } from "../Pong/Player.js";
 import { Ref } from "../Pong/Tournament.js";
 import { app, clients, game, registeredClients } from "../server.js";
 import { registeredTournament } from "./webSocket.js";
+import * as SC from "../Blockchain/SC_interact.js";
 
 function isCorrectId(id :string): boolean {
 	if (clients.get(id)) {
@@ -151,9 +152,54 @@ function handlePostApi(): void {
 	handlePlayerMoves();
 	handleGameInit();
 	handleTournamentInit();
+	handleBlockchain();
 }
 
 export function handleApiRequest(): void {
 	handleGetApi();
 	handlePostApi();
 }
+
+
+
+// blockchain
+
+function handleBlockchain(): void
+{
+	app.post("/blockchain", async (req, reply) =>
+		{
+			logToELK({
+				level: LogLevel.INFO,
+				message: "request post at /blockchain",
+				service: "backend",
+				type: LogType.REQUEST,
+				timestamp: new Date().toISOString(),
+		});
+
+		const userpass: string | string[] | undefined = req.headers['x-api-password'];
+		if (!userpass) {
+			return reply.status(403).send({type: "error", error:`Access denied, missing password in header x-api-password.`});
+		}
+		if (Array.isArray(userpass)) {
+			return reply.status(400).send({type: "error", error:`Access denied, please enter only 1 password.`});
+		}
+		if (!isCorrectId(userpass)) {
+			return reply.status(403).send({type: "error", error:`Access denied.`});
+		}
+
+		const { tournamentid } = req.body as { tournamentid: string; };
+
+		const tournamentIdNum = parseInt(tournamentid, 10);
+
+		if (isNaN(tournamentIdNum)) {
+			return reply.status(400).send({ error: "Invalid tournamentid" });
+		}
+
+		if (tournamentIdNum >= 0)
+			return { message: SC.getStatusInBlockchain(tournamentIdNum) };
+		else
+			return reply.status(400).send({ error: "Invalid tournamentid" });
+	});
+}
+
+

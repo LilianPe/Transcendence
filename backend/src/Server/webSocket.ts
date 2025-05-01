@@ -10,7 +10,9 @@ import { app, clients, game, registeredClients } from "../server.js";
 import { WebSocket } from "ws";
 
 import * as DB from "../Database/requests.js";
+import { Match } from "../Pong/Match.js";
 
+import { Ref, Tournament } from "../Pong/Tournament.js";
 
 const invitations: Map<number, number> = new Map<number, number>();
 
@@ -20,6 +22,15 @@ export interface Client {
 }
 
 export const registeredTournament: Map<string, Player> = new Map();
+
+export function a_game_is_already_running(): boolean
+{
+	if (game.getGame() && (game.getSolo()))
+	{
+		return true;
+	}
+	return false;
+}
 
 function registerToTournament(id: string): void {
 	const client: Client | undefined = registeredClients.get(id);
@@ -38,14 +49,23 @@ function registerToTournament(id: string): void {
 	}
 }
 
-function launchTournament(id: string): void {
-	if (game.getTournament().isLaunched()) {
+function launchTournament(id: string): void
+{
+	if (game.getTournament().isLaunched())
+	{
 		clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "A tournament is already launched."}));
 	}
-	else if (registeredTournament.size < 2) {
+	else if (registeredTournament.size < 2)
+	{
 		clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "Not enought player in tournament to launch."}));
 	}
-	else {
+	else
+	{
+		if (a_game_is_already_running())
+		{
+			clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "A game is already running."}));
+			return ;
+		}
 		game.launchTournament(registeredTournament);
 	}
 }
@@ -267,6 +287,11 @@ async function tryJoin(clientID: string, message: string | Buffer<ArrayBufferLik
 		return;
 	}
 
+	if (a_game_is_already_running())
+	{
+		sendToClientSocket(clientID, "LIVECHAT", "Wait until the current game is finished");
+	}
+
 	const joiner_id = joiner.player.getDBId();
 	const joined_id = joined.player.getDBId();
 
@@ -281,10 +306,8 @@ async function tryJoin(clientID: string, message: string | Buffer<ArrayBufferLik
 
 		invitations.delete(joined.player.getDBId());
 
-		//! OUI C EST ici ↓ ca veut pas à l aide :'(
-		// objectif : start un match entre "joiner.player" et "joined.player"
-		// let match = new Match(joiner.player, joined.player);
-		// game.launchGame(match);
+		let match: Ref<Match> = {value: new Match(joiner.player, joined.player)};
+		game.launchGame(match);
 	}
 	else
 	{

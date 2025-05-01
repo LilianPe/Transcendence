@@ -3,10 +3,11 @@ import { clients, registeredClients } from "../server.js";
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 import { Tournament } from "./Tournament.js";
-// import * as SC from "../Blockchain/SC_interact.js"; //!
+import * as SC from "../Blockchain/SC_interact.js";
 // import { getUserFromDB } from "../Database/requests.js"
 export class ServerSidePong {
     constructor() {
+        this.soloMatchRunning = false;
         this.running = 0;
         this.tournament = new Tournament(undefined);
         this.game = new Game(new Player(""), new Player(""));
@@ -35,6 +36,7 @@ export class ServerSidePong {
                 if (match) {
                     // console.log(`Player1: ${match.value.getPlayer1().getId()} | Player2: ${match.value.getPlayer2().getId()}`)			
                     this.launchGame(match);
+                    this.launchSolo();
                 }
                 else {
                     clients.forEach((value, key) => {
@@ -89,6 +91,15 @@ export class ServerSidePong {
         }
         this.tournament.launch();
     }
+    launchSolo() {
+        this.soloMatchRunning = true;
+    }
+    stopSolo() {
+        this.soloMatchRunning = false;
+    }
+    getSolo() {
+        return this.soloMatchRunning;
+    }
     endTournament() {
         // Envoyer a la blockchain les resultats du tournois
         /*
@@ -132,7 +143,7 @@ export class ServerSidePong {
         }
         console.log("ids:", player_ids);
         console.log("scores:", scores);
-        // SC.SC_addTournament( player_ids, scores );
+        SC.SC_addTournament(player_ids, scores);
         // SC.getStatusInBlockchain( 1 );
         this.tournament.stop();
         this.resetNextMatch("???");
