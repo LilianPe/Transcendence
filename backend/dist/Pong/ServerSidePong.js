@@ -3,6 +3,7 @@ import { clients, registeredClients } from "../server.js";
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 import { Tournament } from "./Tournament.js";
+// import * as SC from "../Blockchain/SC_interact.js";
 // import { getUserFromDB } from "../Database/requests.js"
 export class ServerSidePong {
     constructor() {
