@@ -41,7 +41,7 @@ export function handleWebSocket(id: Ref<string>) {
 		const content: message = JSON.parse(event.data);
 		if (content.type == "clientId") {
 			id.value = content.clientId;
-			console.log("My ID is: " + id.value);
+			console.log("Your id is: " + id.value + " you can use it as password for the api.");
 		}
 		if (content.type == "nextMatch") {
 			displayNextMatch(content.nextMatch);

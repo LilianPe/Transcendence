@@ -10,9 +10,7 @@ import { app, clients, game, registeredClients } from "../server.js";
 import { WebSocket } from "ws";
 
 import * as DB from "../Database/requests.js";
-import { Match } from "../Pong/Match.js";
 
-import { Ref, Tournament } from "../Pong/Tournament.js";
 
 const invitations: Map<number, number> = new Map<number, number>();
 
@@ -399,7 +397,10 @@ export function handleWebsocket(): void {
 	app.register(async function (fastify) {
 		fastify.get("/ws", { websocket: true }, (socket: SocketStream, req: FastifyRequest) => {
 			logToELK(createLogEntry(LogLevel.INFO, LogType.REQUEST, "🔌 WS Connected from " + req.ip));
-			const clientID: string = crypto.randomUUID();
+			let clientID: string = crypto.randomUUID();
+			while (clients.get(clientID)) {
+				clientID = crypto.randomUUID();
+			} 
 			const client: Client = {
 				player: new Player(clientID),
 				socketStream: socket

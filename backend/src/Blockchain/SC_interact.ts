@@ -19,12 +19,12 @@ clearALL()
 
 */
 
-import { ethers } from "ethers"; // pour interagir avec des SC
 import * as dotenv from "dotenv"; // pour get le .env
+import { ethers } from "ethers"; // pour interagir avec des SC
 
 // MODULES to read JSON (because changing tsconfig.json would break all the project)
 import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
+import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);

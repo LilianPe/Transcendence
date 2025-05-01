@@ -4,7 +4,14 @@ import { Match } from "../Pong/Match.js";
 import { Player } from "../Pong/Player.js";
 import { Ref } from "../Pong/Tournament.js";
 import { app, clients, game, registeredClients } from "../server.js";
-import { Client, registeredTournament } from "./webSocket.js";
+import { registeredTournament } from "./webSocket.js";
+
+function isCorrectId(id :string): boolean {
+	if (clients.get(id)) {
+		return true;
+	}
+	return false;
+}
 
 function handleGetApi(): void {
 	app.get("/game/state", async (req, reply) => {
@@ -15,6 +22,16 @@ function handleGetApi(): void {
 			type: LogType.REQUEST,
 			timestamp: new Date().toISOString(),
 		});
+		const userpass: string | string[] | undefined = req.headers['x-api-password'];
+		if (!userpass) {
+			return reply.status(403).send({type: "error", error:`Access denied, missing password in header x-api-password.`});
+		}
+		if (Array.isArray(userpass)) {
+			return reply.status(400).send({type: "error", error:`Access denied, please enter only 1 password.`});
+		}
+		if (!isCorrectId(userpass)) {
+			return reply.status(403).send({type: "error", error:`Access denied.`});
+		  }
 		return game.getState();
 	});
 }
@@ -28,7 +45,21 @@ function handlePlayerMoves(): void {
 			type: LogType.REQUEST,
 			timestamp: new Date().toISOString(),
 		});
+		const userpass: string | string[] | undefined = req.headers['x-api-password'];
+		if (!userpass) {
+			return reply.status(403).send({type: "error", error:`Access denied, missing password in header x-api-password.`});
+		}
+		if (Array.isArray(userpass)) {
+			return reply.status(400).send({type: "error", error:`Access denied, please enter only 1 password.`});
+		}
+		if (!isCorrectId(userpass)) {
+			return reply.status(403).send({type: "error", error:`Access denied.`});
+		  }
 		
+		if (!req.body) {
+			return reply.status(400).send({ error: "Missing playerId and direction" });
+		}
+
 		const { playerId, direction } = req.body as { playerId: string; direction: string };
 
 		if (!playerId || !direction) {
@@ -63,6 +94,16 @@ function handlePlayerMoves(): void {
 // A refaire selon le systeme de tournois
 function handleGameInit() {
 	app.post("/game/init/game", async (req, reply) => {
+		const userpass: string | string[] | undefined = req.headers['x-api-password'];
+		if (!userpass) {
+			return reply.status(403).send({type: "error", error:`Access denied, missing password in header x-api-password.`});
+		}
+		if (Array.isArray(userpass)) {
+			return reply.status(400).send({type: "error", error:`Access denied, please enter only 1 password.`});
+		}
+		if (!isCorrectId(userpass)) {
+			return reply.status(403).send({type: "error", error:`Access denied.`});
+		  }
         if (game.getGame().getRound().isRunning()) return reply.status(409).send({type: "error", error: "A game is already running."});
         else if (!game.getTournament().isLaunched()) return reply.status(400).send({type: "error", error: "No tournament launched."});
         else if (registeredTournament.size < 2) return reply.status(400).send({type: "error", error: "Not enought player registered to tournament."});
@@ -82,6 +123,17 @@ function handleGameInit() {
 
 function handleTournamentInit() {
 	app.post("/game/init/tournament", async (req, reply) => {
+		
+		const userpass: string | string[] | undefined = req.headers['x-api-password'];
+		if (!userpass) {
+			return reply.status(403).send({type: "error", error:`Access denied, missing password in header x-api-password.`});
+		}
+		if (Array.isArray(userpass)) {
+			return reply.status(400).send({type: "error", error:`Access denied, please enter only 1 password.`});
+		}
+		if (!isCorrectId(userpass)) {
+			return reply.status(403).send({type: "error", error:`Access denied.`});
+		  }
 		if (game.getTournament().isLaunched()) {
 			return reply.status(409).send({type: "error", error: "A tournament is already launched."});	
 		}
