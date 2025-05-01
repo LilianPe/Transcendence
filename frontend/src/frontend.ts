@@ -52,11 +52,6 @@ function lerp(start: number, end: number, alpha: number): number {
     return start + (end - start) * alpha;
 }
 
-// render en 60 fps grace a requestAnimationFrame
-// lerp sert a rendre le mouvement plus smooth
-// plutot que d'aller de A a B, donne un nombre un peut avant B
-// rend les mouvements plus fluides.
-
 function render(): void {
 	if (!online) {
         const currentState: GameState = game.getState();
@@ -115,26 +110,6 @@ function updateMoves() {
 // setInterval(updateMoves, 1000 / 60)
 requestAnimationFrame(updateMoves);
 
-// gestion de l'envoie du formulaire
-// const form: HTMLFormElement = document.getElementById("form") as HTMLFormElement;
-// form.addEventListener("submit", async (e) => {
-//     e.preventDefault();
-
-//     const usernameInput: HTMLInputElement = document.getElementById("username") as HTMLInputElement;
-//     const username: string = usernameInput.value;
-
-//     const response = await fetch("http://localhost:4500/register", {
-//         method: "POST",
-//         headers: {
-//             "Content-Type": "application/json",
-//             "X-Client-Id": id.value,
-//         },
-//         body: JSON.stringify({ username }),
-//     });
-//     const result = await response.json();
-//     console.log(result.message);
-// });
-
 const signupForm: HTMLFormElement = document.getElementById("signup-form") as HTMLFormElement;
 signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -171,7 +146,7 @@ signinForm.addEventListener("submit", async (e) => {
             "Content-Type": "application/json",
             "X-Client-Id": id.value,
         },
-        body: JSON.stringify({ mail, password }),
+        body: JSON.stringify({ "mail": mail, "password": password }),
     });
     const result = await response.json();
     if (result.message === "OK")
