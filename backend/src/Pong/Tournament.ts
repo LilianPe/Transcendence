@@ -55,7 +55,7 @@ export class Tournament {
 			}
 		}
 		if (player1) {
-			const s = player2 ? player2.getId() : "undef";
+			const s: string = player2 ? player2.getId() : "undef";
 			console.log(`New match created: Player1: ${player1.getId()} | Player2: ${s}`);
 			this.matches.push(new Match(player1, player2));
 		}

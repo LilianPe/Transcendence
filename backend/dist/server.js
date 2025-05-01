@@ -41,25 +41,6 @@ export const game = new ServerSidePong();
 export const clients = new Map();
 export const registeredClients = new Map();
 handleWebsocket();
-// Registrations
-// app.post("/register", async (request, reply) => {
-//     const username: string = (request.body as { username: string }).username;
-// 	const id: string = request.headers["x-client-id"] as string;
-// 	console.log(`new registration request: ${username}`)
-//     if (!username) {
-//         return reply.status(400).send({message: "Username can't be blank"});
-//     }
-// 	const client: Client | undefined = clients.get(id);
-// 	if (client) {
-// 		client.player.register(username);
-// 		console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
-// 		registeredClients.set(id, client);
-// 		reply.send({message: `Inscription reussie pour ${username}`})
-// 	}
-// 	else {
-// 		reply.status(500).send({message: "Internal Error"});
-// 	}
-// });
 // Inscription
 app.post("/inscription", async (request, reply) => {
     const pseudo = request.body.pseudo;

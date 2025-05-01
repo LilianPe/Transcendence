@@ -18,7 +18,7 @@ const unblock_button	= document.getElementById("profile_unblock") as HTMLButtonE
 export type Ref<T> = {value: T};
 
 // WebSocket connection
-export const ws = new WebSocket("wss://localhost:4500/ws");
+export const ws: WebSocket = new WebSocket("wss://localhost:4500/ws");
 export const id: Ref<string> = {value: ""}; 
 handleWebSocket(id);
 
@@ -46,7 +46,7 @@ export const errorMessage: HTMLParagraphElement = document.getElementById(
 	"LaunchError"
 ) as HTMLParagraphElement;
 
-let lastUpdateTime = performance.now();
+let lastUpdateTime: number = performance.now();
 
 function lerp(start: number, end: number, alpha: number): number {
     return start + (end - start) * alpha;
@@ -70,12 +70,12 @@ function render(): void {
         canvasContext.fillRect(currentState.ballX, currentState.ballY, 10, 10);
 	}
     else if (currentState && targetState) {
-        const now = performance.now();
-        const deltaTime = (now - lastUpdateTime) / (1000 / 60); // Normalisé à 60 FPS
+        const now: number = performance.now();
+        const deltaTime: number = (now - lastUpdateTime) / (1000 / 60); // Normalisé à 60 FPS
         lastUpdateTime = now;
 
-        const interpolationSpeed = 0.865; // Vitesse de base (ajustable)
-        const alpha = Math.min(1, interpolationSpeed * deltaTime);
+        const interpolationSpeed: number = 0.865; // Vitesse de base (ajustable)
+        const alpha: number = Math.min(1, interpolationSpeed * deltaTime);
         // Interpolation
         currentState.ballX = lerp(currentState.ballX, targetState.ballX, alpha);
         currentState.ballY = lerp(currentState.ballY, targetState.ballY, alpha);
@@ -100,7 +100,7 @@ function render(): void {
 requestAnimationFrame(render);
 
 handleKeyPress();
-function updateMoves() {
+function updateMoves(): void {
 	if (online) {
 		if (keys.w) ws.send(PlayerMoves.MoveUp);
 		if (keys.s) ws.send(PlayerMoves.MoveDown);

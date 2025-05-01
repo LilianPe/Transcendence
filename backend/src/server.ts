@@ -4,6 +4,7 @@ import { registerHooks } from "./logger/hook.js";
 import { logToELK } from "./logger/logToElk.js";
 // @ts-ignore
 import { promises } from 'fs';
+import type { ServerOptions } from "https";
 import { join } from 'path';
 import { checkUserID, checkUserMAIL, createUser, getAvatar, getDefeats, getPseudo, getVictories, setAvatar } from './Database/requests.js';
 import { ServerSidePong } from "./Pong/ServerSidePong.js";
@@ -12,14 +13,15 @@ import { allowCors } from "./Server/cors.js";
 import { Client, handleWebsocket } from "./Server/webSocket.js";
 
 
+
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename: string = fileURLToPath(import.meta.url);
+const __dirname: string = path.dirname(__filename);
 
-const options = {
+const options: {https:ServerOptions} = {
     https: {
         key: fs.readFileSync(path.join("/tmp/ssl/transcendence.key")),
         cert: fs.readFileSync(path.join("/tmp/ssl/transcendence.crt")),
@@ -52,29 +54,6 @@ export const clients: Map<string, Client> = new Map();
 export const registeredClients: Map<string, Client> = new Map();
 
 handleWebsocket();
-
-// Registrations
-
-// app.post("/register", async (request, reply) => {
-//     const username: string = (request.body as { username: string }).username;
-// 	const id: string = request.headers["x-client-id"] as string;
-
-// 	console.log(`new registration request: ${username}`)
-//     if (!username) {
-//         return reply.status(400).send({message: "Username can't be blank"});
-//     }
-// 	const client: Client | undefined = clients.get(id);
-// 	if (client) {
-// 		client.player.register(username);
-// 		console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
-// 		registeredClients.set(id, client);
-// 		reply.send({message: `Inscription reussie pour ${username}`})
-// 	}
-// 	else {
-// 		reply.status(500).send({message: "Internal Error"});
-// 	}
-// });
-
 
 // Inscription
 
@@ -124,7 +103,7 @@ app.post("/connexion", async (request, reply) => {
         return reply.status(400).send({message: "Connexion failed"});
     }
 	const client: Client | undefined = clients.get(id);
-    const isValid = await new Promise<boolean>((resolve) => {
+    const isValid: boolean = await new Promise<boolean>((resolve) => {
         checkUserID(mail, password, resolve);
     });
     if (isValid) {
@@ -135,7 +114,7 @@ app.post("/connexion", async (request, reply) => {
 				client.socketStream.send(JSON.stringify({type: "error", error: "Already registered somewhere else."}));
 				return reply.status(400).send({message: "Already registered somewhere else."});
 			} 
-            const pseudo = await getPseudo(mail);
+            const pseudo: string | null = await getPseudo(mail);
             if (pseudo)
             {
                 client.player.register(pseudo, mail);
@@ -158,10 +137,10 @@ app.post("/connexion", async (request, reply) => {
 app.post("/info", async (request, reply) => {
     const mail: string = (request.body as { mail: string }).mail;
 	const id: string = request.headers["x-client-id"] as string;
-    const pseudoDB = await getPseudo(mail);
-    const victoriesDB = await getVictories(mail);
-    const avatarDB = await getAvatar(mail);
-    const defeatsDB = await getDefeats(mail);
+    const pseudoDB: string | null = await getPseudo(mail);
+    const victoriesDB: number | null = await getVictories(mail);
+    const avatarDB: string | null = await getAvatar(mail);
+    const defeatsDB: number | null = await getDefeats(mail);
 
 	console.log(`new information request: ${mail}`)
     if (!mail) {
@@ -174,12 +153,12 @@ app.post("/info", async (request, reply) => {
 
 app.post('/upload-avatar', async (request, reply) => {
     try {
-        const clientId = request.headers['x-client-id'] as string;
+        const clientId: string = request.headers['x-client-id'] as string;
         if (!clientId) {
             return reply.status(400).send({ error: 'Missing headers' });
         }
-        const { mail } = request.body as { mail: string };
-        const { avatar } = request.body as { avatar: string };
+        const { mail }: { mail: string } = request.body as { mail: string };
+        const { avatar }: { avatar: string } = request.body as { avatar: string };
         if (!avatar || !mail) {
             return reply.status(400).send({ error: 'Avatar or mail missing' });
         }
@@ -188,14 +167,14 @@ app.post('/upload-avatar', async (request, reply) => {
             return reply.status(400).send({ error: 'Invalid image format' });
         }
 
-        const base64Data = avatar.replace(/^data:image\/png;base64,/, '');
+        const base64Data: string = avatar.replace(/^data:image\/png;base64,/, '');
         try {
             Buffer.from(base64Data, 'base64');
         } catch {
             return reply.status(400).send({ error: 'Invalid base64 data' });
         }
 
-        const buffer = Buffer.from(base64Data, 'base64');
+        const buffer: Buffer<ArrayBuffer> = Buffer.from(base64Data, 'base64');
 
         try {
             setAvatar(mail, avatar);
@@ -203,8 +182,8 @@ app.post('/upload-avatar', async (request, reply) => {
             request.log.error('setAvatar failed:', error);
         }
 
-        const fileName = `${Date.now()}-${mail}.png`;
-        const filePath = join(__dirname, 'Avatars', fileName);
+        const fileName: string = `${Date.now()}-${mail}.png`;
+        const filePath: string = join(__dirname, 'Avatars', fileName);
         await promises.writeFile(filePath, buffer);
 
         return reply.status(200).send({ message: 'OK', fileName });

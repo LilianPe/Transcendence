@@ -1,5 +1,5 @@
-import { Player } from "./Player.js";
 import { AIMove, predictLandingY } from "../Offline/pongAiExecutor.js";
+import { Player } from "./Player.js";
 
 export class Ball {
     private x: number;
@@ -19,12 +19,12 @@ export class Ball {
     }
 
     public move(p1: Player, p2: Player): void {
-		const prevX = this.x;
-		const prevY = this.y;
+		const prevX: number = this.x;
+		const prevY: number = this.y;
         this.x += this.dx * this.speed;
         this.y += this.dy * this.speed;
-		const x = this.x;
-		const y = this.y;
+		const x: number = this.x;
+		const y: number = this.y;
 
         if (this.y <= 0) {
             this.y = 0;
@@ -79,7 +79,7 @@ export class Ball {
 				}
 				else {
 					if (Math.min(y, prevY) <= edgeY && edgeY <= Math.max(y, prevY)) {
-						const xOnEdge = (edgeY - originX) / coeff; // y = ax + b <=> (y - b) / a = x
+						const xOnEdge: number = (edgeY - originX) / coeff; // y = ax + b <=> (y - b) / a = x
 						return (xmin <= xOnEdge && xOnEdge <= xmax)
 					}
 				}
@@ -104,8 +104,8 @@ export class Ball {
     }
 
     private adjustAngle(playerY: number): void {
-        const relativeHitPoint = this.y - (playerY + 50);
-        const normalizedHitPoint = relativeHitPoint / 50;
+        const relativeHitPoint: number = this.y - (playerY + 50);
+        const normalizedHitPoint: number = relativeHitPoint / 50;
         this.dy = normalizedHitPoint * 1.5;
     }
 

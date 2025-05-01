@@ -17,14 +17,14 @@ interface message {
 export let currentState: GameState | null = null;
 export let targetState: GameState | null = null;
 export let tournamentWinner: string | undefined;
-function setWinner(winner: string) {
+function setWinner(winner: string): void {
 	tournamentWinner = winner;
 	setTimeout(() => {
 		tournamentWinner = undefined;
 	}, 1000);
 }
 
-export function handleWebSocket(id: Ref<string>) {
+export function handleWebSocket(id: Ref<string>):void {
 	ws.onopen = () => {
 		console.log("Connected to WebSocket server");
 	
@@ -66,7 +66,7 @@ export function handleWebSocket(id: Ref<string>) {
 		}
 		else if (content.type == "LIVECHAT_PROFILE")
 		{
-			const mail = content.error.toString();
+			const mail: string = content.error.toString();
 			let message = "Showing the profile linked to : " + mail;
 			if (content.error.toString().length === 0)
 			{

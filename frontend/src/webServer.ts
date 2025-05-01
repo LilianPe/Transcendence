@@ -1,10 +1,10 @@
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
-import path from "path";
-import { fileURLToPath } from "url"; // Pour remplacer __dirname
-// @ts-ignore
 import ejs from "ejs";
 import fastify, { FastifyInstance } from "fastify";
+import type { ServerOptions } from "https";
+import path from "path";
+import { fileURLToPath } from "url"; // Pour remplacer __dirname
 // Partie serveur
 
 const __filename: string = fileURLToPath(import.meta.url);
@@ -12,7 +12,7 @@ const __dirname: string = path.dirname(__filename);
 
 import fs from "fs";
 
-const options = {
+const options: {https:ServerOptions} = {
     https: {
         key: fs.readFileSync(path.join("/tmp/ssl/transcendence.key")),
         cert: fs.readFileSync(path.join("/tmp/ssl/transcendence.crt")),

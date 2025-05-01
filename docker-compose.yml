@@ -26,7 +26,6 @@ services:
       - "4500:4500"
     volumes:
       - ./backend:/app
-      - ./backend/src/Server/apiPassword.pass:/app/dist/Server/apiPassword.pass
       - shared-data:/vault/token/
       - ./certs/fullchain.crt:/tmp/ssl/transcendence.crt:ro
       - ./certs/transcendence.key:/tmp/ssl/transcendence.key:ro

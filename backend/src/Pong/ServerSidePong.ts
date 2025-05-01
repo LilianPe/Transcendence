@@ -122,10 +122,10 @@ export class ServerSidePong {
 			id_player1 = match.getPlayer1().getDBId();
 			id_player2 = match.getPlayer2().getDBId();
 
-			const winner = match.getWinner();
+			const winner: Player | undefined = match.getWinner();
 			if (winner === match.getPlayer1())
 			{
-				const currentScore = playerScores.get(id_player1) ?? 0;
+				const currentScore: number = playerScores.get(id_player1) ?? 0;
 				playerScores.set(id_player1, currentScore + 1);
 
 				// Perdant (ajouté à 0 si pas déjà là)
@@ -135,7 +135,7 @@ export class ServerSidePong {
 			}
 			else if (winner === match.getPlayer2())
 			{
-				const currentScore = playerScores.get(id_player2) ?? 0;
+				const currentScore: number = playerScores.get(id_player2) ?? 0;
 				playerScores.set(id_player2, currentScore + 1);
 
 				// Perdant (ajouté à 0 si pas déjà là)

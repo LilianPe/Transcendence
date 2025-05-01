@@ -1,10 +1,9 @@
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
-import path from "path";
-import { fileURLToPath } from "url"; // Pour remplacer __dirname
-// @ts-ignore
 import ejs from "ejs";
 import fastify from "fastify";
+import path from "path";
+import { fileURLToPath } from "url"; // Pour remplacer __dirname
 // Partie serveur
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

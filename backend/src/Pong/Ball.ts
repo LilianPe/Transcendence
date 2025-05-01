@@ -72,7 +72,7 @@ export class Ball {
 				}
 				else {
 					if (Math.min(y, prevY) <= edgeY && edgeY <= Math.max(y, prevY)) {
-						const xOnEdge = (edgeY - originX) / coeff; // y = ax + b <=> (y - b) / a = x
+						const xOnEdge: number = (edgeY - originX) / coeff; // y = ax + b <=> (y - b) / a = x
 						return (xmin <= xOnEdge && xOnEdge <= xmax)
 					}
 				}

@@ -20,7 +20,7 @@ export function drawRightPlayer(y: number, name: string): void {
 	canvasContext.strokeText(name, 575, 30);
 }
 
-export function displayScore(s1: number, s2: number) {
+export function displayScore(s1: number, s2: number): void {
 	canvasContext.font = "100px Arial";
 	canvasContext.strokeStyle = "white";
 	canvasContext.strokeText("" + s1, 175, 400);
@@ -32,7 +32,7 @@ export function displayLine(): void {
 	canvasContext.fillRect(398, 0, 4, 800);
 }
 
-export function displayLaunchError(message: string) {
+export function displayLaunchError(message: string): void {
 	errorMessage.textContent = message;
 	errorMessage.classList.remove("opacity-0");
 	errorMessage.classList.add("opacity-100");
@@ -42,7 +42,7 @@ export function displayLaunchError(message: string) {
 	}, 1000);
 }
 
-export function displayWinner(winner: string) {
+export function displayWinner(winner: string): void {
 	canvasContext.font = "50px Arial";
 	canvasContext.strokeStyle = "white";
 	canvasContext.strokeText("Tournament winner: " + winner, 100, 200);
@@ -50,7 +50,7 @@ export function displayWinner(winner: string) {
 }
 
 const nextMatchP: HTMLParagraphElement = document.getElementById("nextMatch") as HTMLParagraphElement;
-export function displayNextMatch(content: string) {
+export function displayNextMatch(content: string): void {
 	console.log(content);
 	nextMatchP.textContent = content;
 }

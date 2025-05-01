@@ -60,7 +60,7 @@ function handlePlayerMoves(): void {
 			return reply.status(400).send({ error: "Missing playerId and direction" });
 		}
 
-		const { playerId, direction } = req.body as { playerId: string; direction: string };
+		const { playerId, direction }: { playerId: string; direction: string } = req.body as { playerId: string; direction: string };
 
 		if (!playerId || !direction) {
 			return reply.status(400).send({ error: "Missing playerId or direction" });
@@ -92,7 +92,7 @@ function handlePlayerMoves(): void {
 }
 
 // A refaire selon le systeme de tournois
-function handleGameInit() {
+function handleGameInit(): void {
 	app.post("/game/init/game", async (req, reply) => {
 		const userpass: string | string[] | undefined = req.headers['x-api-password'];
 		if (!userpass) {
@@ -121,7 +121,7 @@ function handleGameInit() {
 	})
 }
 
-function handleTournamentInit() {
+function handleTournamentInit(): void {
 	app.post("/game/init/tournament", async (req, reply) => {
 		
 		const userpass: string | string[] | undefined = req.headers['x-api-password'];
