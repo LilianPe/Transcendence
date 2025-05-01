@@ -27,6 +27,8 @@ import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
+import { Contract, Wallet,  } from "ethers";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -35,18 +37,30 @@ const contractJson = JSON.parse(readFileSync(join('/app/src/Blockchain/Tournamen
 
 dotenv.config();
 
-const PRIVATE_KEY = process.env.METAMASK_KEY;
+let PRIVATE_KEY = process.env.METAMASK_KEY;
 const CONTRACT_ADDRESS = "0x8440a11d49af29b2E0aED5dD485D0b0848bCB9fe";
 const ABI = contractJson.abi;
 
-if (!PRIVATE_KEY)
+let wallet: Wallet | undefined;
+let provider;
+let contract: Contract;
+
+if (PRIVATE_KEY)
 {
-	throw new Error("Clé privée Metamask non définie dans .env (METAMASK_KEY)");
+	provider = new ethers.providers.JsonRpcProvider("https://api.avax-test.network/ext/bc/C/rpc"); // Fuji testnet
+	wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+	contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
 }
 
-const provider = new ethers.providers.JsonRpcProvider("https://api.avax-test.network/ext/bc/C/rpc"); // Fuji testnet
-const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
-const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
+if (!PRIVATE_KEY)
+{
+	PRIVATE_KEY="0x0";
+	console.log("Clé privée Metamask non définie dans .env (METAMASK_KEY)");
+
+    provider = new ethers.providers.JsonRpcProvider("https://api.avax-test.network/ext/bc/C/rpc");
+    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
+    console.log("✅ Contract connected in read-only mode");
+}
 
 //. VIEW FUNCTIONS :
 
@@ -126,6 +140,11 @@ export async function getStatusInBlockchain( tournaments_count: number )
 export async function SC_addTournament( players: number[], scores: number[] )
 {
 	console.log("Calling addTournament() from Blockchain SC");
+
+    if (!contract.signer || !contract.signer._isSigner) {
+        console.error("❌ Cannot call addTournament(): No wallet (signer) connected.");
+        return null;
+    }
 
 	try
 	{
