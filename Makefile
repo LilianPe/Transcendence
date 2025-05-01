@@ -81,6 +81,7 @@ env:
 	# ELK credentials
 	ELASTIC_USERNAME=
 	ELASTIC_PASSWORD=
+	METAMASK_KEY=
 	EOF
 
 .PHONY: start stop logs build restart backend frontend reset update
