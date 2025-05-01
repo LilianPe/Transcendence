@@ -77,10 +77,12 @@ services:
       - "9300:9300"
     volumes:
       - esdata:/usr/share/elasticsearch/data
-      - ./certs:/usr/share/elasticsearch/config/certs:ro
+      - ./elk/elasticsearch/backup:/usr/share/elasticsearch/backup:rw
       - ./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./certs:/usr/share/elasticsearch/config/certs:ro
     networks:
       - elknet
+
 
   # ─────── KIBANA ───────
   kibana:
@@ -99,6 +101,7 @@ services:
       - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/usr/share/kibana/config/certs/ca.crt
       - ELASTICSEARCH_SSL_VERIFICATIONMODE=certificate
     volumes:
+      - ./elk/filebeat/config/ilm_policy.json:/usr/share/kibana/config/ilm_policy.json:ro
       - ./certs:/usr/share/kibana/config/certs:ro
       - ./elk/kibana/config/setup_kibana.sh:/usr/local/bin/setup_kibana.sh:ro
       - ./elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
@@ -117,7 +120,9 @@ services:
     ports:
       - "9500:5000"
     volumes:
+      - ./elk/logstash/pipeline/logstash.yml:/usr/share/logstash/config/logstash.yml
       - ./elk/logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./elk/logstash/config/ilm_policy.json:/usr/share/logstash/config/ilm_policy.json:ro
       - ./certs:/usr/share/logstash/config/certs:ro
     depends_on:
       - elasticsearch
@@ -129,14 +134,35 @@ services:
     image: docker.elastic.co/beats/filebeat:8.12.1
     container_name: filebeat
     env_file: .env
-    volumes:
-      - ./logs:/logs:ro
-      - ./elk/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./certs:/usr/share/filebeat/config/certs:ro
     depends_on:
       - elasticsearch
     networks:
       - elknet
+    volumes:
+      - ./elk/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./elk/filebeat/config/ilm_policy.json:/usr/share/filebeat/config/ilm_policy.json:ro
+      - ./logs:/logs:ro
+      - ./certs:/usr/share/filebeat/config/certs:ro
+    command: >
+      sh -c '
+        # 1) Wait for ES (with basic auth)
+        until curl -s -u "${ELASTIC_USERNAME}:${ELASTIC_PASSWORD}" \
+            --cacert /usr/share/filebeat/config/certs/ca.crt \
+            https://elasticsearch:9200; do
+          echo "Waiting for Elasticsearch…"
+          sleep 2
+        done
+
+        # 2) Install ILM policy, index template & alias
+        filebeat setup --index-management \
+          -E output.elasticsearch.hosts=["https://elasticsearch:9200"] \
+          -E output.elasticsearch.username=${ELASTIC_USERNAME} \
+          -E output.elasticsearch.password=${ELASTIC_PASSWORD} \
+          -E output.elasticsearch.ssl.certificate_authorities=["/usr/share/filebeat/config/certs/ca.crt"]
+
+        # 3) Start shipping
+        exec filebeat -e
+      '
       
 volumes:
   esdata:

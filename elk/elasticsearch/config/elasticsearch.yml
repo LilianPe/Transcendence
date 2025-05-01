@@ -6,6 +6,9 @@ network.host: 0.0.0.0
 # ─── Single-node mode (no need for cluster.initial_master_nodes) ───
 discovery.type: single-node
 
+# ─── backup ───
+path.repo: [ "/usr/share/elasticsearch/backup" ]
+
 # ─── Security + TLS ───
 xpack.security.enabled: true
 

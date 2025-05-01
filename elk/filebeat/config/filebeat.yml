@@ -4,10 +4,16 @@ filebeat.inputs:
   paths:
     - /logs/*.log
 
+setup.ilm.enabled: true
+setup.ilm.policy_name: "logs_retention"
+setup.ilm.rollover_alias: "filebeat"
+setup.ilm.pattern: "{now/d}-000001"
+setup.ilm.policy_file: "/usr/share/filebeat/config/ilm_policy.json"
+setup.ilm.overwrite: true 
+
 output.elasticsearch:
   hosts: ["https://elasticsearch:9200"]
   protocol: "https"
   username: "${ELASTIC_USERNAME}"
   password: "${ELASTIC_PASSWORD}"
   ssl.certificate_authorities: [ "/usr/share/filebeat/config/certs/ca.crt" ]
-  index: "filebeat-%{+yyyy.MM.dd}"
