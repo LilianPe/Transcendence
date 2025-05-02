@@ -22,7 +22,7 @@ const options = {
     },
 };
 export const app = fastify(options);
-allowCors("https://localhost:3000", ["POST", "GET"], ["Content-Type", "X-Client-Id", "x-api-password"]);
+allowCors("https://localhost:3100", ["POST", "GET"], ["Content-Type", "X-Client-Id", "x-api-password"]);
 handleApiRequest();
 // ELK
 registerHooks(app);

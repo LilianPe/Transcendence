@@ -8,8 +8,8 @@ services:
       - ./certs/fullchain.crt:/tmp/ssl/transcendence.crt:ro
       - ./certs/transcendence.key:/tmp/ssl/transcendence.key:ro
       - ./certs/ca.crt:/tmp/ssl/ca.crt:ro
-    ports:
-      - "3000:3000"
+    # ports:
+    #   - "3000:3000"
     networks:
       - webnet
       - elknet
@@ -48,7 +48,9 @@ services:
       VAULT_ADDR: https://localhost:8300
     volumes:
       - shared-data:/vault/token/
-      - ./certs:/tmp/ssl:ro
+      - ./certs/fullchain.crt:/tmp/ssl/transcendence.crt:ro
+      - ./certs/transcendence.key:/tmp/ssl/transcendence.key:ro
+      - ./certs/ca.crt:/tmp/ssl/ca.crt:ro
     networks:
       - webnet
       - elknet
@@ -62,7 +64,9 @@ services:
     networks:
       - webnet
     volumes:
-      - ./certs:/tmp/ssl:ro
+      - ./certs/fullchain.crt:/tmp/ssl/transcendence.crt:ro
+      - ./certs/transcendence.key:/tmp/ssl/transcendence.key:ro
+      - ./certs/ca.crt:/tmp/ssl/ca.crt:ro
     depends_on:
       - frontend
       - backend
