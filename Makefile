@@ -75,6 +75,7 @@ certs:
 	
 	rm -f certs/transcendence.csr certs/openssl.cnf certs/*.srl
 
+	chmod 777 certs/ca.crt certs/ca.key certs/fullchain.crt certs/transcendence.key
 
 env:
 	cat > .env <<-'EOF'
