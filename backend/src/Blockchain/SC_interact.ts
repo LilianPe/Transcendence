@@ -41,12 +41,14 @@ let PRIVATE_KEY = process.env.METAMASK_KEY;
 const CONTRACT_ADDRESS = "0x8440a11d49af29b2E0aED5dD485D0b0848bCB9fe";
 const ABI = contractJson.abi;
 
+let key_is_valid : Boolean;
 let wallet: Wallet | undefined;
-let provider;
 let contract: Contract;
+let provider;
 
 if (PRIVATE_KEY)
 {
+	key_is_valid = true;
 	provider = new ethers.providers.JsonRpcProvider("https://api.avax-test.network/ext/bc/C/rpc"); // Fuji testnet
 	wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 	contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
@@ -54,9 +56,9 @@ if (PRIVATE_KEY)
 
 if (!PRIVATE_KEY)
 {
+	key_is_valid = false;
 	PRIVATE_KEY="0x0";
 	console.log("Clé privée Metamask non définie dans .env (METAMASK_KEY)");
-
     provider = new ethers.providers.JsonRpcProvider("https://api.avax-test.network/ext/bc/C/rpc");
     contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
     console.log("✅ Contract connected in read-only mode");
@@ -141,10 +143,11 @@ export async function SC_addTournament( players: number[], scores: number[] )
 {
 	console.log("Calling addTournament() from Blockchain SC");
 
-    if (!contract.signer || !contract.signer._isSigner) {
-        console.error("❌ Cannot call addTournament(): No wallet (signer) connected.");
-        return null;
-    }
+	if (!contract.signer || !contract.signer._isSigner || !key_is_valid)
+	{
+		console.error("❌ No wallet (signer) connected.");
+		return null;
+	}
 
 	try
 	{
@@ -172,6 +175,12 @@ export async function SC_removeTournament( tournament_id: number )
 {
 	console.log("Calling removeTournament() from Blockchain SC");
 
+	if (!contract.signer || !contract.signer._isSigner || !key_is_valid)
+	{
+		console.error("❌ No wallet (signer) connected.");
+		return null;
+	}
+
 	try
 	{
 		const tx = await contract.removeTournament( tournament_id );
@@ -192,6 +201,12 @@ export async function SC_removeTournament( tournament_id: number )
 export async function SC_clearALL()
 {
 	console.log("Calling clearALL() from Blockchain SC");
+
+	if (!contract.signer || !contract.signer._isSigner || !key_is_valid)
+	{
+		console.error("❌ No wallet (signer) connected.");
+		return null;
+	}
 
 	try
 	{
