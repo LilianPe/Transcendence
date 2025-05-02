@@ -43,25 +43,25 @@ export const registeredClients = new Map();
 handleWebsocket();
 // Inscription
 app.post("/inscription", async (request, reply) => {
-    const pseudo = request.body.pseudo;
-    const mail = request.body.mail;
-    const password = request.body.password;
+    const { pseudo, mail, password } = request.body;
     const id = request.headers["x-client-id"];
     console.log(`new inscription request: ${pseudo} ${mail} ${password}`);
     if (!pseudo || !mail || !password) {
-        return reply.status(400).send({ message: "Incription failed" });
+        return reply.status(400).send({ message: "Champs manquants" });
     }
-    const client = clients.get(id);
-    checkUserMAIL(mail, (isValid) => {
-        if (isValid) {
-            console.log('L\'adresse e-mail est disponible.');
-            createUser(mail, password, pseudo);
+    try {
+        const isAvailable = await checkUserMAIL(mail);
+        if (!isAvailable) {
+            console.log("L'adresse e-mail existe déjà.");
+            return reply.status(400).send({ message: "Email déjà utilisé" });
         }
-        else {
-            console.log('L\'adresse e-mail existe déjà.');
-            return reply.status(400).send({ message: "Incription failed" });
-        }
-    });
+        await createUser(mail, password, pseudo);
+        return reply.status(200).send({ message: "Inscription réussie" });
+    }
+    catch (error) {
+        console.error("Erreur lors de l'inscription:", error);
+        return reply.status(500).send({ message: "Erreur serveur" });
+    }
 });
 // Connexion
 function alreadyRegistered(mail) {
