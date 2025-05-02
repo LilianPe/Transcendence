@@ -32,49 +32,7 @@ reset:
 	docker system prune -af --volumes
 	docker compose up --build
 
-init: certs env
-	@echo "You should feed your .env !"
-
-certs:
-	mkdir -p certs
-
-	cat > certs/openssl.cnf <<-'EOF'
-	[ req ]
-	distinguished_name = req_distinguished_name
-	x509_extensions = v3_req
-	prompt = no
-
-	[ req_distinguished_name ]
-	CN = localhost
-
-	[ v3_req ]
-	subjectAltName = @alt_names
-
-	[ alt_names ]
-	DNS.1 = localhost
-	DNS.2 = elasticsearch
-	DNS.3 = kibana
-	EOF
-
-	openssl genrsa -out certs/ca.key 4096
-	
-	openssl req -x509 -new -nodes -key certs/ca.key \
-		-sha256 -days 3650 \
-		-subj "/CN=MyLocalCA" \
-		-out certs/ca.crt
-	
-	openssl genrsa -out certs/transcendence.key 4096
-	
-	openssl req -new -key certs/transcendence.key \
-		-config certs/openssl.cnf \
-		-out certs/transcendence.csr
-	openssl x509 -req -in certs/transcendence.csr \
-		-CA certs/ca.crt -CAkey certs/ca.key -CAcreateserial \
-		-out certs/fullchain.crt -days 3650 \
-		-extensions v3_req -extfile certs/openssl.cnf
-	
-	rm -f certs/transcendence.csr certs/openssl.cnf certs/*.srl
-
+init: 
 	chmod 777 certs/ca.crt certs/ca.key certs/fullchain.crt certs/transcendence.key
 
 env:
