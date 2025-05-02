@@ -1,3 +1,4 @@
+import { currentPlayerOff } from "../frontend.js";
 import { PlayerType } from "../Offline/interfaces.js";
 import { Ball } from "./Ball.js";
 import { Player, PlayerMoves } from "./Player.js";
@@ -22,7 +23,7 @@ export class Game {
     public update(move: string, name: string): void {
         let player;
         if (name == PlayerType.Player) player = this.player1;
-        else if (name == PlayerType.Ai) player = this.player2;
+        else if ((name == PlayerType.Ai && currentPlayerOff == PlayerType.Ai) || (name == PlayerType.Player2 && currentPlayerOff == PlayerType.Player2)) player = this.player2;
         else return;
         switch (move) {
             case PlayerMoves.MoveUp:

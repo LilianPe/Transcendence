@@ -1,4 +1,5 @@
-import { handleKeyPress, keys, launchButtonAddEvent, launchTournamentButtonAddEvent, online, onlineButtonAddEvent, registerTournamentButtonAddEvent } from "./events.js";
+import { handleKeyPress, keys, launchButtonAddEvent, launchTournamentButtonAddEvent, online, onlineButtonAddEvent, playerAiButtonAddEvent, registerTournamentButtonAddEvent } from "./events.js";
+import { PlayerType } from "./Offline/interfaces.js";
 import { game, offMove } from "./Offline/offlineManager.js";
 import { displayLine as displayLineOff, displayScore as displayScoreOff, drawLeftPlayer as drawLeftPlayerOff, drawRightPlayer as drawRightPlayerOff } from "./Offline/pongDisplayOff.js";
 import { displayLaunchError, displayLine, displayScore, displayWinner, drawLeftPlayer, drawRightPlayer } from "./Online/pongDisplayOnline.js";
@@ -30,7 +31,13 @@ export let canvasContext: CanvasRenderingContext2D = canvas.getContext("2d") as 
 
 
 export const onOffButton: HTMLButtonElement = document.getElementById("onOffButton") as HTMLButtonElement;
+export const playerAi: HTMLButtonElement = document.getElementById("PlayerAi") as HTMLButtonElement;
+export let currentPlayerOff: PlayerType = PlayerType.Player2;
+export function setCurrentPlayerOff(type: PlayerType) {
+	currentPlayerOff = type;
+}
 onlineButtonAddEvent();
+playerAiButtonAddEvent();
 
 export const launchButton: HTMLButtonElement = document.getElementById("Launch") as HTMLButtonElement;
 launchButtonAddEvent();
@@ -106,8 +113,10 @@ function updateMoves(): void {
 		if (keys.s) ws.send(PlayerMoves.MoveDown);
 	} 
 	else {
-		if (keys.w) offMove(PlayerMoves.MoveUp);
-		if (keys.s) offMove(PlayerMoves.MoveDown);
+		if (keys.w) offMove(PlayerType.Player, PlayerMoves.MoveUp);
+		if (keys.s) offMove(PlayerType.Player, PlayerMoves.MoveDown);
+		if (keys.j) offMove(PlayerType.Player2, PlayerMoves.MoveUp);
+		if (keys.n) offMove(PlayerType.Player2, PlayerMoves.MoveDown);
 	}
     requestAnimationFrame(updateMoves);
 }
