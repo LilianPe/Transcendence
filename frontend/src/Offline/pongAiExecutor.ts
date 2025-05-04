@@ -25,11 +25,9 @@ function updateMoves(): void {
 	if (Math.abs(game.getGame().getPlayer2().getY() - AI_y_target) > 10)
 	{
 		if (aiKeys.up) {
-			offMove(PlayerMoves.MoveUp, PlayerType.Ai);
-		}
+			offMove(PlayerType.Ai, PlayerMoves.MoveUp, PlayerType.Ai);		}
 		if (aiKeys.down) {
-			offMove(PlayerMoves.MoveDown, PlayerType.Ai);
-		}
+			offMove(PlayerType.Ai, PlayerMoves.MoveDown, PlayerType.Ai);		}
 	}
 	else
 	{

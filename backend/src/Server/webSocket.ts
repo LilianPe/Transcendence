@@ -12,7 +12,7 @@ import { WebSocket } from "ws";
 import * as DB from "../Database/requests.js";
 import { Match } from "../Pong/Match.js";
 
-import { Ref, Tournament } from "../Pong/Tournament.js";
+import { Ref } from "../Pong/Tournament.js";
 
 const invitations: Map<number, number> = new Map<number, number>();
 
@@ -23,7 +23,6 @@ export interface Client {
 
 export const registeredTournament: Map<string, Player> = new Map();
 
-
 export function a_game_is_already_running(): boolean
 {
 	if (game.getGame() && (game.getSolo()))
@@ -33,25 +32,19 @@ export function a_game_is_already_running(): boolean
 	return false;
 }
 
-
-function registerToTournament(id: string): void
-{
+function registerToTournament(id: string): void {
 	const client: Client | undefined = registeredClients.get(id);
-	if (client)
-	{
-		if (registeredTournament.get(id))
-		{
+	if (client) {
+		if (registeredTournament.get(id)) {
 			clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "You are already registered."}));
 		}
-		else
-		{
+		else {
 			const player: Player = client.player;
 			registeredTournament.set(id, player);
 			// player.register pour set le name a recuperer dans la database
 		}
 	}
-	else
-	{
+	else {
 		clients.get(id)?.socketStream.send(JSON.stringify({type: "error", error: "You must be registered."}));
 	}
 }
@@ -424,12 +417,25 @@ async function tryUnblockPlayer(clientID: string, message: string | Buffer<Array
 	await DB.UnblockPlayer( blocker.player.getDBId(), blocked.player.getDBId() );
 }
 
+function isBusy(id: string): string {
+	if (game.getGame().getPlayer1().getId() == id || game.getGame().getPlayer2().getId() == id) {
+		return "You are currently playing. Please wait for the end.";
+	}
+	if (registeredClients.get(id)) {
+		return "You are subscribed into a tournament. Please wait for the end.";
+	}
+	return "No";
+}
+
 export function handleWebsocket(): void {
 	app.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
 	app.register(async function (fastify) {
 		fastify.get("/ws", { websocket: true }, (socket: SocketStream, req: FastifyRequest) => {
 			logToELK(createLogEntry(LogLevel.INFO, LogType.REQUEST, "🔌 WS Connected from " + req.ip));
-			const clientID: string = crypto.randomUUID();
+			let clientID: string = crypto.randomUUID();
+			while (clients.get(clientID)) {
+				clientID = crypto.randomUUID();
+			} 
 			const client: Client = {
 				player: new Player(clientID),
 				socketStream: socket
@@ -485,6 +491,9 @@ export function handleWebsocket(): void {
 				{
 					tryUnblockPlayer( clientID, message );
 					return;
+				}
+				else if (message.toString() == "switchOff") {
+					socket.send(JSON.stringify({type: "isBusy", isBusy: isBusy(clientID)}))
 				}
 				else // si c est un LIVE CHAT pas besoin
 					game.update(message.toString(), clients, registeredTournament, clientID);

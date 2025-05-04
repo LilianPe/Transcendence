@@ -13,6 +13,7 @@ interface message {
     clientId: string;
     result: string;
     nextMatch: string;
+	isBusy: string;
 }
 export let currentState: GameState | null = null;
 export let targetState: GameState | null = null;
@@ -54,6 +55,9 @@ export function handleWebSocket(id: Ref<string>) {
 		 else if (content.type == "state") {
 			targetState = content.state;
 			if (!currentState) currentState = { ...targetState };
+		}
+		else if (content.type == "isBusy") {
+			switchOffline(content.isBusy);
 		}
 		else if (content.type == "result") {
 			console.log(content);

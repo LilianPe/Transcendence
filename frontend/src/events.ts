@@ -1,22 +1,54 @@
-import { launchButton, launchTournamentButton, onOffButton, registerTournamentButton, ws } from "./frontend.js";
-import { offReset, offStart, stopOff } from "./Offline/offlineManager.js";
+import { launchButton, launchTournamentButton, onOffButton, playerAi, registerTournamentButton, setCurrentPlayerOff, ws } from "./frontend.js";
+import { PlayerType } from "./Offline/interfaces.js";
+import { game, offReset, offStart, stopOff } from "./Offline/offlineManager.js";
+import { displayLaunchError } from "./Online/pongDisplayOnline.js";
 
 export let online: boolean = true;
 export function onlineButtonAddEvent(): void {
 	onOffButton.addEventListener("click", () => {
 		if (onOffButton.textContent == "Play Offline") {
-			online = false;
-			onOffButton.textContent = "Play Online";
-			offReset();
-			console.log("Playing offline");
+			ws.send("switchOff");
 		} 
 		else {
 			online = true;
+			playerAi.classList.add("hidden");
 			onOffButton.textContent = "Play Offline";
 			stopOff();
 			console.log("Playing online");
 		}
 	}); 
+}
+
+export function switchOffline(msg: string) {
+	if (msg == "No") {
+		console.log("No");
+		online = false;
+		playerAi.classList.remove("hidden");
+		onOffButton.textContent = "Play Online";
+		offReset();
+		console.log("Playing offline");
+	}
+	else {
+		console.log(msg);
+		displayLaunchError(msg);
+	}
+}
+
+export function playerAiButtonAddEvent(): void {
+	playerAi.addEventListener("click", () => {
+		if (game.getGame().getRound().isRunning()) {
+			displayLaunchError("Can't switch during a game.");
+			return ;
+		}
+		if (playerAi.textContent == "Player") {
+			playerAi.textContent = "Ai";
+			setCurrentPlayerOff(PlayerType.Ai);
+		}
+		else {
+			playerAi.textContent = "Player";
+			setCurrentPlayerOff(PlayerType.Player2);
+		}
+	} )
 }
 
 export function launchButtonAddEvent(): void {

@@ -6,8 +6,8 @@ import { startAI, stopAI } from "./pongAiExecutor.js";
 
 export let game = new Pong();
 
-export function offMove(move: PlayerMoves, type: PlayerType = PlayerType.Player): void {
-	game.update(move, type);
+export function offMove(player: PlayerType, move: PlayerMoves, type: PlayerType = PlayerType.Player): void {
+	game.update(move, player);
 }
 export function offStart(): void {
 	if (game.getGame().getRound().isRunning()) {
