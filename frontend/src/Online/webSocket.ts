@@ -1,4 +1,4 @@
-import { online } from "../events.js";
+import { online, switchOffline } from "../events.js";
 import { Ref, ws } from "../frontend.js";
 import { addMessageToHistory } from "../Live_chat/Live_chat.js";
 import { GameState } from "../Pong/Game.js";
