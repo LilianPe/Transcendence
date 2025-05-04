@@ -1,7 +1,6 @@
-import sqlite3 from 'sqlite3';
-import path from 'path';
 import fs from 'fs/promises';
-import axios from 'axios';
+import path from 'path';
+import sqlite3 from 'sqlite3';
 import { Player } from '../Pong/Player.js';
 
 const { Database } = sqlite3;
@@ -70,32 +69,34 @@ export function getMailFromId(id: number, callback: (mail: string | null) => voi
 export async function createUser(mail: string, password: string, pseudo: string) {
 	const db = openDatabase();
     
-	db.serialize(() => {
-	  db.run(`CREATE TABLE IF NOT EXISTS user (
-		  id INTEGER PRIMARY KEY AUTOINCREMENT,
-		  mail TEXT NOT NULL UNIQUE,
-		  password TEXT NOT NULL,
-		  pseudo TEXT,
-		  avatar TEXT,
-		  victories INTEGER DEFAULT 0,
-		  defeats INTEGER DEFAULT 0
-	  )`, (err) => {
-		  if (err) {
-			  console.error('Erreur création table:', err.message);
-		  } else {
-			  console.log('Table créée ou existante.');
-		  }
-	  });
-  
-	  db.run(`INSERT INTO user (mail, password, pseudo) VALUES (?, ?, ?)`, [mail, password, pseudo], async function(err) {
-		  if (err) {
-			  console.error('Erreur insertion user:', err.message);
-		  } else {
-			  console.log(`User ${pseudo} inséré avec ID ${this.lastID}`);
-		  }
-		  db.close();
-	  });
-	});
+	return new Promise((resolve, reject) => {
+		db.serialize(() => {
+		  db.run(`CREATE TABLE IF NOT EXISTS user (
+			  id INTEGER PRIMARY KEY AUTOINCREMENT,
+			  mail TEXT NOT NULL UNIQUE,
+			  password TEXT NOT NULL,
+			  pseudo TEXT,
+			  avatar TEXT,
+			  victories INTEGER DEFAULT 0,
+			  defeats INTEGER DEFAULT 0
+		  )`, (err) => {
+			  if (err) {
+				  console.error('Erreur création table:', err.message);
+			  } else {
+				  console.log('Table créée ou existante.');
+			  }
+		  });
+	  
+		  db.run(`INSERT INTO user (mail, password, pseudo) VALUES (?, ?, ?)`, [mail, password, pseudo], async function(err) {
+			  if (err) {
+				  console.error('Erreur insertion user:', err.message);
+			  } else {
+				  console.log(`User ${pseudo} inséré avec ID ${this.lastID}`);
+			  }
+			  db.close();
+		  });
+		});
+	})
   }
 
 interface UserRow {
@@ -150,50 +151,44 @@ export function checkUserID(mail: string, password: string, callback: (isValid: 
   }
   
 
-export function checkUserMAIL(mail: string, callback: (isValid: boolean) => void) {
-	
-    const db = openDatabase();
-    db.serialize(() => {
-        db.run(
-          `CREATE TABLE IF NOT EXISTS user (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            mail TEXT NOT NULL UNIQUE,
-			password TEXT NOT NULL,
-            pseudo TEXT,
-            avatar TEXT,
-            victories INTEGER DEFAULT 0,
-            defeats INTEGER DEFAULT 0
-          )`,
-          (err) => {
-            if (err) {
-              console.error('Erreur création table:', err.message);
-              callback(false);
-              db.close();
-              return;
-            }
-    
-        db.get('SELECT COUNT(*) AS count FROM user WHERE mail = ?', [mail], (err, row: UserRow) => {
-            if (err) {
-                console.error('Error querying user:', err.message);
-                callback(false);
-                db.close();
-                return;
-            }
-            if (!row) {
-                callback(false);
-                db.close();
-                return;
-            }
-            else {
-                callback(true);
-                db.close();
-                return
-            }
-          });
-        }
-      );
-    });
-}
+  export function checkUserMAIL(mail: string): Promise<boolean> {
+	return new Promise((resolve, reject) => {
+		const db = openDatabase();
+  
+		db.serialize(() => {
+			db.run(
+				`CREATE TABLE IF NOT EXISTS user (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					mail TEXT NOT NULL UNIQUE,
+					pseudo TEXT,
+					avatar TEXT,
+					victories INTEGER DEFAULT 0,
+					defeats INTEGER DEFAULT 0
+				)`,
+				(err) => {
+					if (err) {
+						console.error('Erreur création table:', err.message);
+						db.close();
+						return reject(err);
+					}
+  
+					db.get(
+						'SELECT COUNT(*) AS count FROM user WHERE mail = ?',
+						[mail],
+						(err, row: { count: number }) => {
+							db.close();
+							if (err) {
+								console.error('Erreur vérification email:', err.message);
+								return reject(err);
+							}
+							resolve(row.count === 0);
+						}
+					);
+				}
+			);
+		});
+	});
+  }
 
 export function getPseudo(mail: string): Promise<string | null> {
     const db = openDatabase();

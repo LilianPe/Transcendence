@@ -56,52 +56,32 @@ export const registeredClients: Map<string, Client> = new Map();
 
 handleWebsocket();
 
-// Registrations
-
-// app.post("/register", async (request, reply) => {
-//     const username: string = (request.body as { username: string }).username;
-// 	const id: string = request.headers["x-client-id"] as string;
-
-// 	console.log(`new registration request: ${username}`)
-//     if (!username) {
-//         return reply.status(400).send({message: "Username can't be blank"});
-//     }
-// 	const client: Client | undefined = clients.get(id);
-// 	if (client) {
-// 		client.player.register(username);
-// 		console.log(`Nouvel utilisateur enregistre: Id: ${id}, Name: ${username}`);
-// 		registeredClients.set(id, client);
-// 		reply.send({message: `Inscription reussie pour ${username}`})
-// 	}
-// 	else {
-// 		reply.status(500).send({message: "Internal Error"});
-// 	}
-// });
-
-
 // Inscription
 
 app.post("/inscription", async (request, reply) => {
-    const pseudo: string = (request.body as { pseudo: string }).pseudo;
-    const mail: string = (request.body as { mail: string }).mail;
-    const password: string = (request.body as { password: string }).password;
+    const { pseudo, mail, password } = request.body as { pseudo: string; mail: string; password: string };
+    const id = request.headers["x-client-id"] as string;
 
-	const id: string = request.headers["x-client-id"] as string;
+    console.log(`new inscription request: ${pseudo} ${mail} ${password}`);
 
-	console.log(`new inscription request: ${pseudo} ${mail} ${password}`)
     if (!pseudo || !mail || !password) {
-        return reply.status(400).send({message: "Incription failed"});
+        return reply.status(400).send({ message: "Champs manquants" });
     }
-	const client: Client | undefined = clients.get(id);
-    checkUserMAIL(mail, (isValid) => {
-        if (isValid) {
-            console.log('L\'adresse e-mail est disponible.');
-            createUser(mail, password, pseudo);
-        } else {
-            console.log('L\'adresse e-mail existe déjà.');
-            return reply.status(400).send({message: "Incription failed"});
+
+    try {
+        const isAvailable = await checkUserMAIL(mail);
+        if (!isAvailable) {
+            console.log("L'adresse e-mail existe déjà.");
+            return reply.status(400).send({ message: "Email déjà utilisé" });
         }
-    });
+
+        await createUser(mail, password, pseudo);
+        return reply.status(200).send({ message: "Inscription réussie" });
+
+    } catch (error) {
+        console.error("Erreur lors de l'inscription:", error);
+        return reply.status(500).send({ message: "Erreur serveur" });
+    }
 });
 
 // Connexion
