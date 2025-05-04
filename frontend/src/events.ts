@@ -7,11 +7,7 @@ export let online: boolean = true;
 export function onlineButtonAddEvent(): void {
 	onOffButton.addEventListener("click", () => {
 		if (onOffButton.textContent == "Play Offline") {
-			online = false;
-			playerAi.classList.remove("hidden");
-			onOffButton.textContent = "Play Online";
-			offReset();
-			console.log("Playing offline");
+			ws.send("switchOff");
 		} 
 		else {
 			online = true;
@@ -21,6 +17,21 @@ export function onlineButtonAddEvent(): void {
 			console.log("Playing online");
 		}
 	}); 
+}
+
+export function switchOffline(msg: string) {
+	if (msg == "No") {
+		console.log("No");
+		online = false;
+		playerAi.classList.remove("hidden");
+		onOffButton.textContent = "Play Online";
+		offReset();
+		console.log("Playing offline");
+	}
+	else {
+		console.log(msg);
+		displayLaunchError(msg);
+	}
 }
 
 export function playerAiButtonAddEvent(): void {

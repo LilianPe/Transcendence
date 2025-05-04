@@ -12,7 +12,7 @@ import { WebSocket } from "ws";
 import * as DB from "../Database/requests.js";
 import { Match } from "../Pong/Match.js";
 
-import { Ref, Tournament } from "../Pong/Tournament.js";
+import { Ref } from "../Pong/Tournament.js";
 
 const invitations: Map<number, number> = new Map<number, number>();
 
@@ -415,6 +415,16 @@ async function tryUnblockPlayer(clientID: string, message: string | Buffer<Array
 	await DB.UnblockPlayer( blocker.player.getDBId(), blocked.player.getDBId() );
 }
 
+function isBusy(id: string): string {
+	if (game.getGame().getPlayer1().getId() == id || game.getGame().getPlayer2().getId() == id) {
+		return "You are currently playing. Please wait for the end.";
+	}
+	if (registeredClients.get(id)) {
+		return "You are subscribed into a tournament. Please wait for the end.";
+	}
+	return "No";
+}
+
 export function handleWebsocket(): void {
 	app.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
 	app.register(async function (fastify) {
@@ -479,6 +489,9 @@ export function handleWebsocket(): void {
 				{
 					tryUnblockPlayer( clientID, message );
 					return;
+				}
+				else if (message.toString() == "switchOff") {
+					socket.send(JSON.stringify({type: "isBusy", isBusy: isBusy(clientID)}))
 				}
 				else // si c est un LIVE CHAT pas besoin
 					game.update(message.toString(), clients, registeredTournament, clientID);
